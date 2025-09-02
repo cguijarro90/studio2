@@ -53,7 +53,7 @@ export function useQuerySync() {
       }
       isInitialLoad.current = false;
     }
-  }, [searchParams, setCenter, setRadiusKm, setBiomassTypes, setPage]);
+  }, []); // Changed dependencies
 
   useEffect(() => {
     if (isInitialLoad.current) return;
@@ -81,7 +81,11 @@ export function useQuerySync() {
     } else {
       params.delete('page');
     }
+    
+    // Only push new state if search params changed
+    if (params.toString() !== new URLSearchParams(searchParams.toString()).toString()) {
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage, pathname, router, searchParams]);
+  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage]); // Dependencies are debounced
 }
