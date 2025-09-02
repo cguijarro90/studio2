@@ -121,7 +121,10 @@ export async function searchBiomass(
     return { items, total, page, limit };
   } catch (error) {
     console.error('Firestore Error:', error);
-    throw new Error('Failed to fetch data from Firestore.');
+    if (error instanceof Error) {
+        throw new Error(`Failed to fetch data from Firestore: ${error.message}`);
+    }
+    throw new Error('An unknown error occurred while fetching data from Firestore.');
   }
 }
 
