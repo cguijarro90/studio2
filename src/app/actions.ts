@@ -1,9 +1,35 @@
 'use server';
 
-import { BigQuery } from '@google-cloud/bigquery';
 import { z } from 'zod';
+import { getFirestore, GeoPoint } from 'firebase-admin/firestore';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { suggestBiomassTypes as suggestBiomassTypesFlow } from '@/ai/flows/suggest-biomass-types';
 import type { SearchResults, BiomassSource, BiomassType } from '@/lib/types';
+
+if (!getApps().length) {
+  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+    ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
+    : undefined;
+
+  if (!serviceAccount) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn(
+        'FIREBASE_SERVICE_ACCOUNT_KEY is not set. Firebase Admin SDK will not be initialized in production.'
+      );
+    } else {
+      // In development, we can allow unauthenticated access for local testing
+      // if you've configured Firestore rules accordingly.
+      console.log(
+        'FIREBASE_SERVICE_ACCOUNT_KEY not set. Using default credentials for development.'
+      );
+    }
+  }
+
+  initializeApp({
+    credential: serviceAccount ? cert(serviceAccount) : undefined,
+    projectId: process.env.GOOGLE_PROJECT_ID,
+  });
+}
 
 const searchSchema = z.object({
   lat: z.number(),
@@ -14,6 +40,26 @@ const searchSchema = z.object({
   limit: z.number().min(1).max(100),
 });
 
+function haversineDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371e3; // metres
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // in metres
+}
+
 export async function searchBiomass(
   params: z.infer<typeof searchSchema>
 ): Promise<SearchResults> {
@@ -23,69 +69,72 @@ export async function searchBiomass(
   }
 
   const { lat, lng, radius_m, types, page, limit } = validation.data;
-  const offset = (page - 1) * limit;
-
-  const bigquery = new BigQuery({
-    projectId: process.env.GOOGLE_PROJECT_ID,
-  });
-
-  const typesArray = types && types.length > 0 ? types : [];
-
-  const baseQuery = `
-    FROM \`${process.env.GOOGLE_PROJECT_ID}.${process.env.GOOGLE_BIGQUERY_DATASET}.${process.env.GOOGLE_BIGQUERY_TABLE}\`
-    WHERE ST_DWithin(geom, ST_GeogPoint(@lng, @lat), @radius_m)
-      AND (@types_len = 0 OR type IN UNNEST(@types))
-  `;
-
-  const countQuery = `SELECT count(*) as total ${baseQuery}`;
-  const dataQuery = `
-    SELECT
-      id, name, type, quantity,
-      ST_Distance(geom, ST_GeogPoint(@lng, @lat)) AS distance_m,
-      ST_AsGeoJSON(geom) AS geom_geojson
-    ${baseQuery}
-    ORDER BY distance_m ASC
-    LIMIT @limit OFFSET @offset
-  `;
-
-  const queryConfig = {
-    query: '',
-    params: {
-      lat,
-      lng,
-      radius_m,
-      types: typesArray,
-      types_len: typesArray.length,
-      limit,
-      offset,
-    },
-  };
 
   try {
-    const [[countResult], [dataResult]] = await Promise.all([
-      bigquery.query({ ...queryConfig, query: countQuery }),
-      bigquery.query({ ...queryConfig, query: dataQuery }),
-    ]);
+    const db = getFirestore();
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
+      db.collection('biomass_sources');
 
-    const total = countResult[0]?.total || 0;
-    const items = dataResult as BiomassSource[];
+    if (types && types.length > 0) {
+      query = query.where('type', 'in', types);
+    }
+
+    const snapshot = await query.get();
     
+    if (snapshot.empty) {
+        return { items: [], total: 0, page, limit };
+    }
+
+    const allItems: BiomassSource[] = snapshot.docs.map(doc => {
+      const data = doc.data();
+      const location = data.location as GeoPoint;
+      const distance = haversineDistance(
+        lat,
+        lng,
+        location.latitude,
+        location.longitude
+      );
+      
+      return {
+        id: doc.id,
+        name: data.name,
+        type: data.type,
+        quantity: data.quantity,
+        distance_m: distance,
+        geom_geojson: JSON.stringify({
+          type: 'Point',
+          coordinates: [location.longitude, location.latitude],
+        }),
+      };
+    });
+    
+    const filteredItems = allItems.filter(item => item.distance_m <= radius_m);
+
+    filteredItems.sort((a, b) => a.distance_m - b.distance_m);
+    
+    const total = filteredItems.length;
+    const offset = (page - 1) * limit;
+    const items = filteredItems.slice(offset, offset + limit);
+
     return { items, total, page, limit };
   } catch (error) {
-    console.error('BigQuery Error:', error);
-    throw new Error('Failed to fetch data from BigQuery.');
+    console.error('Firestore Error:', error);
+    throw new Error('Failed to fetch data from Firestore.');
   }
 }
 
-export async function suggestBiomassTypes(existingTypes: BiomassType[], dataDescription: string) {
-    try {
-        const result = await suggestBiomassTypesFlow({
-            existingTypes,
-            dataDescription,
-        });
-        return result;
-    } catch (error) {
-        console.error('AI suggestion error:', error);
-        throw new Error('Failed to get AI suggestions.');
-    }
+export async function suggestBiomassTypes(
+  existingTypes: BiomassType[],
+  dataDescription: string
+) {
+  try {
+    const result = await suggestBiomassTypesFlow({
+      existingTypes,
+      dataDescription,
+    });
+    return result;
+  } catch (error) {
+    console.error('AI suggestion error:', error);
+    throw new Error('Failed to get AI suggestions.');
+  }
 }
