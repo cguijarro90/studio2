@@ -6,30 +6,29 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { suggestBiomassTypes as suggestBiomassTypesFlow } from '@/ai/flows/suggest-biomass-types';
 import type { SearchResults, BiomassSource, BiomassType } from '@/lib/types';
 
-if (!getApps().length) {
+if (getApps().length === 0) {
   const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-
   if (serviceAccountString) {
-    const serviceAccount = JSON.parse(serviceAccountString);
-    initializeApp({
-      credential: cert(serviceAccount),
-      projectId: process.env.GOOGLE_PROJECT_ID,
-    });
-  } else {
-    if (process.env.NODE_ENV === 'production') {
-      console.warn(
-        'FIREBASE_SERVICE_ACCOUNT_KEY is not set. Firebase Admin SDK will not be initialized in production.'
-      );
-    } else {
-      // In development, we can allow unauthenticated access for local testing if configured.
-      console.log(
-        'FIREBASE_SERVICE_ACCOUNT_KEY not set. Using default credentials for development. Make sure your Firestore rules allow this.'
-      );
-      // Initialize without credentials for local dev against emulator or authenticated environment.
+    try {
+      const serviceAccount = JSON.parse(serviceAccountString);
+      initializeApp({
+        credential: cert(serviceAccount),
+        projectId: process.env.GOOGLE_PROJECT_ID,
+      });
+    } catch (e) {
+      console.error('Error parsing FIREBASE_SERVICE_ACCOUNT_KEY:', e);
+      // Fallback to default credentials if parsing fails
       initializeApp({
         projectId: process.env.GOOGLE_PROJECT_ID,
       });
     }
+  } else {
+    console.log(
+      'FIREBASE_SERVICE_ACCOUNT_KEY not set. Using default credentials for development.'
+    );
+    initializeApp({
+      projectId: process.env.GOOGLE_PROJECT_ID,
+    });
   }
 }
 
