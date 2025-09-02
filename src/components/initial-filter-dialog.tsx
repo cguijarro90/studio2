@@ -12,8 +12,17 @@ import {
 import { Button } from '@/components/ui/button';
 import FilterForm from './filter-form';
 
-export default function InitialFilterDialog() {
+type InitialFilterDialogProps = {
+    onApply: () => void;
+}
+
+export default function InitialFilterDialog({ onApply }: InitialFilterDialogProps) {
   const { isInitialDialogOpen, setIsInitialDialogOpen } = useBiomassStore();
+
+  const handleApply = () => {
+    onApply();
+    setIsInitialDialogOpen(false);
+  }
 
   return (
     <Dialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
@@ -25,11 +34,8 @@ export default function InitialFilterDialog() {
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
-          <FilterForm />
+          <FilterForm onSearch={handleApply} />
         </div>
-        <DialogFooter>
-          <Button onClick={() => setIsInitialDialogOpen(false)}>Apply</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

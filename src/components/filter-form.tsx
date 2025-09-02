@@ -31,11 +31,16 @@ const formSchema = z.object({
   }),
 });
 
-export default function FilterForm() {
+type FilterFormProps = {
+    onSearch: () => void;
+};
+
+export default function FilterForm({ onSearch }: FilterFormProps) {
   const {
     radiusKm,
     biomassTypes,
     overlays,
+    isLoading,
     setRadiusKm,
     setBiomassTypes,
     setOverlays,
@@ -55,12 +60,12 @@ export default function FilterForm() {
   useEffect(() => {
     form.reset({ biomassTypes, radiusKm, overlays });
   }, [biomassTypes, radiusKm, overlays, form]);
-
-  const { watch } = form;
+  
+  const { watch, handleSubmit } = form;
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      if (name === 'radiusKm' && value.radiusKm) {
+      if (name === 'radiusKm' && value.radiusKm !== undefined) {
         setRadiusKm(value.radiusKm);
       }
       if (name === 'biomassTypes' && value.biomassTypes) {
@@ -76,7 +81,7 @@ export default function FilterForm() {
   return (
     <>
       <Form {...form}>
-        <form className="space-y-6">
+        <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
           <div className="space-y-2">
              <Label>Location</Label>
              <PlacesAutocomplete />
@@ -87,8 +92,12 @@ export default function FilterForm() {
             name="biomassTypes"
             render={() => (
               <FormItem>
-                <div className="mb-4">
+                <div className="mb-4 flex items-center justify-between">
                   <FormLabel className="text-base">Biomass Types</FormLabel>
+                   <Button type="button" variant="outline" size="sm" onClick={() => setShowAiDialog(true)}>
+                        <Icons.ai className="mr-2 h-4 w-4" />
+                        Suggest
+                    </Button>
                 </div>
                 <div className="space-y-2">
                   {BIOMASS_TYPES.map((type) => (
@@ -102,9 +111,10 @@ export default function FilterForm() {
                             <Checkbox
                               checked={field.value?.includes(type)}
                               onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, type])
-                                  : field.onChange(field.value?.filter((value) => value !== type));
+                                const newValue = checked
+                                  ? [...field.value, type]
+                                  : field.value?.filter((value) => value !== type);
+                                field.onChange(newValue);
                               }}
                             />
                           </FormControl>
@@ -119,24 +129,18 @@ export default function FilterForm() {
             )}
           />
 
-          <Button type="button" variant="outline" size="sm" onClick={() => setShowAiDialog(true)}>
-            <Icons.ai className="mr-2 h-4 w-4" />
-            Suggest New Types
-          </Button>
-
-
           <FormField
             control={form.control}
             name="radiusKm"
             render={({ field: { value, onChange } }) => (
               <FormItem>
-                <FormLabel>Radius ({value.toFixed(1)} km)</FormLabel>
+                <FormLabel>Radius ({value ? value.toFixed(1) : '0.0'} km)</FormLabel>
                 <div className="flex items-center space-x-4">
                   <Slider
                     min={0.1}
                     max={200}
                     step={0.1}
-                    value={[value]}
+                    value={value ? [value] : [0]}
                     onValueChange={(vals) => onChange(vals[0])}
                     className="flex-1"
                   />
@@ -145,7 +149,7 @@ export default function FilterForm() {
                     min={0.1}
                     max={200}
                     step={0.1}
-                    value={value}
+                    value={value || 0}
                     onChange={(e) => onChange(e.target.valueAsNumber)}
                     className="w-24"
                   />
@@ -186,6 +190,11 @@ export default function FilterForm() {
                 )}
               />
           </div>
+          
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Buscando..." : "Buscar"}
+          </Button>
+
         </form>
       </Form>
       <AiSuggestionDialog open={showAiDialog} onOpenChange={setShowAiDialog} />

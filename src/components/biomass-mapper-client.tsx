@@ -3,7 +3,6 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
-import { useDebounce } from '@/hooks/use-debounce';
 import { searchBiomass } from '@/app/actions';
 import { APIProvider } from '@vis.gl/react-google-maps';
 
@@ -29,13 +28,8 @@ export default function BiomassMapperClient() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   useQuerySync();
 
-  const debouncedState = useDebounce(
-    { center, radiusKm, biomassTypes, page },
-    300
-  );
-
-  const performSearch = useCallback(async () => {
-    if (!debouncedState.center) {
+  const performSearch = useCallback(async (searchPage = page) => {
+    if (!center) {
       resetResults();
       return;
     }
@@ -43,11 +37,11 @@ export default function BiomassMapperClient() {
     setIsLoading(true);
     try {
       const results = await searchBiomass({
-        lat: debouncedState.center.lat,
-        lng: debouncedState.center.lng,
-        radius_m: debouncedState.radiusKm * 1000,
-        types: debouncedState.biomassTypes,
-        page: debouncedState.page,
+        lat: center.lat,
+        lng: center.lng,
+        radius_m: radiusKm * 1000,
+        types: biomassTypes,
+        page: searchPage,
         limit: 50,
       });
       setResults(results);
@@ -57,20 +51,26 @@ export default function BiomassMapperClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedState, setIsLoading, setResults, resetResults]);
+  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
 
   useEffect(() => {
-    performSearch();
-  }, [performSearch]);
+    // Perform search when page changes for pagination
+    if (center) {
+      performSearch(page);
+    }
+  }, [page]);
+
 
   useEffect(() => {
     if (!center) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCenter({
+          const newCenter = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
+          };
+          setCenter(newCenter);
+          performSearch();
         },
         () => {
           // Geolocation failed or was denied, open dialog
@@ -79,11 +79,16 @@ export default function BiomassMapperClient() {
         }
       );
     }
-  }, [center, setCenter, setIsInitialDialogOpen]);
+  }, [center, setCenter, setIsInitialDialogOpen, performSearch]);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return <div className="flex items-center justify-center h-screen bg-destructive text-destructive-foreground">Error: Google Maps API key is not configured.</div>;
+  }
+
+  const handleSearch = () => {
+    useBiomassStore.getState().setPage(1); // Reset to first page for new search
+    performSearch(1);
   }
 
   return (
@@ -93,7 +98,7 @@ export default function BiomassMapperClient() {
           <BiomassMap />
         </div>
         <div className="hidden md:flex md:flex-col h-full border-l border-border bg-card">
-          <SidePanel />
+          <SidePanel onSearch={handleSearch} />
         </div>
 
         {/* Mobile Panel */}
@@ -103,12 +108,12 @@ export default function BiomassMapperClient() {
                     <MobilePanelToggle />
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[85vw] p-0">
-                    <SidePanel />
+                    <SidePanel onSearch={handleSearch} />
                 </SheetContent>
             </Sheet>
         </div>
       </main>
-      <InitialFilterDialog />
+      <InitialFilterDialog onApply={handleSearch}/>
     </APIProvider>
   );
 }

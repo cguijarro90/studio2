@@ -5,7 +5,11 @@ import ResultsList from './results-list';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 
-export default function SidePanel() {
+type SidePanelProps = {
+  onSearch: () => void;
+};
+
+export default function SidePanel({ onSearch }: SidePanelProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b">
@@ -13,7 +17,7 @@ export default function SidePanel() {
         <p className="text-sm text-muted-foreground">Find biomass sources near you.</p>
       </div>
       <div className="p-4">
-        <FilterForm />
+        <FilterForm onSearch={onSearch} />
       </div>
       <Separator />
       <ScrollArea className="flex-1">
