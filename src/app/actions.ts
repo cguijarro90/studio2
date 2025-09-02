@@ -18,17 +18,11 @@ if (getApps().length === 0) {
     } catch (e) {
       console.error('Error parsing FIREBASE_SERVICE_ACCOUNT_KEY:', e);
       // Fallback to default credentials if parsing fails
-      initializeApp({
-        projectId: process.env.GOOGLE_PROJECT_ID,
-      });
+      initializeApp();
     }
   } else {
-    console.log(
-      'FIREBASE_SERVICE_ACCOUNT_KEY not set. Using default credentials for development.'
-    );
-    initializeApp({
-      projectId: process.env.GOOGLE_PROJECT_ID,
-    });
+    // Use Application Default Credentials
+    initializeApp();
   }
 }
 
