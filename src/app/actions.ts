@@ -1,30 +1,11 @@
 'use server';
 
 import { z } from 'zod';
-import { getFirestore, GeoPoint } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { BigQuery } from '@google-cloud/bigquery';
 import { suggestBiomassTypes as suggestBiomassTypesFlow } from '@/ai/flows/suggest-biomass-types';
 import type { SearchResults, BiomassSource, BiomassType } from '@/lib/types';
 
-if (getApps().length === 0) {
-  const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  if (serviceAccountString) {
-    try {
-      const serviceAccount = JSON.parse(serviceAccountString);
-      initializeApp({
-        credential: cert(serviceAccount),
-        projectId: process.env.GOOGLE_PROJECT_ID,
-      });
-    } catch (e) {
-      console.error('Error parsing FIREBASE_SERVICE_ACCOUNT_KEY:', e);
-      // Fallback to default credentials if parsing fails
-      initializeApp();
-    }
-  } else {
-    // Use Application Default Credentials
-    initializeApp();
-  }
-}
+const bigquery = new BigQuery();
 
 const searchSchema = z.object({
   lat: z.number(),
@@ -35,26 +16,6 @@ const searchSchema = z.object({
   limit: z.number().min(1).max(100),
 });
 
-function haversineDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371e3; // metres
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // in metres
-}
-
 export async function searchBiomass(
   params: z.infer<typeof searchSchema>
 ): Promise<SearchResults> {
@@ -64,60 +25,80 @@ export async function searchBiomass(
   }
 
   const { lat, lng, radius_m, types, page, limit } = validation.data;
+  const offset = (page - 1) * limit;
+
+  // The BigQuery table name should be in the format `project-id.dataset-id.table-id`
+  // You might need to adjust this based on your BigQuery setup.
+  const table = '`biomass-mapper.biomass.sources`';
+
+  // We use ST_GEOGRAPHY functions for geospatial queries.
+  // The query finds points within a given radius of the search center.
+  let query = `
+    SELECT
+      id,
+      name,
+      type,
+      quantity,
+      location,
+      ST_DISTANCE(location, ST_GEOGPOINT(@lng, @lat)) as distance_m
+    FROM ${table}
+    WHERE ST_D WITHIN(location, ST_GEOGPOINT(@lng, @lat), @radius_m)
+  `;
+
+  const queryParams: any = {
+    lng: lng,
+    lat: lat,
+    radius_m: radius_m,
+  };
+
+  if (types && types.length > 0) {
+    query += ` AND type IN UNNEST(@types)`;
+    queryParams.types = types;
+  }
+  
+  const countQuery = `SELECT COUNT(*) as count FROM (${query})`;
+
+  query += `
+    ORDER BY distance_m
+    LIMIT @limit
+    OFFSET @offset
+  `;
+  
+  queryParams.limit = limit;
+  queryParams.offset = offset;
 
   try {
-    const db = getFirestore();
-    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
-      db.collection('biomass_sources');
-
-    if (types && types.length > 0) {
-      query = query.where('type', 'in', types);
-    }
-
-    const snapshot = await query.get();
-    
-    if (snapshot.empty) {
-        return { items: [], total: 0, page, limit };
-    }
-
-    const allItems: BiomassSource[] = snapshot.docs.map(doc => {
-      const data = doc.data();
-      const location = data.location as GeoPoint;
-      const distance = haversineDistance(
-        lat,
-        lng,
-        location.latitude,
-        location.longitude
-      );
-      
-      return {
-        id: doc.id,
-        name: data.name,
-        type: data.type,
-        quantity: data.quantity,
-        distance_m: distance,
-        geom_geojson: JSON.stringify({
-          type: 'Point',
-          coordinates: [location.longitude, location.latitude],
-        }),
-      };
+    const [totalRows] = await bigquery.query({
+      query: countQuery,
+      params: queryParams,
     });
+    const total = totalRows[0].count;
     
-    const filteredItems = allItems.filter(item => item.distance_m <= radius_m);
+    if (total === 0) {
+      return { items: [], total: 0, page, limit };
+    }
 
-    filteredItems.sort((a, b) => a.distance_m - b.distance_m);
-    
-    const total = filteredItems.length;
-    const offset = (page - 1) * limit;
-    const items = filteredItems.slice(offset, offset + limit);
+    const [rows] = await bigquery.query({
+      query: query,
+      params: queryParams,
+    });
+
+    const items: BiomassSource[] = rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      type: row.type,
+      quantity: row.quantity,
+      distance_m: row.distance_m,
+      geom_geojson: JSON.stringify(row.location), // BigQuery returns GeoJSON object
+    }));
 
     return { items, total, page, limit };
   } catch (error) {
-    console.error('Firestore Error:', error);
+    console.error('BigQuery Error:', error);
     if (error instanceof Error) {
-        throw new Error(`Failed to fetch data from Firestore: ${error.message}`);
+        throw new Error(`Failed to fetch data from BigQuery: ${error.message}`);
     }
-    throw new Error('An unknown error occurred while fetching data from Firestore.');
+    throw new Error('An unknown error occurred while fetching data from BigQuery.');
   }
 }
 
