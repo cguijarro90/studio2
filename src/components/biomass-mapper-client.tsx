@@ -19,12 +19,12 @@ export default function BiomassMapperClient() {
     biomassTypes,
     page,
     searchInitiated,
-    setCenter,
     setIsLoading,
     setResults,
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
+    setPage
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -57,7 +57,7 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
   
-  // Effect for initial load: geolocate user and show help dialog if no params in URL
+  // Effect for initial load: show help dialog if no params in URL
   useEffect(() => {
     // This logic runs only on the very first load without any params
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
@@ -66,19 +66,6 @@ export default function BiomassMapperClient() {
       const timer = setTimeout(() => {
         setIsInitialDialogOpen(true);
       }, 2000);
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const newCenter = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setCenter(newCenter);
-        },
-        () => {
-          console.log("Geolocation failed or was denied.");
-        }
-      );
       
       return () => clearTimeout(timer);
     }
@@ -91,11 +78,11 @@ export default function BiomassMapperClient() {
     // so we check if a search has been initiated.
     // The initial search is handled by `handleSearch`.
     // The page is 1 on initial load, so this will only trigger on page > 1.
-    if (searchInitiated) {
+    if (searchInitiated && page > 1) {
         performSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, searchInitiated]);
   
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -107,9 +94,11 @@ export default function BiomassMapperClient() {
     if (!searchInitiated) {
         setSearchInitiated(true);
     }
+    
     // Reset to first page for any new search
-    if (page !== 1) {
-        useBiomassStore.getState().setPage(1); 
+    const currentPage = useBiomassStore.getState().page;
+    if (currentPage !== 1) {
+        setPage(1); 
     }
     performSearch(1);
   }
