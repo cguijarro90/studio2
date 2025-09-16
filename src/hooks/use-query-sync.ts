@@ -38,27 +38,29 @@ export function useQuerySync() {
       const params = new URLSearchParams(searchParams.toString());
       const lat = params.get('lat');
       const lng = params.get('lng');
-      const radius = params.get('radius');
-      const types = params.get('types');
-      const pageParam = params.get('page');
-      const lang = params.get('lang');
-
+      
       if (lat && lng) {
+        const radius = params.get('radius');
+        const types = params.get('types');
+        const pageParam = params.get('page');
+        const lang = params.get('lang');
+
         setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
         setSearchInitiated(true);
-      }
-      if (radius) {
-        setRadiusKm(parseFloat(radius));
-      }
-      if (types) {
-        const validTypes = types.split(',').filter(t => BIOMASS_TYPES.includes(t as BiomassType)) as BiomassType[];
-        setBiomassTypes(validTypes);
-      }
-      if (pageParam) {
-        setPage(parseInt(pageParam, 10));
-      }
-      if (lang === 'en' || lang === 'es') {
-        setLocale(lang);
+
+        if (radius) {
+          setRadiusKm(parseFloat(radius));
+        }
+        if (types) {
+          const validTypes = types.split(',').filter(t => BIOMASS_TYPES.includes(t as BiomassType)) as BiomassType[];
+          setBiomassTypes(validTypes);
+        }
+        if (pageParam) {
+          setPage(parseInt(pageParam, 10));
+        }
+        if (lang === 'en' || lang === 'es') {
+          setLocale(lang);
+        }
       }
       isInitialLoad.current = false;
     }

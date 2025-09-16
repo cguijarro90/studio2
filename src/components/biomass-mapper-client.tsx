@@ -20,6 +20,7 @@ export default function BiomassMapperClient() {
     radiusKm,
     biomassTypes,
     page,
+    searchInitiated,
     setCenter,
     setIsLoading,
     setResults,
@@ -39,7 +40,7 @@ export default function BiomassMapperClient() {
       return;
     }
     
-    setSearchInitiated(true);
+    if(!searchInitiated) setSearchInitiated(true);
     setIsLoading(true);
     try {
       const results = await searchBiomass({
@@ -57,13 +58,23 @@ export default function BiomassMapperClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults, setSearchInitiated]);
+  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults, searchInitiated, setSearchInitiated]);
   
+  useEffect(() => {
+    if (center && searchInitiated) {
+      performSearch();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+
   useEffect(() => {
     if (initialLoad) {
       const hasSearchParams = searchParams.has('lat');
       
-      if (!hasSearchParams) {
+      if (hasSearchParams && center) {
+        setSearchInitiated(true);
+      } else if (!hasSearchParams) {
         const timer = setTimeout(() => {
             setIsInitialDialogOpen(true);
         }, 2000);
@@ -85,7 +96,8 @@ export default function BiomassMapperClient() {
       }
       setInitialLoad(false);
     }
-  }, [initialLoad, searchParams, setCenter, setIsInitialDialogOpen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoad, searchParams, center]);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
