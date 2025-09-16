@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useCallback, useState } from 'react';
@@ -65,8 +66,11 @@ export default function BiomassMapperClient() {
               performSearch();
           }
       } else {
-        // No search params, show help dialog and try to geolocate.
-        setIsInitialDialogOpen(true);
+        // No search params, show help dialog after a delay and try to geolocate.
+        const timer = setTimeout(() => {
+            setIsInitialDialogOpen(true);
+        }, 2000);
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const newCenter = {
@@ -80,6 +84,8 @@ export default function BiomassMapperClient() {
             console.log("Geolocation failed or was denied.");
           }
         );
+        
+        return () => clearTimeout(timer);
       }
       setInitialLoad(false);
     }
