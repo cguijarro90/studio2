@@ -27,5 +27,6 @@
     "page": "Página {page} de {totalPages}",
     "previous": "Anterior",
     "next": "Siguiente",
-    "open_filters_results_sr": "Abrir Filtros y Resultados"
+    "open_filters_results_sr": "Abrir Filtros y Resultados",
+    "help": "Ayuda"
 }
