@@ -61,7 +61,7 @@ export default function BiomassMapperClient() {
       const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
       if (hasSearchParams) {
           // If there are search params, the query sync hook will handle setting the state.
-          // We can then trigger a search.
+          // We can then trigger a search when `center` is available.
           if (center) {
               performSearch();
           }
@@ -85,6 +85,7 @@ export default function BiomassMapperClient() {
           }
         );
         
+        // Cleanup the timer when the component unmounts
         return () => clearTimeout(timer);
       }
       setInitialLoad(false);
