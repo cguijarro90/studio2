@@ -4,7 +4,7 @@ import { BIOMASS_TYPES } from '@/lib/types';
 
 const initialState: AppState = {
   center: null,
-  radiusKm: 50,
+  radiusKm: 20,
   biomassTypes: [...BIOMASS_TYPES],
   overlays: {
     markers: true,
