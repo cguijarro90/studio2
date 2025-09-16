@@ -14,12 +14,12 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 p-4">
+    <div className="flex items-center justify-center gap-1 p-4">
       <Button
         variant="ghost"
         size="icon"
         onClick={() => switchLanguage('es')}
-        className={cn('p-1 h-8 w-10 rounded-sm', locale === 'es' && 'ring-2 ring-primary')}
+        className={cn('p-1 h-6 w-8 rounded-sm', locale === 'es' && 'ring-2 ring-primary')}
       >
         <img src="https://flagcdn.com/es.svg" alt="Español" className="w-full h-full object-cover rounded-sm"/>
         <span className="sr-only">Español</span>
@@ -28,7 +28,7 @@ export default function LanguageSwitcher() {
         variant="ghost"
         size="icon"
         onClick={() => switchLanguage('en')}
-        className={cn('p-1 h-8 w-10 rounded-sm', locale === 'en' && 'ring-2 ring-primary')}
+        className={cn('p-1 h-6 w-8 rounded-sm', locale === 'en' && 'ring-2 ring-primary')}
       >
         <img src="https://flagcdn.com/gb.svg" alt="English" className="w-full h-full object-cover rounded-sm" />
         <span className="sr-only">English</span>
