@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import type { AppState, AppActions, Locale } from '@/lib/types';
 import { BIOMASS_TYPES } from '@/lib/types';
@@ -25,7 +24,7 @@ const initialState: AppState = {
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   ...initialState,
-  setCenter: (center) => set({ center, page: 1 }),
+  setCenter: (center) => set({ center }),
   setRadiusKm: (radiusKm) => set({ radiusKm, page: 1 }),
   setBiomassTypes: (biomassTypes) => set({ biomassTypes, page: 1 }),
   setOverlays: (overlays) => set({ overlays }),
@@ -45,5 +44,5 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
       overlays: initialState.overlays,
       page: 1,
     }),
-  resetResults: () => set({ results: [], totalResults: 0, page: 1 }),
+  resetResults: () => set({ results: [], totalResults: 0, page: 1, searchInitiated: false }),
 }));

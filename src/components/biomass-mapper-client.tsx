@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
 import { searchBiomass } from '@/app/actions';
@@ -30,17 +29,15 @@ export default function BiomassMapperClient() {
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const initialLoadHandled = useRef(false);
+  
   useQuerySync();
-  const searchParams = useSearchParams();
 
   const performSearch = useCallback(async (searchPage = page) => {
     if (!center) {
       resetResults();
       return;
     }
-    
-    if(!searchInitiated) setSearchInitiated(true);
 
     setIsLoading(true);
     try {
@@ -59,49 +56,60 @@ export default function BiomassMapperClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults, searchInitiated, setSearchInitiated]);
+  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
   
-  // Effect for pagination
+  // Effect for initial load: geolocate user and show help dialog
   useEffect(() => {
-    if (searchInitiated && !initialLoad) {
+    if (initialLoadHandled.current || searchInitiated) return;
+
+    // This logic runs only on the very first load without any params
+    const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
+
+    if (!hasSearchParams) {
+      const timer = setTimeout(() => {
+        setIsInitialDialogOpen(true);
+      }, 2000);
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const newCenter = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setCenter(newCenter);
+        },
+        () => {
+          console.log("Geolocation failed or was denied.");
+        }
+      );
+      
+      return () => clearTimeout(timer);
+    }
+    
+    initialLoadHandled.current = true;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInitiated]);
+
+  // Effect for subsequent searches (pagination)
+  useEffect(() => {
+    if (searchInitiated && !initialLoadHandled.current) {
       performSearch(page);
+    }
+    if (initialLoadHandled.current) {
+        initialLoadHandled.current = false;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
-
+  
+  // Effect to perform initial search if URL has params
   useEffect(() => {
-    if (initialLoad) {
-      const hasSearchParams = searchParams.has('lat');
-      
-      if (hasSearchParams && center) {
-        // State is hydrated from URL, perform initial search
-        performSearch(page);
-      } else if (!hasSearchParams) {
-        // First visit, no params. Show help dialog and try to geolocate.
-        const timer = setTimeout(() => {
-            setIsInitialDialogOpen(true);
-        }, 2000);
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const newCenter = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-            setCenter(newCenter);
-          },
-          () => {
-            console.log("Geolocation failed or was denied.");
-          }
-        );
-        
-        return () => clearTimeout(timer);
+      if (searchInitiated && center) {
+          performSearch();
+          initialLoadHandled.current = true;
       }
-      setInitialLoad(false);
-    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialLoad, searchParams, center]);
+  },[searchInitiated, center]);
+
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -109,6 +117,9 @@ export default function BiomassMapperClient() {
   }
 
   const handleSearch = () => {
+    if (!searchInitiated) {
+        setSearchInitiated(true);
+    }
     // Reset to first page for new search
     useBiomassStore.getState().setPage(1); 
     performSearch(1);
