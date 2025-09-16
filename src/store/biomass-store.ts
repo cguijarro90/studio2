@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import type { AppState, AppActions, Locale } from '@/lib/types';
 import { BIOMASS_TYPES } from '@/lib/types';
@@ -19,6 +20,7 @@ const initialState: AppState = {
   map: null,
   selectedSourceId: null,
   locale: 'es',
+  searchInitiated: false,
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -35,6 +37,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setMap: (map) => set({ map }),
   setSelectedSourceId: (id) => set({ selectedSourceId: id }),
   setLocale: (locale: Locale) => set({ locale }),
+  setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,

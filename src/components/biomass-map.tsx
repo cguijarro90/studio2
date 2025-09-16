@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -79,7 +80,7 @@ function Markers() {
 
 function RadiusCircle() {
   const map = useMap();
-  const { center, radiusKm } = useBiomassStore();
+  const { center, radiusKm, searchInitiated } = useBiomassStore();
   const [circle, setCircle] = useState<google.maps.Circle | null>(null);
 
   useEffect(() => {
@@ -106,14 +107,14 @@ function RadiusCircle() {
   }, [map, circle]);
 
   useEffect(() => {
-    if (circle && center) {
+    if (circle && center && searchInitiated) {
       circle.setCenter(center);
       circle.setRadius(radiusKm * 1000);
       circle.setVisible(true);
     } else {
       circle?.setVisible(false);
     }
-  }, [circle, center, radiusKm]);
+  }, [circle, center, radiusKm, searchInitiated]);
 
   return null;
 }
@@ -173,7 +174,7 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId } = useBiomassStore();
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated } = useBiomassStore();
   const map = useMap();
   
   useEffect(() => {
@@ -199,6 +200,7 @@ export default function BiomassMap() {
           if (e.detail.latLng) {
             setCenter(e.detail.latLng);
             setSelectedSourceId(null);
+            setSearchInitiated(true);
           }
         }}
       >

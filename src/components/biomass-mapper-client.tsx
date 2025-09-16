@@ -12,6 +12,7 @@ import BiomassMap from '@/components/biomass-map';
 import InitialFilterDialog from '@/components/initial-filter-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
+import { useSearchParams } from 'next/navigation';
 
 export default function BiomassMapperClient() {
   const {
@@ -24,18 +25,21 @@ export default function BiomassMapperClient() {
     setResults,
     resetResults,
     setIsInitialDialogOpen,
+    setSearchInitiated,
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   useQuerySync();
+  const searchParams = useSearchParams();
 
   const performSearch = useCallback(async (searchPage = page) => {
     if (!center) {
       resetResults();
       return;
     }
-
+    
+    setSearchInitiated(true);
     setIsLoading(true);
     try {
       const results = await searchBiomass({
@@ -53,14 +57,13 @@ export default function BiomassMapperClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
+  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults, setSearchInitiated]);
   
   useEffect(() => {
     if (initialLoad) {
-      const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
+      const hasSearchParams = searchParams.has('lat');
       
       if (!hasSearchParams) {
-        // No search params, show help dialog after a delay and try to geolocate.
         const timer = setTimeout(() => {
             setIsInitialDialogOpen(true);
         }, 2000);
@@ -74,21 +77,18 @@ export default function BiomassMapperClient() {
             setCenter(newCenter);
           },
           () => {
-            // Geolocation failed or was denied, user can search manually.
             console.log("Geolocation failed or was denied.");
           }
         );
         
         setInitialLoad(false);
-        // Cleanup the timer when the component unmounts
         return () => clearTimeout(timer);
       } else {
-        // We have search params, but we don't want to auto-search
+        setSearchInitiated(true);
         setInitialLoad(false);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialLoad]);
+  }, [initialLoad, searchParams, setCenter, setIsInitialDialogOpen, setSearchInitiated]);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -96,7 +96,7 @@ export default function BiomassMapperClient() {
   }
 
   const handleSearch = () => {
-    useBiomassStore.getState().setPage(1); // Reset to first page for new search
+    useBiomassStore.getState().setPage(1);
     performSearch(1);
   }
 

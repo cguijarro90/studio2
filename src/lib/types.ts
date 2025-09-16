@@ -1,3 +1,4 @@
+
 export const BIOMASS_TYPES = ['pellets', 'carbon', 'otros'] as const;
 export type BiomassType = (typeof BIOMASS_TYPES)[number];
 
@@ -41,6 +42,7 @@ export type AppState = {
   map: google.maps.Map | null;
   selectedSourceId: string | null;
   locale: Locale;
+  searchInitiated: boolean;
 };
 
 export type AppActions = {
@@ -56,6 +58,7 @@ export type AppActions = {
   setMap: (map: google.maps.Map | null) => void;
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;
+  setSearchInitiated: (initiated: boolean) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };
