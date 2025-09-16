@@ -54,16 +54,12 @@ export default function BiomassMapperClient() {
       setIsLoading(false);
     }
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
-
+  
   useEffect(() => {
-    // This effect runs only once on mount to handle initial state
     if (initialLoad) {
       const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
-      if (hasSearchParams) {
-          // If there are search params, the query sync hook handles setting the state.
-          // The user can then trigger a search manually.
-          // We could perform a search here if `center` is available, but the request is to wait for user action.
-      } else {
+      
+      if (!hasSearchParams) {
         // No search params, show help dialog after a delay and try to geolocate.
         const timer = setTimeout(() => {
             setIsInitialDialogOpen(true);
@@ -83,12 +79,14 @@ export default function BiomassMapperClient() {
           }
         );
         
+        setInitialLoad(false);
         // Cleanup the timer when the component unmounts
         return () => clearTimeout(timer);
+      } else {
+        // We have search params, but we don't want to auto-search
+        setInitialLoad(false);
       }
-      setInitialLoad(false);
     }
-  // We only want this to run once, and center changes shouldn't re-trigger it.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLoad]);
 
