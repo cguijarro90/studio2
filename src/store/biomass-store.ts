@@ -20,6 +20,7 @@ const initialState: AppState = {
   selectedSourceId: null,
   locale: 'es',
   searchInitiated: false,
+  intersectingProvinces: [],
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -37,6 +38,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setSelectedSourceId: (id) => set({ selectedSourceId: id }),
   setLocale: (locale: Locale) => set({ locale }),
   setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
+  setIntersectingProvinces: (provinces) => set({ intersectingProvinces: provinces }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,
@@ -44,5 +46,5 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
       overlays: initialState.overlays,
       page: 1,
     }),
-  resetResults: () => set({ results: [], totalResults: 0, page: 1, searchInitiated: false }),
+  resetResults: () => set({ results: [], totalResults: 0, page: 1, searchInitiated: false, intersectingProvinces: [] }),
 }));

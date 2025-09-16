@@ -35,5 +35,6 @@
     "close": "Close",
     "geolocate_me": "Center on my location",
     "geolocation_not_supported": "Geolocation is not supported by your browser.",
-    "geolocation_denied": "Could not get your location. Please enable location services in your browser."
+    "geolocation_denied": "Could not get your location. Please enable location services in your browser.",
+    "provinces_in_area": "Provinces in the area"
 }

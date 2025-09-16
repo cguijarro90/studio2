@@ -1,4 +1,5 @@
 
+
 export const BIOMASS_TYPES = ['pellets', 'carbon', 'otros'] as const;
 export type BiomassType = (typeof BIOMASS_TYPES)[number];
 
@@ -43,6 +44,7 @@ export type AppState = {
   selectedSourceId: string | null;
   locale: Locale;
   searchInitiated: boolean;
+  intersectingProvinces: string[];
 };
 
 export type AppActions = {
@@ -59,6 +61,7 @@ export type AppActions = {
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;
   setSearchInitiated: (initiated: boolean) => void;
+  setIntersectingProvinces: (provinces: string[]) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

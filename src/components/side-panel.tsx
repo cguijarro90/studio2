@@ -3,6 +3,7 @@
 import FilterForm from './filter-form';
 import ResultsList from './results-list';
 import LanguageSwitcher from './language-switcher';
+import ProvinceList from './province-list';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { useTranslation } from '@/hooks/use-translation';
@@ -37,6 +38,7 @@ export default function SidePanel({ onSearch }: SidePanelProps) {
       </div>
       <Separator />
       <ScrollArea className="flex-1">
+        <ProvinceList />
         <ResultsList />
       </ScrollArea>
       <Separator />
