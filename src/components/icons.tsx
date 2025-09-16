@@ -33,11 +33,11 @@ export function getColoredBiomassIcon(type: string, className?: string) {
     const props = { className: cn("w-4 h-4", className) };
     switch(type) {
         case 'pellets':
-            return <Icons.circle {...props} className={cn(props.className, "text-chart-4")} />;
+            return <Icons.circle {...props} className={cn(props.className, "text-chart-1")} />; /* Kynegos Green */
         case 'carbon':
-            return <Icons.flame {...props} className={cn(props.className, "text-chart-2")} />;
+            return <Icons.flame {...props} className={cn(props.className, "text-chart-2")} />; /* Kynegos Blue */
         case 'otros':
         default:
-            return <Icons.leaf {...props} className={cn(props.className, "text-primary")} />;
+            return <Icons.leaf {...props} className={cn(props.className, "text-chart-4")} />; /* Kynegos Gray */
     }
 }
