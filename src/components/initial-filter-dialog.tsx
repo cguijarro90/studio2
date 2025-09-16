@@ -28,6 +28,7 @@ export default function InitialFilterDialog() {
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-4 text-sm text-muted-foreground">
+          <p className="font-semibold">{t('help_welcome')}</p>
           <p>
             {t('help_desc_p1')}
           </p>
