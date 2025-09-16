@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Biomass Mapper',
+  title: 'Biomass',
   description: 'Find biomass sources near you.',
 };
 
