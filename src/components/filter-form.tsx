@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { useBiomassStore } from '@/store/biomass-store';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { BIOMASS_TYPES } from '@/lib/types';
 import type { BiomassType } from '@/lib/types';
-import { Icons } from './icons';
 import PlacesAutocomplete from './places-autocomplete';
-import AiSuggestionDialog from './ai-suggestion-dialog';
 import { Label } from './ui/label';
 
 const formSchema = z.object({
@@ -45,8 +43,6 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     setBiomassTypes,
     setOverlays,
   } = useBiomassStore();
-
-  const [showAiDialog, setShowAiDialog] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -94,10 +90,6 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
               <FormItem>
                 <div className="mb-4 flex items-center justify-between">
                   <FormLabel className="text-base">Biomass Types</FormLabel>
-                   <Button type="button" variant="outline" size="sm" onClick={() => setShowAiDialog(true)}>
-                        <Icons.ai className="mr-2 h-4 w-4" />
-                        Suggest
-                    </Button>
                 </div>
                 <div className="space-y-2">
                   {BIOMASS_TYPES.map((type) => (
@@ -197,7 +189,6 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
 
         </form>
       </Form>
-      <AiSuggestionDialog open={showAiDialog} onOpenChange={setShowAiDialog} />
     </>
   );
 }

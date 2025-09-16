@@ -2,8 +2,7 @@
 
 import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
-import { suggestBiomassTypes as suggestBiomassTypesFlow } from '@/ai/flows/suggest-biomass-types';
-import type { SearchResults, BiomassSource, BiomassType } from '@/lib/types';
+import type { SearchResults, BiomassSource } from '@/lib/types';
 
 const bigquery = new BigQuery();
 
@@ -99,21 +98,5 @@ export async function searchBiomass(
         throw new Error(`Failed to fetch data from BigQuery: ${error.message}`);
     }
     throw new Error('An unknown error occurred while fetching data from BigQuery.');
-  }
-}
-
-export async function suggestBiomassTypes(
-  existingTypes: BiomassType[],
-  dataDescription: string
-) {
-  try {
-    const result = await suggestBiomassTypesFlow({
-      existingTypes,
-      dataDescription,
-    });
-    return result;
-  } catch (error) {
-    console.error('AI suggestion error:', error);
-    throw new Error('Failed to get AI suggestions.');
   }
 }
