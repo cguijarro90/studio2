@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useBiomassStore } from '@/store/biomass-store';
-import type { BiomassType, Point } from '@/lib/types';
+import type { BiomassType, Locale, Point } from '@/lib/types';
 import { BIOMASS_TYPES } from '@/lib/types';
 import { useDebounce } from './use-debounce';
 
@@ -18,10 +18,12 @@ export function useQuerySync() {
     radiusKm,
     biomassTypes,
     page,
+    locale,
     setCenter,
     setRadiusKm,
     setBiomassTypes,
     setPage,
+    setLocale,
   } = useBiomassStore();
 
   const debouncedCenter = useDebounce(center, 500);
@@ -37,6 +39,7 @@ export function useQuerySync() {
       const radius = params.get('radius');
       const types = params.get('types');
       const pageParam = params.get('page');
+      const lang = params.get('lang');
 
       if (lat && lng) {
         setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
@@ -51,9 +54,12 @@ export function useQuerySync() {
       if (pageParam) {
         setPage(parseInt(pageParam, 10));
       }
+      if (lang === 'en' || lang === 'es') {
+        setLocale(lang);
+      }
       isInitialLoad.current = false;
     }
-  }, [searchParams, setBiomassTypes, setCenter, setPage, setRadiusKm]);
+  }, [searchParams, setBiomassTypes, setCenter, setPage, setRadiusKm, setLocale]);
 
   useEffect(() => {
     if (isInitialLoad.current) return;
@@ -106,10 +112,15 @@ export function useQuerySync() {
             changed = true;
         }
     }
+
+    if (locale !== params.get('lang')) {
+        params.set('lang', locale);
+        changed = true;
+    }
     
     if (changed) {
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
 
-  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage, pathname, router, searchParams]);
+  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage, locale, pathname, router, searchParams]);
 }

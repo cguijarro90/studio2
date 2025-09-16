@@ -4,8 +4,10 @@ import { useRef, useEffect } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function PlacesAutocomplete() {
+  const { t } = useTranslation();
   const setCenter = useBiomassStore((s) => s.setCenter);
   const map = useMap();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,7 +45,7 @@ export default function PlacesAutocomplete() {
   return (
     <Input
       ref={inputRef}
-      placeholder="Search for a location..."
+      placeholder={t('search_location_placeholder')}
       className="w-full"
     />
   );

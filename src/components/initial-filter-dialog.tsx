@@ -7,16 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import FilterForm from './filter-form';
+import { useTranslation } from '@/hooks/use-translation';
 
 type InitialFilterDialogProps = {
     onApply: () => void;
 }
 
 export default function InitialFilterDialog({ onApply }: InitialFilterDialogProps) {
+  const { t } = useTranslation();
   const { isInitialDialogOpen, setIsInitialDialogOpen } = useBiomassStore();
 
   const handleApply = () => {
@@ -28,9 +28,9 @@ export default function InitialFilterDialog({ onApply }: InitialFilterDialogProp
     <Dialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Set Your Search Area</DialogTitle>
+          <DialogTitle>{t('initial_dialog_title')}</DialogTitle>
           <DialogDescription>
-            You can adjust the filters to find biomass sources. Click anywhere on the map to change your search center.
+            {t('initial_dialog_desc')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">

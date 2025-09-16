@@ -2,8 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function MobilePanelToggle(props: React.ComponentProps<typeof Button>) {
+  const { t } = useTranslation();
   return (
     <Button
       variant="secondary"
@@ -12,7 +14,7 @@ export default function MobilePanelToggle(props: React.ComponentProps<typeof But
       {...props}
     >
       <SlidersHorizontal className="h-6 w-6" />
-      <span className="sr-only">Open Filters & Results</span>
+      <span className="sr-only">{t('open_filters_results_sr')}</span>
     </Button>
   );
 }

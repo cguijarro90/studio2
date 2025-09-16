@@ -22,6 +22,8 @@ export type SearchResults = {
   limit: number;
 };
 
+export type Locale = 'en' | 'es';
+
 export type AppState = {
   center: Point | null;
   radiusKm: number;
@@ -38,6 +40,7 @@ export type AppState = {
   isInitialDialogOpen: boolean;
   map: google.maps.Map | null;
   selectedSourceId: string | null;
+  locale: Locale;
 };
 
 export type AppActions = {
@@ -52,6 +55,7 @@ export type AppActions = {
   setIsInitialDialogOpen: (isOpen: boolean) => void;
   setMap: (map: google.maps.Map | null) => void;
   setSelectedSourceId: (id: string | null) => void;
+  setLocale: (locale: Locale) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

@@ -16,6 +16,7 @@ import { BIOMASS_TYPES } from '@/lib/types';
 import type { BiomassType } from '@/lib/types';
 import PlacesAutocomplete from './places-autocomplete';
 import { Label } from './ui/label';
+import { useTranslation } from '@/hooks/use-translation';
 
 const formSchema = z.object({
   biomassTypes: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -34,6 +35,7 @@ type FilterFormProps = {
 };
 
 export default function FilterForm({ onSearch }: FilterFormProps) {
+  const { t } = useTranslation();
   const {
     radiusKm,
     biomassTypes,
@@ -79,7 +81,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
           <div className="space-y-2">
-             <Label>Location</Label>
+             <Label>{t('location')}</Label>
              <PlacesAutocomplete />
           </div>
 
@@ -89,7 +91,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             render={() => (
               <FormItem>
                 <div className="mb-4 flex items-center justify-between">
-                  <FormLabel className="text-base">Biomass Types</FormLabel>
+                  <FormLabel className="text-base">{t('biomass_types')}</FormLabel>
                 </div>
                 <div className="space-y-2">
                   {BIOMASS_TYPES.map((type) => (
@@ -110,7 +112,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal capitalize">{type}</FormLabel>
+                          <FormLabel className="font-normal capitalize">{t(type as any)}</FormLabel>
                         </FormItem>
                       )}
                     />
@@ -126,7 +128,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             name="radiusKm"
             render={({ field: { value, onChange } }) => (
               <FormItem>
-                <FormLabel>Radius ({value ? value.toFixed(1) : '0.0'} km)</FormLabel>
+                <FormLabel>{t('radius_km').replace('{radius}', value ? value.toFixed(1) : '0.0')}</FormLabel>
                 <div className="flex items-center space-x-4">
                   <Slider
                     min={0.1}
@@ -152,14 +154,14 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
           />
 
           <div className="space-y-4">
-            <FormLabel>Map Layers</FormLabel>
+            <FormLabel>{t('map_layers')}</FormLabel>
              <FormField
                 control={form.control}
                 name="overlays.clusters"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>Cluster Markers</FormLabel>
+                      <FormLabel>{t('cluster_markers')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -173,7 +175,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>Heatmap</FormLabel>
+                      <FormLabel>{t('heatmap')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -184,7 +186,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
           </div>
           
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Buscando..." : "Buscar"}
+            {isLoading ? t('searching') : t('search')}
           </Button>
 
         </form>

@@ -5,8 +5,9 @@ import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-goog
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
-import type { BiomassSource } from '@/lib/types';
+import type { BiomassSource, BiomassType } from '@/lib/types';
 import MapLegend from './map-legend';
+import { useTranslation } from '@/hooks/use-translation';
 
 function Markers() {
   const map = useMap();
@@ -154,6 +155,23 @@ function Heatmap() {
     return null;
 }
 
+function InfoWindowContent({source}: {source: BiomassSource}) {
+    const { t } = useTranslation();
+    return (
+        <div className="p-2">
+            <h3 className="font-bold text-lg">{source.name}</h3>
+            <div className="flex items-center mt-2">
+                {getColoredBiomassIcon(source.type)}
+                <span className="ml-2 capitalize">{t(source.type as BiomassType)}</span>
+            </div>
+             <div className="flex items-center mt-1">
+                <Icons.weight className="w-4 h-4 text-muted-foreground" />
+                <span className="ml-2">{source.quantity.toLocaleString()} {t('tons')}</span>
+            </div>
+        </div>
+    );
+}
+
 export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId } = useBiomassStore();
   const map = useMap();
@@ -192,17 +210,7 @@ export default function BiomassMap() {
                 position={selectedPosition}
                 onCloseClick={() => setSelectedSourceId(null)}
               >
-                <div className="p-2">
-                    <h3 className="font-bold text-lg">{selectedSource.name}</h3>
-                    <div className="flex items-center mt-2">
-                        {getColoredBiomassIcon(selectedSource.type)}
-                        <span className="ml-2 capitalize">{selectedSource.type}</span>
-                    </div>
-                     <div className="flex items-center mt-1">
-                        <Icons.weight className="w-4 h-4 text-muted-foreground" />
-                        <span className="ml-2">{selectedSource.quantity.toLocaleString()} tons</span>
-                    </div>
-                </div>
+                <InfoWindowContent source={selectedSource} />
               </InfoWindow>
         )}
       </Map>

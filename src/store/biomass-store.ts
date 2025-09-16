@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppState, AppActions } from '@/lib/types';
+import type { AppState, AppActions, Locale } from '@/lib/types';
 import { BIOMASS_TYPES } from '@/lib/types';
 
 const initialState: AppState = {
@@ -18,6 +18,7 @@ const initialState: AppState = {
   isInitialDialogOpen: false,
   map: null,
   selectedSourceId: null,
+  locale: 'es',
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -33,6 +34,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setIsInitialDialogOpen: (isInitialDialogOpen) => set({ isInitialDialogOpen }),
   setMap: (map) => set({ map }),
   setSelectedSourceId: (id) => set({ selectedSourceId: id }),
+  setLocale: (locale: Locale) => set({ locale }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,
