@@ -11,6 +11,7 @@ import BiomassMap from '@/components/biomass-map';
 import InitialFilterDialog from '@/components/initial-filter-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
+import KynegosLogo from './kynegos-logo';
 
 export default function BiomassMapperClient() {
   const {
@@ -118,6 +119,7 @@ export default function BiomassMapperClient() {
             </Sheet>
         </div>
       </main>
+      <KynegosLogo />
       <InitialFilterDialog />
     </APIProvider>
   );
