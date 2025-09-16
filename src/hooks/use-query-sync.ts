@@ -19,11 +19,13 @@ export function useQuerySync() {
     biomassTypes,
     page,
     locale,
+    searchInitiated,
     setCenter,
     setRadiusKm,
     setBiomassTypes,
     setPage,
     setLocale,
+    setSearchInitiated,
   } = useBiomassStore();
 
   const debouncedCenter = useDebounce(center, 500);
@@ -43,6 +45,7 @@ export function useQuerySync() {
 
       if (lat && lng) {
         setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
+        setSearchInitiated(true);
       }
       if (radius) {
         setRadiusKm(parseFloat(radius));
@@ -59,10 +62,10 @@ export function useQuerySync() {
       }
       isInitialLoad.current = false;
     }
-  }, [searchParams, setBiomassTypes, setCenter, setPage, setRadiusKm, setLocale]);
+  }, [searchParams, setBiomassTypes, setCenter, setPage, setRadiusKm, setLocale, setSearchInitiated]);
 
   useEffect(() => {
-    if (isInitialLoad.current) return;
+    if (isInitialLoad.current || !searchInitiated) return;
 
     const params = new URLSearchParams(searchParams.toString());
     let changed = false;
@@ -122,5 +125,5 @@ export function useQuerySync() {
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
 
-  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage, locale, pathname, router, searchParams]);
+  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage, locale, pathname, router, searchParams, searchInitiated]);
 }
