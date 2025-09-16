@@ -41,6 +41,7 @@ export default function BiomassMapperClient() {
     }
     
     if(!searchInitiated) setSearchInitiated(true);
+
     setIsLoading(true);
     try {
       const results = await searchBiomass({
@@ -60,9 +61,10 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults, searchInitiated, setSearchInitiated]);
   
+  // Effect for pagination
   useEffect(() => {
-    if (center && searchInitiated) {
-      performSearch();
+    if (searchInitiated && !initialLoad) {
+      performSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
@@ -73,8 +75,10 @@ export default function BiomassMapperClient() {
       const hasSearchParams = searchParams.has('lat');
       
       if (hasSearchParams && center) {
-        setSearchInitiated(true);
+        // State is hydrated from URL, perform initial search
+        performSearch(page);
       } else if (!hasSearchParams) {
+        // First visit, no params. Show help dialog and try to geolocate.
         const timer = setTimeout(() => {
             setIsInitialDialogOpen(true);
         }, 2000);
@@ -105,7 +109,8 @@ export default function BiomassMapperClient() {
   }
 
   const handleSearch = () => {
-    useBiomassStore.getState().setPage(1);
+    // Reset to first page for new search
+    useBiomassStore.getState().setPage(1); 
     performSearch(1);
   }
 

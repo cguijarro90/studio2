@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/use-translation';
 
 export default function PlacesAutocomplete() {
   const { t } = useTranslation();
-  const setCenter = useBiomassStore((s) => s.setCenter);
+  const { setCenter, setSearchInitiated } = useBiomassStore();
   const map = useMap();
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -30,6 +30,7 @@ export default function PlacesAutocomplete() {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         setCenter({ lat, lng });
+        setSearchInitiated(true);
         map.panTo({ lat, lng });
         map.setZoom(10);
       }
@@ -40,7 +41,7 @@ export default function PlacesAutocomplete() {
             google.maps.event.clearInstanceListeners(autocompleteRef.current);
         }
     };
-  }, [map, setCenter]);
+  }, [map, setCenter, setSearchInitiated]);
 
   return (
     <Input

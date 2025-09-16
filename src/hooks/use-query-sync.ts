@@ -33,6 +33,7 @@ export function useQuerySync() {
   const debouncedBiomassTypes = useDebounce(biomassTypes, 500);
   const debouncedPage = useDebounce(page, 500);
 
+  // Read from URL on initial load
   useEffect(() => {
     if (isInitialLoad.current) {
       const params = new URLSearchParams(searchParams.toString());
@@ -40,32 +41,29 @@ export function useQuerySync() {
       const lng = params.get('lng');
       
       if (lat && lng) {
-        const radius = params.get('radius');
-        const types = params.get('types');
-        const pageParam = params.get('page');
-        const lang = params.get('lang');
-
-        setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
         setSearchInitiated(true);
+        setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
 
-        if (radius) {
-          setRadiusKm(parseFloat(radius));
-        }
+        const radius = params.get('radius');
+        if (radius) setRadiusKm(parseFloat(radius));
+
+        const types = params.get('types');
         if (types) {
           const validTypes = types.split(',').filter(t => BIOMASS_TYPES.includes(t as BiomassType)) as BiomassType[];
           setBiomassTypes(validTypes);
         }
-        if (pageParam) {
-          setPage(parseInt(pageParam, 10));
-        }
-        if (lang === 'en' || lang === 'es') {
-          setLocale(lang);
-        }
+
+        const pageParam = params.get('page');
+        if (pageParam) setPage(parseInt(pageParam, 10));
+
+        const lang = params.get('lang');
+        if (lang === 'en' || lang === 'es') setLocale(lang);
       }
       isInitialLoad.current = false;
     }
-  }, [searchParams, setBiomassTypes, setCenter, setPage, setRadiusKm, setLocale, setSearchInitiated]);
+  }, []); // Changed dependencies to run only once
 
+  // Write to URL when state changes (only if search has been initiated)
   useEffect(() => {
     if (isInitialLoad.current || !searchInitiated) return;
 
