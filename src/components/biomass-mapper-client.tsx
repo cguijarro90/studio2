@@ -11,7 +11,6 @@ import BiomassMap from '@/components/biomass-map';
 import InitialFilterDialog from '@/components/initial-filter-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
-import { useSearchParams } from 'next/navigation';
 
 export default function BiomassMapperClient() {
   const {
@@ -29,8 +28,8 @@ export default function BiomassMapperClient() {
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const initialLoadHandled = useRef(false);
   
+  // This hook handles syncing state with URL params
   useQuerySync();
 
   const performSearch = useCallback(async (searchPage = page) => {
@@ -58,10 +57,8 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
   
-  // Effect for initial load: geolocate user and show help dialog
+  // Effect for initial load: geolocate user and show help dialog if no params in URL
   useEffect(() => {
-    if (initialLoadHandled.current || searchInitiated) return;
-
     // This logic runs only on the very first load without any params
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
 
@@ -85,43 +82,35 @@ export default function BiomassMapperClient() {
       
       return () => clearTimeout(timer);
     }
-    
-    initialLoadHandled.current = true;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchInitiated]);
+  }, []);
 
   // Effect for subsequent searches (pagination)
   useEffect(() => {
-    if (searchInitiated && !initialLoadHandled.current) {
-      performSearch(page);
-    }
-    if (initialLoadHandled.current) {
-        initialLoadHandled.current = false;
+    // We don't want to trigger a search on the initial page load,
+    // so we check if a search has been initiated.
+    // The initial search is handled by `handleSearch`.
+    // The page is 1 on initial load, so this will only trigger on page > 1.
+    if (searchInitiated) {
+        performSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
   
-  // Effect to perform initial search if URL has params
-  useEffect(() => {
-      if (searchInitiated && center) {
-          performSearch();
-          initialLoadHandled.current = true;
-      }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[searchInitiated, center]);
-
-
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return <div className="flex items-center justify-center h-screen bg-destructive text-destructive-foreground">Error: Google Maps API key is not configured.</div>;
   }
 
+  // This is the ONLY place where a new search is initiated.
   const handleSearch = () => {
     if (!searchInitiated) {
         setSearchInitiated(true);
     }
-    // Reset to first page for new search
-    useBiomassStore.getState().setPage(1); 
+    // Reset to first page for any new search
+    if (page !== 1) {
+        useBiomassStore.getState().setPage(1); 
+    }
     performSearch(1);
   }
 
