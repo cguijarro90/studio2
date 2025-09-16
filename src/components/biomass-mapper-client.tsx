@@ -81,14 +81,11 @@ export default function BiomassMapperClient() {
           }
         );
         
-        setInitialLoad(false);
         return () => clearTimeout(timer);
-      } else {
-        setSearchInitiated(true);
-        setInitialLoad(false);
       }
+      setInitialLoad(false);
     }
-  }, [initialLoad, searchParams, setCenter, setIsInitialDialogOpen, setSearchInitiated]);
+  }, [initialLoad, searchParams, setCenter, setIsInitialDialogOpen]);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
