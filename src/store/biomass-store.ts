@@ -21,13 +21,14 @@ const initialState: AppState = {
   locale: 'es',
   searchInitiated: false,
   intersectingProvinces: [],
+  isLoadingProvinces: false,
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   ...initialState,
   setCenter: (center) => set({ center }),
-  setRadiusKm: (radiusKm) => set({ radiusKm, page: 1 }),
-  setBiomassTypes: (biomassTypes) => set({ biomassTypes, page: 1 }),
+  setRadiusKm: (radiusKm) => set({ radiusKm }),
+  setBiomassTypes: (biomassTypes) => set({ biomassTypes }),
   setOverlays: (overlays) => set({ overlays }),
   setPage: (page) => set({ page }),
   setResults: (data) => set({ results: data.items, totalResults: data.total }),
@@ -39,6 +40,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setLocale: (locale: Locale) => set({ locale }),
   setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
   setIntersectingProvinces: (provinces) => set({ intersectingProvinces: provinces }),
+  setIsLoadingProvinces: (loading) => set({ isLoadingProvinces: loading }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,

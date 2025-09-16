@@ -45,6 +45,7 @@ export type AppState = {
   locale: Locale;
   searchInitiated: boolean;
   intersectingProvinces: string[];
+  isLoadingProvinces: boolean;
 };
 
 export type AppActions = {
@@ -62,6 +63,7 @@ export type AppActions = {
   setLocale: (locale: Locale) => void;
   setSearchInitiated: (initiated: boolean) => void;
   setIntersectingProvinces: (provinces: string[]) => void;
+  setIsLoadingProvinces: (loading: boolean) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

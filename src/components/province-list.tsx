@@ -1,47 +1,62 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
-import * as d3 from 'd3-geo';
+import { useEffect, useCallback } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
-import { spainProvinces } from '@/lib/provinces';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useTranslation } from '@/hooks/use-translation';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { getIntersectingProvinces } from '@/app/actions';
+import { Skeleton } from './ui/skeleton';
 
 export default function ProvinceList() {
   const { t } = useTranslation();
-  const { center, radiusKm, searchInitiated, setIntersectingProvinces, intersectingProvinces } = useBiomassStore();
+  const { center, radiusKm, searchInitiated, setIntersectingProvinces, intersectingProvinces, isLoadingProvinces, setIsLoadingProvinces } = useBiomassStore();
 
-  const debouncedCenter = useDebounce(center, 300);
-  const debouncedRadiusKm = useDebounce(radiusKm, 300);
+  const debouncedCenter = useDebounce(center, 500);
+  const debouncedRadiusKm = useDebounce(radiusKm, 500);
 
-  const provinceFeatures = useMemo(() => {
-    return (spainProvinces as any).features;
-  }, []);
-
-  useEffect(() => {
+  const fetchProvinces = useCallback(async () => {
     if (!debouncedCenter || !searchInitiated) {
         setIntersectingProvinces([]);
         return;
     }
-
-    const searchArea = d3.geoCircle()
-      .center([debouncedCenter.lng, debouncedCenter.lat])
-      .radius(debouncedRadiusKm / 111.32)(); // Convert km to degrees approximation
-
-    const foundProvinces: string[] = [];
-
-    for (const province of provinceFeatures) {
-      if (d3.geoIntersects(searchArea, province)) {
-        foundProvinces.push(province.properties.name);
-      }
+    setIsLoadingProvinces(true);
+    try {
+        const provinces = await getIntersectingProvinces({
+            lat: debouncedCenter.lat,
+            lng: debouncedCenter.lng,
+            radiusKm: debouncedRadiusKm,
+        });
+        setIntersectingProvinces(provinces);
+    } catch(e) {
+        console.error("Failed to fetch provinces", e);
+        setIntersectingProvinces([]);
+    } finally {
+        setIsLoadingProvinces(false);
     }
-    
-    setIntersectingProvinces(foundProvinces.sort());
+  }, [debouncedCenter, debouncedRadiusKm, searchInitiated, setIntersectingProvinces, setIsLoadingProvinces]);
 
-  }, [debouncedCenter, debouncedRadiusKm, provinceFeatures, searchInitiated, setIntersectingProvinces]);
+  useEffect(() => {
+    fetchProvinces();
+  }, [fetchProvinces]);
+  
+  if (!searchInitiated) {
+    return null;
+  }
 
-  if (!searchInitiated || intersectingProvinces.length === 0) {
+  if (isLoadingProvinces) {
+      return (
+        <div className="p-4 space-y-2">
+            <h3 className="text-sm font-semibold mb-2 text-muted-foreground">{t('provinces_in_area')}</h3>
+            <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-6 w-24 rounded-full" />
+                <Skeleton className="h-6 w-16 rounded-full" />
+            </div>
+        </div>
+      );
+  }
+
+  if (intersectingProvinces.length === 0) {
     return null;
   }
 
