@@ -58,11 +58,21 @@ export default function BiomassMapperClient() {
     if (center) {
       performSearch(page);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
 
   useEffect(() => {
-    if (!center) {
+    // This effect runs only once on mount to handle initial state
+    const hasSearchParams = Array.from(new URLSearchParams(window.location.search).keys()).length > 0;
+    if (hasSearchParams) {
+        // If there are search params, the query sync hook will handle setting the state.
+        // We can then trigger a search.
+        if (center) {
+            performSearch();
+        }
+    } else if (!center) {
+      // If no search params and no center, try geolocation.
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const newCenter = {
@@ -73,13 +83,13 @@ export default function BiomassMapperClient() {
           performSearch();
         },
         () => {
-          // Geolocation failed or was denied, open dialog
-          setCenter({ lat: 40.416775, lng: -3.703790 }); // Default to Madrid, Spain
+          // Geolocation failed or was denied, open dialog to prompt user.
           setIsInitialDialogOpen(true);
         }
       );
     }
-  }, [center, setCenter, setIsInitialDialogOpen, performSearch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -113,7 +123,7 @@ export default function BiomassMapperClient() {
             </Sheet>
         </div>
       </main>
-      <InitialFilterDialog onApply={handleSearch}/>
+      <InitialFilterDialog />
     </APIProvider>
   );
 }

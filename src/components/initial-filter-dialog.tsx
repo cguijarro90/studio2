@@ -7,35 +7,37 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
-import FilterForm from './filter-form';
 import { useTranslation } from '@/hooks/use-translation';
+import { Button } from './ui/button';
 
-type InitialFilterDialogProps = {
-    onApply: () => void;
-}
-
-export default function InitialFilterDialog({ onApply }: InitialFilterDialogProps) {
+export default function InitialFilterDialog() {
   const { t } = useTranslation();
   const { isInitialDialogOpen, setIsInitialDialogOpen } = useBiomassStore();
 
-  const handleApply = () => {
-    onApply();
-    setIsInitialDialogOpen(false);
-  }
-
   return (
     <Dialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('initial_dialog_title')}</DialogTitle>
-          <DialogDescription>
-            {t('initial_dialog_desc')}
+          <DialogTitle className="text-2xl font-bold text-center text-primary">
+            {t('app_title')}
+          </DialogTitle>
+          <DialogDescription className="text-center text-sm">
+            By Kynegos
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <FilterForm onSearch={handleApply} />
+        <div className="py-4 space-y-4 text-sm text-muted-foreground">
+          <p>
+            {t('help_desc_p1')}
+          </p>
+          <p>
+            {t('help_desc_p2')}
+          </p>
         </div>
+        <DialogFooter>
+            <Button onClick={() => setIsInitialDialogOpen(false)}>{t('close')}</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
