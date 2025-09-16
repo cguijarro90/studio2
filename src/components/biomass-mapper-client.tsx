@@ -26,6 +26,7 @@ export default function BiomassMapperClient() {
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
   useQuerySync();
 
   const performSearch = useCallback(async (searchPage = page) => {
@@ -54,42 +55,36 @@ export default function BiomassMapperClient() {
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
 
   useEffect(() => {
-    // Perform search when page changes for pagination
-    if (center) {
-      performSearch(page);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-
-  useEffect(() => {
     // This effect runs only once on mount to handle initial state
-    const hasSearchParams = Array.from(new URLSearchParams(window.location.search).keys()).length > 0;
-    if (hasSearchParams) {
-        // If there are search params, the query sync hook will handle setting the state.
-        // We can then trigger a search.
-        if (center) {
-            performSearch();
-        }
-    } else if (!center) {
-      // If no search params and no center, try geolocation.
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const newCenter = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setCenter(newCenter);
-          performSearch();
-        },
-        () => {
-          // Geolocation failed or was denied, open dialog to prompt user.
-          setIsInitialDialogOpen(true);
-        }
-      );
+    if (initialLoad) {
+      const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
+      if (hasSearchParams) {
+          // If there are search params, the query sync hook will handle setting the state.
+          // We can then trigger a search.
+          if (center) {
+              performSearch();
+          }
+      } else {
+        // No search params, show help dialog and try to geolocate.
+        setIsInitialDialogOpen(true);
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const newCenter = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            setCenter(newCenter);
+          },
+          () => {
+            // Geolocation failed or was denied, user can search manually.
+            console.log("Geolocation failed or was denied.");
+          }
+        );
+      }
+      setInitialLoad(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [center, initialLoad]);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
