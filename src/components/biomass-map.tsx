@@ -8,6 +8,7 @@ import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, BiomassType } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
+import GeolocateControl from './geolocate-control';
 
 function Markers() {
   const map = useMap();
@@ -215,6 +216,7 @@ export default function BiomassMap() {
               </InfoWindow>
         )}
       </Map>
+      <GeolocateControl />
       <MapLegend />
     </>
   );

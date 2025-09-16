@@ -1,5 +1,5 @@
 import type { LucideProps } from 'lucide-react';
-import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle } from 'lucide-react';
+import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Icons = {
@@ -12,6 +12,7 @@ export const Icons = {
   close: (props: LucideProps) => <X {...props} />,
   flame: (props: LucideProps) => <Flame {...props} />,
   circle: (props: LucideProps) => <Circle {...props} />,
+  crosshair: (props: LucideProps) => <Crosshair {...props} />,
 };
 
 // Returns uncolored icon for map pins

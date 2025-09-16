@@ -32,5 +32,8 @@
     "help_welcome": "¡Bienvenido/a al buscador de fuentes de biomasa!",
     "help_desc_p1": "Biomass Mapper es una herramienta diseñada para ayudarte a localizar y visualizar fuentes de biomasa en un mapa interactivo. Puedes buscar ubicaciones específicas, filtrar por tipo de biomasa y ajustar el radio de búsqueda para encontrar los recursos que necesitas.",
     "help_desc_p2": "Utiliza los filtros en el panel lateral para afinar tu búsqueda. Los resultados se mostrarán tanto en una lista como en el mapa. Puedes hacer clic en cualquier punto del mapa para obtener más detalles sobre una fuente de biomasa específica.",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "geolocate_me": "Centrar en mi ubicación",
+    "geolocation_not_supported": "La geolocalización no es compatible con tu navegador.",
+    "geolocation_denied": "No se pudo obtener tu ubicación. Por favor, activa los servicios de localización en tu navegador."
 }
