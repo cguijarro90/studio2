@@ -24,12 +24,9 @@ export default function InitialFilterDialog() {
           <DialogTitle className="text-2xl font-bold text-center text-primary">
             {t('app_title')}
           </DialogTitle>
-          <div className="flex justify-center pt-2">
+          <div className="flex justify-center pt-2 pb-2">
             <Image src="/kynegos-logo.svg" alt="Kynegos Logo" width={120} height={35} />
           </div>
-          <DialogDescription className="text-center text-sm pt-2">
-            By Kynegos
-          </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-4 text-sm text-muted-foreground">
           <p className="font-semibold">{t('help_welcome')}</p>
