@@ -65,6 +65,7 @@ function RadiusCircle() {
           fillColor: 'hsl(var(--primary))',
           fillOpacity: 0.1,
           map,
+          clickable: false, // This is the fix!
         })
       );
     }
