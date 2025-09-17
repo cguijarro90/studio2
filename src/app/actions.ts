@@ -45,7 +45,7 @@ export async function searchBiomass(
     )
     SELECT
       objectid as id,
-      name,
+      DENOMINACION_DE_LA_INSTALACION as name,
       type,
       quantity,
       location,
