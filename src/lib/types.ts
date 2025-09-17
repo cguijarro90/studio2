@@ -36,7 +36,9 @@ export type AppState = {
   radiusKm: number;
   biomassTypes: BiomassType[];
   overlays: {
-    markers: boolean;
+    biomassPlants: boolean;
+    agriculturalData: boolean;
+    forestData: boolean;
     cadastral: boolean;
   };
   page: number;

@@ -59,7 +59,9 @@ const initialState: AppState = {
   radiusKm: 50,
   biomassTypes: [...BIOMASS_TYPES],
   overlays: {
-    markers: true,
+    biomassPlants: true,
+    agriculturalData: false,
+    forestData: false,
     cadastral: false,
   },
   page: 1,
