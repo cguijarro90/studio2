@@ -188,7 +188,7 @@ export default function BiomassMap() {
     lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
   } : null;
 
-  const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null, isMouseEvent: boolean } }) => {
+  const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null; isMouseEvent: boolean; } }) => {
     // Only handle pure clicks, not clicks that are part of a drag
     if (!e.detail.isMouseEvent || !e.detail.latLng) {
       return;
