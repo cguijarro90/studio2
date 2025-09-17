@@ -51,6 +51,8 @@ export type AppState = {
   searchInitiated: boolean;
   intersectingProvinces: string[];
   isLoadingProvinces: boolean;
+  cadastralParcels: CadastralParcel[];
+  isLoadingParcels: boolean;
 };
 
 export type AppActions = {
@@ -70,6 +72,8 @@ export type AppActions = {
   setSearchInitiated: (initiated: boolean) => void;
   setIntersectingProvinces: (provinces: string[]) => void;
   setIsLoadingProvinces: (loading: boolean) => void;
+  setCadastralParcels: (parcels: CadastralParcel[]) => void;
+  setIsLoadingParcels: (loading: boolean) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

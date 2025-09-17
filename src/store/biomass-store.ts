@@ -3,14 +3,6 @@ import type { AppState, AppActions, Locale, Point } from '@/lib/types';
 import { BIOMASS_TYPES } from '@/lib/types';
 
 // Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
-const SPAIN_BOUNDS = {
-  north: 44.0,
-  south: 27.6,
-  west: -18.2,
-  east: 4.5,
-};
-
-// More specific check for mainland/balearic
 const MAINLAND_BOUNDS = {
   north: 44.0,
   south: 35.9,
@@ -43,22 +35,18 @@ const MELILLA_BOUNDS = {
 export const isPointInSpain = (point: Point) => {
   const { lat, lng } = point;
   
-  // Check against mainland/balearic box
   if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLAND_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
       return true;
   }
   
-  // Check against Canaries box
   if (lat <= CANARIES_BOUNDS.north && lat >= CANARIES_BOUNDS.south && lng <= CANARIES_BOUNDS.east && lng >= CANARIES_BOUNDS.west) {
     return true;
   }
 
-  // Check against Ceuta box
   if (lat <= CEUTA_BOUNDS.north && lat >= CEUTA_BOUNDS.south && lng <= CEUTA_BOUNDS.east && lng >= CEUTA_BOUNDS.west) {
     return true;
   }
 
-  // Check against Melilla box
   if (lat <= MELILLA_BOUNDS.north && lat >= MELILLA_BOUNDS.south && lng <= MELILLA_BOUNDS.east && lng >= MELILLA_BOUNDS.west) {
     return true;
   }
@@ -86,6 +74,8 @@ const initialState: AppState = {
   searchInitiated: false,
   intersectingProvinces: [],
   isLoadingProvinces: false,
+  cadastralParcels: [],
+  isLoadingParcels: false,
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -106,6 +96,8 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
   setIntersectingProvinces: (provinces) => set({ intersectingProvinces: provinces }),
   setIsLoadingProvinces: (loading) => set({ isLoadingProvinces: loading }),
+  setCadastralParcels: (parcels) => set({ cadastralParcels: parcels }),
+  setIsLoadingParcels: (loading) => set({ isLoadingParcels: loading }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,

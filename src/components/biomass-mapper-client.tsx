@@ -3,8 +3,9 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
-import { searchBiomass } from '@/app/actions';
+import { searchBiomass, searchCadastralParcels } from '@/app/actions';
 import { APIProvider } from '@vis.gl/react-google-maps';
+import { useDebounce } from '@/hooks/use-debounce';
 
 import SidePanel from '@/components/side-panel';
 import BiomassMap from '@/components/biomass-map';
@@ -18,6 +19,7 @@ export default function BiomassMapperClient() {
     center,
     radiusKm,
     biomassTypes,
+    overlays,
     page,
     searchInitiated,
     setIsLoading,
@@ -25,13 +27,17 @@ export default function BiomassMapperClient() {
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
-    setPage
+    setPage,
+    setCadastralParcels,
+    setIsLoadingParcels
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   
-  // This hook handles syncing state with URL params
   useQuerySync();
+
+  const debouncedCenter = useDebounce(center, 500);
+  const debouncedRadiusKm = useDebounce(radiusKm, 500);
 
   const performSearch = useCallback(async (searchPage = page) => {
     if (!center) {
@@ -58,50 +64,79 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
   
-  // Effect for initial load: show help dialog if no params in URL
-  useEffect(() => {
-    // This logic runs only on the very first load without any params
-    const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
+  const fetchParcels = useCallback(async () => {
+    if (!debouncedCenter || !searchInitiated || !overlays.cadastral) {
+      setCadastralParcels([]);
+      return;
+    }
 
+    setIsLoadingParcels(true);
+    try {
+      const results = await searchCadastralParcels({
+        lat: debouncedCenter.lat,
+        lng: debouncedCenter.lng,
+        radius_m: debouncedRadiusKm * 1000,
+      });
+      setCadastralParcels(results);
+    } catch (error) {
+      console.error('Failed to fetch cadastral parcels:', error);
+      setCadastralParcels([]);
+    } finally {
+      setIsLoadingParcels(false);
+    }
+  }, [debouncedCenter, debouncedRadiusKm, searchInitiated, overlays.cadastral, setCadastralParcels, setIsLoadingParcels]);
+
+
+  useEffect(() => {
+    const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
     if (!hasSearchParams) {
       const timer = setTimeout(() => {
         setIsInitialDialogOpen(true);
       }, 2000);
-      
       return () => clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Effect for subsequent searches (pagination)
   useEffect(() => {
-    // We don't want to trigger a search on the initial page load,
-    // so we check if a search has been initiated.
-    // The initial search is handled by `handleSearch`.
-    // The page is 1 on initial load, so this will only trigger on page > 1.
-    if (searchInitiated && page > 1) {
+    if (searchInitiated) {
+      if (page > 1) {
         performSearch(page);
+      }
+      if(overlays.cadastral) {
+        fetchParcels();
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchInitiated]);
+  }, [page, searchInitiated, overlays.cadastral, fetchParcels]);
+  
+  useEffect(() => {
+    if (overlays.cadastral) {
+        fetchParcels();
+    } else {
+        setCadastralParcels([]);
+    }
+  }, [overlays.cadastral, fetchParcels, setCadastralParcels]);
   
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return <div className="flex items-center justify-center h-screen bg-destructive text-destructive-foreground">Error: Google Maps API key is not configured.</div>;
   }
 
-  // This is the ONLY place where a new search is initiated.
   const handleSearch = () => {
     if (!searchInitiated) {
         setSearchInitiated(true);
     }
     
-    // Reset to first page for any new search
     const currentPage = useBiomassStore.getState().page;
     if (currentPage !== 1) {
         setPage(1); 
     }
     performSearch(1);
+    
+    if (useBiomassStore.getState().overlays.cadastral) {
+      fetchParcels();
+    }
   }
 
   return (
@@ -114,7 +149,6 @@ export default function BiomassMapperClient() {
           <SidePanel onSearch={handleSearch} />
         </div>
 
-        {/* Mobile Panel */}
         <div className="md:hidden">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
