@@ -188,7 +188,7 @@ export default function BiomassMap() {
     lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
   } : null;
 
-  const handleClick = (e: google.maps.MapMouseEvent) => {
+  const handleClick = (e: { detail: { latLng: { lat: number, lng: number } | null } }) => {
     if (!e.detail.latLng) {
       return;
     }
