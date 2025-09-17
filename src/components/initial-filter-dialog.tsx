@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
 import { Button } from './ui/button';
-import { Icons } from './icons';
+import Image from 'next/image';
 
 export default function InitialFilterDialog() {
   const { t } = useTranslation();
@@ -21,7 +21,13 @@ export default function InitialFilterDialog() {
     <Dialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <Icons.kynegosLogo className="w-28 h-auto mx-auto mb-4 text-primary" />
+          <Image 
+            src="/kynegos-logo.svg" 
+            alt="Kynegos Logo" 
+            width={112} 
+            height={40} 
+            className="mx-auto mb-4" 
+          />
           <DialogTitle className="text-2xl font-bold text-center text-primary">
             {t('app_title')}
           </DialogTitle>
