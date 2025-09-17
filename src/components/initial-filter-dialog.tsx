@@ -21,11 +21,11 @@ export default function InitialFilterDialog() {
     <Dialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <Icons.kynegos className="w-48 h-auto mx-auto mb-4" />
+          <Icons.kynegos className="w-48 h-auto mx-auto mb-4 text-primary" />
           <DialogTitle className="text-2xl font-bold text-center text-primary">
             {t('app_title')}
           </DialogTitle>
-          <DialogDescription className="text-center text-sm">
+          <DialogDescription className="text-center text-sm text-muted-foreground">
             By Kynegos
           </DialogDescription>
         </DialogHeader>
