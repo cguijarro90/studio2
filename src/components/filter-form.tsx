@@ -25,8 +25,6 @@ const formSchema = z.object({
   radiusKm: z.number().min(0.1).max(200),
   overlays: z.object({
     markers: z.boolean(),
-    clusters: z.boolean(),
-    heatmap: z.boolean(),
     cadastral: z.boolean(),
   }),
 });
@@ -58,7 +56,12 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
   });
 
   useEffect(() => {
-    form.reset({ biomassTypes, radiusKm, overlays });
+    // Manually construct a valid default value for the form's overlay object
+    const validOverlays = {
+        markers: overlays.markers,
+        cadastral: overlays.cadastral,
+    };
+    form.reset({ biomassTypes, radiusKm, overlays: validOverlays });
   }, [biomassTypes, radiusKm, overlays, form]);
   
   const { watch, handleSubmit } = form;
@@ -72,7 +75,12 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
         setBiomassTypes(value.biomassTypes as BiomassType[]);
       }
       if (name === 'overlays' && value.overlays) {
-        setOverlays(value.overlays);
+        // Ensure we only pass the full overlays object to the store
+        const currentOverlays = useBiomassStore.getState().overlays;
+        setOverlays({
+            ...currentOverlays,
+            ...value.overlays,
+        });
       }
     });
     return () => subscription.unsubscribe();
@@ -163,34 +171,6 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
 
           <div className="space-y-4">
             <FormLabel>{t('map_layers')}</FormLabel>
-             <FormField
-                control={form.control}
-                name="overlays.clusters"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>{t('cluster_markers')}</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="overlays.heatmap"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>{t('heatmap')}</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
                <FormField
                 control={form.control}
                 name="overlays.cadastral"

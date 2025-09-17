@@ -72,8 +72,6 @@ const initialState: AppState = {
   biomassTypes: [...BIOMASS_TYPES],
   overlays: {
     markers: true,
-    clusters: true,
-    heatmap: false,
     cadastral: false,
   },
   page: 1,

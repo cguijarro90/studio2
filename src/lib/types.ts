@@ -37,8 +37,6 @@ export type AppState = {
   biomassTypes: BiomassType[];
   overlays: {
     markers: boolean;
-    clusters: boolean;
-    heatmap: boolean;
     cadastral: boolean;
   };
   page: number;

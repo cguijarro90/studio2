@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, BiomassType } from '@/lib/types';
@@ -13,37 +12,7 @@ import CadastralLayer from './cadastral-layer';
 
 function Markers() {
   const map = useMap();
-  const { results, overlays, setSelectedSourceId } = useBiomassStore();
-  const clusterer = useRef<MarkerClusterer | null>(null);
-
-  useEffect(() => {
-    if (!map) return;
-    if (!clusterer.current) {
-      clusterer.current = new MarkerClusterer({ map });
-    }
-  }, [map]);
-
-  useEffect(() => {
-    clusterer.current?.clearMarkers();
-    if (overlays.clusters && results.length > 0) {
-      const markers = results.map(poi => {
-        const geojson = JSON.parse(poi.geom_geojson);
-        const [lng, lat] = geojson.coordinates;
-        const marker = new google.maps.Marker({ position: { lat, lng } });
-        marker.addListener('click', () => {
-          setSelectedSourceId(poi.id);
-          map?.panTo({ lat, lng });
-          map?.setZoom(14);
-        });
-        return marker;
-      });
-      clusterer.current.addMarkers(markers);
-    }
-  }, [map, results, overlays.clusters, setSelectedSourceId]);
-
-  if (overlays.clusters) {
-    return null; // MarkerClusterer is handling markers
-  }
+  const { results, setSelectedSourceId } = useBiomassStore();
 
   const getPinStyle = (type: string) => {
     switch (type) {
@@ -120,43 +89,6 @@ function RadiusCircle() {
   return null;
 }
 
-function Heatmap() {
-    const map = useMap();
-    const { results, overlays } = useBiomassStore();
-    const [heatmap, setHeatmap] = useState<google.maps.visualization.HeatmapLayer | null>(null);
-
-    useEffect(() => {
-        if (!map) return;
-        if (!heatmap) {
-            setHeatmap(new google.maps.visualization.HeatmapLayer({
-                map,
-                radius: 40,
-            }));
-        }
-        return () => {
-            heatmap?.setMap(null);
-        };
-    }, [map, heatmap]);
-
-    useEffect(() => {
-        if (heatmap) {
-            if (overlays.heatmap && results.length > 0) {
-                const data = results.map(poi => {
-                    const geojson = JSON.parse(poi.geom_geojson);
-                    const [lng, lat] = geojson.coordinates;
-                    return new google.maps.LatLng(lat, lng);
-                });
-                heatmap.setData(data);
-                heatmap.setMap(map);
-            } else {
-                heatmap.setMap(null);
-            }
-        }
-    }, [heatmap, results, overlays.heatmap, map]);
-
-    return null;
-}
-
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
     return (
@@ -217,7 +149,6 @@ export default function BiomassMap() {
       >
         <Markers />
         <RadiusCircle />
-        <Heatmap />
         <CadastralLayer />
         {selectedPosition && selectedSource && (
              <InfoWindow
