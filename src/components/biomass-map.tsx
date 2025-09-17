@@ -47,6 +47,22 @@ function Markers() {
   );
 }
 
+function SearchCenterMarker() {
+  const { center, searchInitiated } = useBiomassStore();
+
+  if (!center || !searchInitiated) {
+    return null;
+  }
+
+  return (
+    <AdvancedMarker position={center} zIndex={google.maps.Marker.MAX_ZINDEX + 1}>
+        <Pin background={"#000033"} glyphColor={"#FFFFFF"} borderColor={"#000033"} scale={1.2}>
+            <Icons.searchPin className="w-6 h-6" />
+        </Pin>
+    </AdvancedMarker>
+  );
+}
+
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
     return (
@@ -141,6 +157,7 @@ export default function BiomassMap() {
         onClick={handleClick}
       >
         <Markers />
+        <SearchCenterMarker />
 
         {selectedPosition && selectedSource && (
              <InfoWindow
