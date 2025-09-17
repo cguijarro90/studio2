@@ -5,8 +5,8 @@ import { BIOMASS_TYPES } from '@/lib/types';
 // Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
 const SPAIN_BOUNDS = {
   north: 44.0,
-  south: 27.5,
-  west: -18.5,
+  south: 27.6, // Adjusted from 27.5
+  west: -18.2, // Adjusted from -18.5
   east: 4.5,
 };
 
@@ -28,11 +28,17 @@ export const isPointInSpain = (point: Point) => {
 
   // Check against mainland/balearic box
   if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLAND_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
+      // This is complex, but for now we assume it's in Spain if in this box
+      return true;
+  }
+  
+  // If not in mainland box, check if it's in Canaries box (already passed general check)
+  // A simple check is enough here since the general box is already quite restrictive
+  if (lat < 30) {
       return true;
   }
 
-  // If not in mainland, it must be in the Canaries box (already passed general check)
-  return true;
+  return false;
 };
 
 const initialState: AppState = {
