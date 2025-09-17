@@ -177,6 +177,7 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, setIsOutOfSpainDialogOpen } = useBiomassStore();
   const map = useMap();
+  const isDragging = useRef(false);
   
   useEffect(() => {
     if (map) setMap(map);
@@ -188,7 +189,10 @@ export default function BiomassMap() {
     lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
   } : null;
 
-  const handleClick = (e: { detail: { latLng: { lat: number, lng: number } | null } }) => {
+  const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null } }) => {
+    if (isDragging.current) {
+        return;
+    }
     if (!e.detail.latLng) {
       return;
     }
@@ -199,6 +203,17 @@ export default function BiomassMap() {
     setCenter(point);
     setSelectedSourceId(null);
     setSearchInitiated(true);
+  };
+  
+  const handleDragStart = () => {
+    isDragging.current = true;
+  };
+  
+  const handleDragEnd = () => {
+    // We use a small timeout to ensure the click event after a drag is ignored
+    setTimeout(() => {
+        isDragging.current = false;
+    }, 10);
   };
 
   return (
@@ -211,6 +226,8 @@ export default function BiomassMap() {
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
         onClick={handleClick}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
         <Markers />
         <RadiusCircle />
