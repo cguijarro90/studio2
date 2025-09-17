@@ -31,8 +31,17 @@ function ResultItem({
   const viewOnMap = () => {
     if (map && geom_geojson) {
       try {
-        const geojson = JSON.parse(geom_geojson);
-        const [lng, lat] = geojson.coordinates;
+        const locationObject = JSON.parse(geom_geojson);
+        const pointString = locationObject.value;
+        const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
+        const lng = parseFloat(coords[0]);
+        const lat = parseFloat(coords[1]);
+
+        if (isNaN(lat) || isNaN(lng)) {
+            console.error("Invalid coordinates in result item");
+            return;
+        }
+
         map.panTo({ lat, lng });
         map.setZoom(14);
         setSelectedSourceId(id);
