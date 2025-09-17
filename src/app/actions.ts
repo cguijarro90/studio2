@@ -33,7 +33,7 @@ export async function searchBiomass(
   const offset = (page - 1) * limit;
 
   // The BigQuery table name should be in the format `project-id.dataset-id.table-id`
-  const table = '`biomass-mapper.biomass.sources`';
+  const table = '`ce-sdx-platform-0007.REE_BRONZE.INSTALACIONES_COGEN_2025_05`';
 
   // We use ST_GEOGRAPHY functions for geospatial queries.
   // The query finds points within a given radius of the search center.
