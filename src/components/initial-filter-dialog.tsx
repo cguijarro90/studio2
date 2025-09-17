@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
 import { Button } from './ui/button';
+import Image from 'next/image';
 
 export default function InitialFilterDialog() {
   const { t } = useTranslation();
@@ -23,7 +24,10 @@ export default function InitialFilterDialog() {
           <DialogTitle className="text-2xl font-bold text-center text-primary">
             {t('app_title')}
           </DialogTitle>
-          <DialogDescription className="text-center text-sm">
+          <div className="flex justify-center pt-2">
+            <Image src="/kynegos-logo.svg" alt="Kynegos Logo" width={120} height={35} />
+          </div>
+          <DialogDescription className="text-center text-sm pt-2">
             By Kynegos
           </DialogDescription>
         </DialogHeader>

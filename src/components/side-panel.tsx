@@ -26,7 +26,6 @@ export default function SidePanel({ onSearch }: SidePanelProps) {
             <div>
                 <h1 className="text-2xl font-bold font-headline text-primary">{t('app_title')}</h1>
                 <p className="text-sm text-muted-foreground">{t('app_subtitle')}</p>
-                <img src="/kynegos-logo.svg" alt="Kynegos Logo" className="w-24 h-auto mt-2" />
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsInitialDialogOpen(true)}>
                 <HelpCircle className="w-6 h-6 text-muted-foreground" />
