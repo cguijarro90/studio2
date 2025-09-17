@@ -24,7 +24,7 @@ export default function InitialFilterDialog() {
           <Image 
             src="/kynegos-logo.svg" 
             alt="Kynegos Logo" 
-            width={112} 
+            width={180} 
             height={40} 
             className="mx-auto mb-4" 
           />
