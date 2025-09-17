@@ -188,14 +188,18 @@ export default function BiomassMap() {
     lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
   } : null;
 
-  const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null } }) => {
-    if (!e.detail.latLng) {
+  const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null, isMouseEvent: boolean } }) => {
+    // Only handle pure clicks, not clicks that are part of a drag
+    if (!e.detail.isMouseEvent || !e.detail.latLng) {
       return;
     }
+
     const point = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
+
     if (!isPointInSpain(point)) {
       setIsOutOfSpainDialogOpen(true);
     }
+    
     setCenter(point);
     setSelectedSourceId(null);
     setSearchInitiated(true);
@@ -207,7 +211,7 @@ export default function BiomassMap() {
         defaultCenter={{ lat: 40.416775, lng: -3.703790 }}
         defaultZoom={6}
         center={center || undefined}
-        gestureHandling={'cooperative'}
+        gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
         onClick={handleClick}
