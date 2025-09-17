@@ -189,12 +189,10 @@ export default function BiomassMap() {
   } : null;
 
   const handleClick = (e: google.maps.MapMouseEvent) => {
-    // A 'real' click event has the isMouseEvent property.
-    // Drags will not have this.
-    if (!e.detail.isMouseEvent || !e.latLng) {
+    if (!e.detail.latLng) {
       return;
     }
-    const point = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    const point = { lat: e.detail.latLng.lat(), lng: e.detail.latLng.lng() };
     if (!isPointInSpain(point)) {
       setIsOutOfSpainDialogOpen(true);
     }
