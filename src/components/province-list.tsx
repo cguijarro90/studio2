@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useBiomassStore } from '@/store/biomass-store';
+import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useTranslation } from '@/hooks/use-translation';
 import { getIntersectingProvinces } from '@/app/actions';
@@ -18,6 +18,11 @@ export default function ProvinceList() {
     if (!debouncedCenter || !searchInitiated) {
         setIntersectingProvinces([]);
         return;
+    }
+    // Don't fetch if point is outside Spain
+    if (!isPointInSpain(debouncedCenter)) {
+      setIntersectingProvinces([]);
+      return;
     }
     setIsLoadingProvinces(true);
     try {
@@ -39,7 +44,7 @@ export default function ProvinceList() {
     fetchProvinces();
   }, [fetchProvinces]);
   
-  if (!searchInitiated) {
+  if (!searchInitiated || (center && !isPointInSpain(center))) {
     return null;
   }
 
