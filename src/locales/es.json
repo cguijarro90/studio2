@@ -37,5 +37,7 @@
     "geolocate_me": "Centrar en mi ubicación",
     "geolocation_not_supported": "La geolocalización no es compatible con tu navegador.",
     "geolocation_denied": "No se pudo obtener tu ubicación. Por favor, activa los servicios de localización en tu navegador.",
-    "provinces_in_area": "Provincias en el área"
+    "provinces_in_area": "Provincias en el área",
+    "latitude": "Latitud",
+    "longitude": "Longitud"
 }

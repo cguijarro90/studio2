@@ -38,6 +38,7 @@ type FilterFormProps = {
 export default function FilterForm({ onSearch }: FilterFormProps) {
   const { t } = useTranslation();
   const {
+    center,
     radiusKm,
     biomassTypes,
     overlays,
@@ -84,6 +85,12 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
           <div className="space-y-2">
              <Label>{t('location')}</Label>
              <PlacesAutocomplete />
+             {center && (
+                <div className="flex gap-4 text-xs text-muted-foreground pt-1">
+                    <span>{t('latitude')}: {center.lat.toFixed(6)}</span>
+                    <span>{t('longitude')}: {center.lng.toFixed(6)}</span>
+                </div>
+             )}
           </div>
 
           <FormField
