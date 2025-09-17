@@ -46,8 +46,8 @@ export async function searchBiomass(
     SELECT
       objectid as id,
       descripcion as name,
-      type,
-      quantity,
+      'otros' as type,
+      POTENCIA_INSTALADA as quantity,
       location,
       ST_DISTANCE(location, ST_GEOGPOINT(@lng, @lat)) as distance_m
     FROM data
