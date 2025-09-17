@@ -5,7 +5,6 @@ import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-goog
 import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, BiomassType } from '@/lib/types';
-import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
@@ -154,7 +153,6 @@ export default function BiomassMap() {
         )}
       </Map>
       <GeolocateControl />
-      <MapLegend />
     </>
   );
 }
