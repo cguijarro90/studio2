@@ -40,7 +40,7 @@ export async function searchBiomass(
     WITH data AS (
       SELECT
         *,
-        ST_GEOGPOINT(longitud, latitud) as location
+        ST_GEOGPOINT(coord_x, coord_y) as location
       FROM ${table}
     )
     SELECT
