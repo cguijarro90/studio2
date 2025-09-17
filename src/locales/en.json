@@ -4,7 +4,6 @@
     "app_subtitle": "Find biomass sources near you.",
     "location": "Location",
     "search_location_placeholder": "Search for a location...",
-    "biomass_types": "Biomass Types",
     "radius_km": "Radius ({radius} km)",
     "map_layers": "Map Layers",
     "biomass_plants": "Biomass Plants",

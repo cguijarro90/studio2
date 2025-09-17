@@ -57,7 +57,6 @@ export const isPointInSpain = (point: Point) => {
 const initialState: AppState = {
   center: null,
   radiusKm: 50,
-  biomassTypes: [...BIOMASS_TYPES],
   overlays: {
     biomassPlants: true,
     agriculturalData: false,
@@ -81,7 +80,6 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   ...initialState,
   setCenter: (center) => set({ center, page: 1 }),
   setRadiusKm: (radiusKm) => set({ radiusKm, page: 1 }),
-  setBiomassTypes: (biomassTypes) => set({ biomassTypes, page: 1 }),
   setOverlays: (overlays) => set({ overlays }),
   setPage: (page) => set({ page }),
   setResults: (data) => set({ results: data.items, totalResults: data.total }),
@@ -98,7 +96,6 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,
-      biomassTypes: initialState.biomassTypes,
       overlays: initialState.overlays,
       page: 1,
     }),

@@ -17,7 +17,6 @@ export default function BiomassMapperClient() {
   const {
     center,
     radiusKm,
-    biomassTypes,
     page,
     searchInitiated,
     setIsLoading,
@@ -44,7 +43,6 @@ export default function BiomassMapperClient() {
         lat: center.lat,
         lng: center.lng,
         radius_m: radiusKm * 1000,
-        types: biomassTypes,
         page: searchPage,
         limit: 50,
       });
@@ -55,7 +53,7 @@ export default function BiomassMapperClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
+  }, [center, radiusKm, page, setIsLoading, setResults, resetResults]);
   
 
   useEffect(() => {

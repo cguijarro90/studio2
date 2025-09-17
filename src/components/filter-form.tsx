@@ -7,21 +7,15 @@ import { useEffect } from 'react';
 
 import { useBiomassStore } from '@/store/biomass-store';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { BIOMASS_TYPES } from '@/lib/types';
-import type { BiomassType } from '@/lib/types';
 import PlacesAutocomplete from './places-autocomplete';
 import { Label } from './ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 
 const formSchema = z.object({
-  biomassTypes: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: 'You have to select at least one type.',
-  }),
   radiusKm: z.number().min(0.1).max(200),
   overlays: z.object({
     biomassPlants: z.boolean(),
@@ -39,26 +33,23 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
   const {
     center,
     radiusKm,
-    biomassTypes,
     overlays,
     isLoading,
     setRadiusKm,
-    setBiomassTypes,
     setOverlays,
   } = useBiomassStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      biomassTypes,
       radiusKm,
       overlays,
     },
   });
 
   useEffect(() => {
-    form.reset({ biomassTypes, radiusKm, overlays });
-  }, [biomassTypes, radiusKm, overlays, form]);
+    form.reset({ radiusKm, overlays });
+  }, [radiusKm, overlays, form]);
   
   const { watch, handleSubmit } = form;
 
@@ -67,15 +58,12 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
       if (name === 'radiusKm' && value.radiusKm !== undefined) {
         setRadiusKm(value.radiusKm);
       }
-      if (name === 'biomassTypes' && value.biomassTypes) {
-        setBiomassTypes(value.biomassTypes as BiomassType[]);
-      }
       if (name === 'overlays' && value.overlays) {
         setOverlays(value.overlays);
       }
     });
     return () => subscription.unsubscribe();
-  }, [watch, setRadiusKm, setBiomassTypes, setOverlays]);
+  }, [watch, setRadiusKm, setOverlays]);
 
   return (
     <>
@@ -91,44 +79,6 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 </div>
              )}
           </div>
-
-          <FormField
-            control={form.control}
-            name="biomassTypes"
-            render={() => (
-              <FormItem>
-                <div className="mb-4 flex items-center justify-between">
-                  <FormLabel className="text-base">{t('biomass_types')}</FormLabel>
-                </div>
-                <div className="space-y-2">
-                  {BIOMASS_TYPES.map((type) => (
-                    <FormField
-                      key={type}
-                      control={form.control}
-                      name="biomassTypes"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(type)}
-                              onCheckedChange={(checked) => {
-                                const newValue = checked
-                                  ? [...field.value, type]
-                                  : field.value?.filter((value) => value !== type);
-                                field.onChange(newValue);
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="font-normal capitalize">{t(type as any)}</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  ))}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}

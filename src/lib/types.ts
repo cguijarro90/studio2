@@ -29,7 +29,6 @@ export type Locale = 'en' | 'es';
 export type AppState = {
   center: Point | null;
   radiusKm: number;
-  biomassTypes: BiomassType[];
   overlays: {
     biomassPlants: boolean;
     agriculturalData: boolean;
@@ -52,7 +51,6 @@ export type AppState = {
 export type AppActions = {
   setCenter: (center: Point) => void;
   setRadiusKm: (radius: number) => void;
-  setBiomassTypes: (types: BiomassType[]) => void;
   setOverlays: (overlays: AppState['overlays']) => void;
   setPage: (page: number) => void;
   setResults: (data: SearchResults) => void;

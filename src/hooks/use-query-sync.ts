@@ -16,13 +16,11 @@ export function useQuerySync() {
   const {
     center,
     radiusKm,
-    biomassTypes,
     page,
     locale,
     searchInitiated,
     setCenter,
     setRadiusKm,
-    setBiomassTypes,
     setPage,
     setLocale,
     setSearchInitiated,
@@ -30,7 +28,6 @@ export function useQuerySync() {
 
   const debouncedCenter = useDebounce(center, 500);
   const debouncedRadiusKm = useDebounce(radiusKm, 500);
-  const debouncedBiomassTypes = useDebounce(biomassTypes, 500);
   const debouncedPage = useDebounce(page, 500);
 
   // Read from URL on initial load
@@ -45,12 +42,6 @@ export function useQuerySync() {
 
         const radius = params.get('radius');
         if (radius) setRadiusKm(parseFloat(radius));
-
-        const types = params.get('types');
-        if (types) {
-          const validTypes = types.split(',').filter(t => BIOMASS_TYPES.includes(t as BiomassType)) as BiomassType[];
-          setBiomassTypes(validTypes);
-        }
 
         const pageParam = params.get('page');
         if (pageParam) setPage(parseInt(pageParam, 10));
@@ -85,11 +76,6 @@ export function useQuerySync() {
         changed = true;
     }
     
-    if (debouncedBiomassTypes && debouncedBiomassTypes.length < BIOMASS_TYPES.length) {
-        params.set('types', debouncedBiomassTypes.join(','));
-        changed = true;
-    }
-    
     if (debouncedPage > 1) {
        params.set('page', debouncedPage.toString());
        changed = true;
@@ -107,5 +93,5 @@ export function useQuerySync() {
         router.replace(`${pathname}?${newQuery}`, { scroll: false });
     }
 
-  }, [debouncedCenter, debouncedRadiusKm, debouncedBiomassTypes, debouncedPage, locale, pathname, router, searchParams, searchInitiated]);
+  }, [debouncedCenter, debouncedRadiusKm, debouncedPage, locale, pathname, router, searchParams, searchInitiated]);
 }

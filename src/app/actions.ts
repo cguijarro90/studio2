@@ -11,7 +11,6 @@ const searchSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   radius_m: z.number().min(100).max(200000),
-  types: z.array(z.string()).optional(),
   page: z.number().min(1),
   limit: z.number().min(1).max(100),
 });
@@ -24,7 +23,7 @@ export async function searchBiomass(
     throw new Error(`Invalid search parameters: ${validation.error.message}`);
   }
 
-  const { lat, lng, radius_m, types, page, limit } = validation.data;
+  const { lat, lng, radius_m, page, limit } = validation.data;
   const offset = (page - 1) * limit;
 
   // The BigQuery table name should be in the format `project-id.dataset-id.table-id`
@@ -49,11 +48,6 @@ export async function searchBiomass(
     lat: lat,
     radius_m: radius_m,
   };
-
-  if (types && types.length > 0) {
-    query += ` AND type IN UNNEST(@types)`;
-    queryParams.types = types;
-  }
   
   const countQuery = `SELECT COUNT(*) as count FROM (${query})`;
 
