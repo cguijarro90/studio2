@@ -70,7 +70,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
           <div className="space-y-2">
-             <Label className="text-muted-foreground">{t('location')}</Label>
+             <Label className="text-muted-foreground font-bold">{t('location')}</Label>
              <PlacesAutocomplete />
              {center && (
                 <div className="flex gap-4 text-xs text-muted-foreground pt-1">
@@ -85,7 +85,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             name="radiusKm"
             render={({ field: { value, onChange } }) => (
               <FormItem>
-                <FormLabel className="text-muted-foreground">{t('radius_km').replace('{radius}', value ? value.toFixed(1) : '0.0')}</FormLabel>
+                <FormLabel className="text-muted-foreground font-bold">{t('radius_km').replace('{radius}', value ? value.toFixed(1) : '0.0')}</FormLabel>
                 <div className="flex items-center space-x-4">
                   <Slider
                     min={0.1}
@@ -111,7 +111,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
           />
 
           <div className="space-y-4">
-            <FormLabel className="text-muted-foreground">{t('map_layers')}</FormLabel>
+            <FormLabel className="text-muted-foreground font-bold">{t('map_layers')}</FormLabel>
              <FormField
                 control={form.control}
                 name="overlays.biomassPlants"
