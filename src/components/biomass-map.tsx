@@ -1,98 +1,17 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Map, useMap, AdvancedMarker, Pin, InfoWindow, useMapState } from '@vis.gl/react-google-maps';
+import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
-import type { BiomassSource, BiomassType, CadastralParcel } from '@/lib/types';
+import type { BiomassSource, BiomassType } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
-// This unified component will manage all overlays to prevent event conflicts.
-function MapOverlays() {
-  const map = useMap();
-  const { 
-    results, 
-    setSelectedSourceId, 
-    center, 
-    radiusKm, 
-    searchInitiated, 
-    overlays 
-  } = useBiomassStore();
-  
-  const parcels = useBiomassStore(s => s.cadastralParcels);
-  
-  // State for the radius circle
-  const [circle, setCircle] = useState<google.maps.Circle | null>(null);
+function Markers() {
+  const { results, setSelectedSourceId } = useBiomassStore();
 
-  // Effect for creating and cleaning up the radius circle
-  useEffect(() => {
-    if (!map) return;
-    const newCircle = new google.maps.Circle({
-        strokeColor: 'hsl(var(--primary))',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: 'hsl(var(--primary))',
-        fillOpacity: 0.1,
-        map,
-        clickable: false, // This is the crucial fix.
-    });
-    setCircle(newCircle);
-
-    return () => {
-      newCircle.setMap(null);
-    };
-  }, [map]);
-
-  // Effect for updating the circle's position and visibility
-  useEffect(() => {
-    if (circle) {
-      if (center && searchInitiated) {
-        circle.setCenter(center);
-        circle.setRadius(radiusKm * 1000);
-        circle.setVisible(true);
-      } else {
-        circle.setVisible(false);
-      }
-    }
-  }, [circle, center, radiusKm, searchInitiated]);
-
-  // Effect for cadastral data layer
-  useEffect(() => {
-    if (!map) return;
-
-    // Clear previous data features
-    map.data.forEach(feature => {
-      map.data.remove(feature);
-    });
-
-    if (overlays.cadastral && parcels.length > 0) {
-      parcels.forEach(parcel => {
-        try {
-          const geojson = JSON.parse(parcel.geom_geojson);
-          map.data.addGeoJson({
-            type: 'Feature',
-            geometry: geojson,
-            properties: { id: parcel.id },
-          });
-        } catch (e) {
-          console.error("Failed to parse parcel GeoJSON", e);
-        }
-      });
-    }
-    
-    // Style the layer
-    map.data.setStyle({
-      fillColor: 'hsl(var(--accent))',
-      strokeColor: 'hsl(var(--primary))',
-      strokeWeight: 1,
-      fillOpacity: 0.3,
-      clickable: false, // Make parcels non-interactive too
-    });
-
-  }, [map, parcels, overlays.cadastral]);
-  
   const getPinStyle = (type: string) => {
     switch (type) {
       case 'pellets':
@@ -107,7 +26,6 @@ function MapOverlays() {
 
   return (
     <>
-      {/* Biomass Source Markers */}
       {results.map((poi: BiomassSource) => {
         const geojson = JSON.parse(poi.geom_geojson);
         const [lng, lat] = geojson.coordinates;
@@ -128,6 +46,46 @@ function MapOverlays() {
   );
 }
 
+function CadastralDataLayer() {
+    const map = useMap();
+    const parcels = useBiomassStore(s => s.cadastralParcels);
+    const showCadastral = useBiomassStore(s => s.overlays.cadastral);
+
+    useEffect(() => {
+        if (!map) return;
+
+        // Clear previous data features to avoid duplicates
+        map.data.forEach(feature => {
+            map.data.remove(feature);
+        });
+
+        if (showCadastral && parcels.length > 0) {
+            parcels.forEach(parcel => {
+                try {
+                    const geojson = JSON.parse(parcel.geom_geojson);
+                    map.data.addGeoJson({
+                        type: 'Feature',
+                        geometry: geojson,
+                        properties: { id: parcel.id },
+                    });
+                } catch (e) {
+                    console.error("Failed to parse parcel GeoJSON", e);
+                }
+            });
+        }
+        
+        map.data.setStyle({
+            fillColor: 'hsl(var(--accent))',
+            strokeColor: 'hsl(var(--primary))',
+            strokeWeight: 1,
+            fillOpacity: showCadastral ? 0.3 : 0,
+            clickable: false,
+        });
+
+    }, [map, parcels, showCadastral]);
+    
+    return null;
+}
 
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
@@ -147,12 +105,51 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, setIsOutOfSpainDialogOpen } = useBiomassStore();
+  const { 
+      center, 
+      setCenter, 
+      setMap, 
+      selectedSourceId, 
+      setSelectedSourceId, 
+      setSearchInitiated, 
+      setIsOutOfSpainDialogOpen,
+      radiusKm,
+      searchInitiated
+  } = useBiomassStore();
+  
   const map = useMap();
+  const circleRef = useRef<google.maps.Circle | null>(null);
   
   useEffect(() => {
     if (map) setMap(map);
   }, [map, setMap]);
+
+  useEffect(() => {
+      if (!map) return;
+
+      // Create the circle instance only once
+      if (!circleRef.current) {
+          circleRef.current = new google.maps.Circle({
+              strokeColor: 'hsl(var(--primary))',
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+              fillColor: 'hsl(var(--primary))',
+              fillOpacity: 0.1,
+              map: map,
+              clickable: false, // Ensure circle does not intercept clicks
+          });
+      }
+
+      // Update circle properties based on state
+      if (center && searchInitiated) {
+          circleRef.current.setCenter(center);
+          circleRef.current.setRadius(radiusKm * 1000);
+          circleRef.current.setVisible(true);
+      } else {
+          circleRef.current.setVisible(false);
+      }
+  }, [map, center, radiusKm, searchInitiated]);
+
 
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
   const selectedPosition = selectedSource ? {
@@ -160,11 +157,8 @@ export default function BiomassMap() {
     lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
   } : null;
   
-
   const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null; } }) => {
-    if (!e.detail.latLng) {
-      return;
-    }
+    if (!e.detail.latLng) return;
 
     const point = e.detail.latLng;
 
@@ -188,12 +182,14 @@ export default function BiomassMap() {
         mapId="a3b021396b3b1df4"
         onClick={handleClick}
       >
-        <MapOverlays />
+        <Markers />
+        <CadastralDataLayer />
 
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}
                 onCloseClick={() => setSelectedSourceId(null)}
+                disableAutoPan={true}
               >
                 <InfoWindowContent source={selectedSource} />
               </InfoWindow>
