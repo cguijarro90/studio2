@@ -192,7 +192,7 @@ export default function BiomassMap() {
     if (!e.detail.latLng) {
       return;
     }
-    const point = { lat: e.detail.latLng.lat(), lng: e.detail.latLng.lng() };
+    const point = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
     if (!isPointInSpain(point)) {
       setIsOutOfSpainDialogOpen(true);
     }
