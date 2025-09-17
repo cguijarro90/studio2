@@ -177,7 +177,6 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, setIsOutOfSpainDialogOpen } = useBiomassStore();
   const map = useMap();
-  const isDragging = useRef(false);
   
   useEffect(() => {
     if (map) setMap(map);
@@ -189,6 +188,21 @@ export default function BiomassMap() {
     lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
   } : null;
 
+  const handleClick = (e: google.maps.MapMouseEvent) => {
+    // A 'real' click event has the isMouseEvent property.
+    // Drags will not have this.
+    if (!e.detail.isMouseEvent || !e.latLng) {
+      return;
+    }
+    const point = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    if (!isPointInSpain(point)) {
+      setIsOutOfSpainDialogOpen(true);
+    }
+    setCenter(point);
+    setSelectedSourceId(null);
+    setSearchInitiated(true);
+  };
+
   return (
     <>
       <Map
@@ -198,20 +212,7 @@ export default function BiomassMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
-        onDragStart={() => isDragging.current = true}
-        onDragEnd={() => isDragging.current = false}
-        onClick={(e) => {
-          // Only process click if the map was not being dragged
-          if (!isDragging.current && e.detail.latLng) {
-            const point = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
-            if (!isPointInSpain(point)) {
-              setIsOutOfSpainDialogOpen(true);
-            }
-            setCenter(point);
-            setSelectedSourceId(null);
-            setSearchInitiated(true);
-          }
-        }}
+        onClick={handleClick}
       >
         <Markers />
         <RadiusCircle />
