@@ -44,7 +44,7 @@ export async function searchBiomass(
       FROM ${table}
     )
     SELECT
-      ID_INSTALACION as id,
+      objectid as id,
       name,
       type,
       quantity,
@@ -88,7 +88,7 @@ export async function searchBiomass(
     });
 
     const items: BiomassSource[] = rows.map((row: any) => ({
-      id: row.id,
+      id: row.id.toString(),
       name: row.name,
       type: row.type,
       quantity: row.quantity,
