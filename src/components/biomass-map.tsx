@@ -177,6 +177,7 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, setIsOutOfSpainDialogOpen } = useBiomassStore();
   const map = useMap();
+  const isDragging = useRef(false);
   
   useEffect(() => {
     if (map) setMap(map);
@@ -197,8 +198,11 @@ export default function BiomassMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
+        onDragStart={() => isDragging.current = true}
+        onDragEnd={() => isDragging.current = false}
         onClick={(e) => {
-          if (e.detail.latLng) {
+          // Only process click if the map was not being dragged
+          if (!isDragging.current && e.detail.latLng) {
             const point = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
             if (!isPointInSpain(point)) {
               setIsOutOfSpainDialogOpen(true);
