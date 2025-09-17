@@ -20,11 +20,10 @@ export default function InitialFilterDialog() {
     <Dialog open={isInitialDialogOpen} onOpenChange={setIsInitialDialogOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <img src="/kynegos-logo.svg" alt="Kynegos Logo" className="w-48 h-auto mx-auto mb-4" />
           <DialogTitle className="text-2xl font-bold text-center text-primary">
             {t('app_title')}
           </DialogTitle>
-          <DialogDescription className="text-center text-sm text-muted-foreground">
+          <DialogDescription className="text-center text-sm">
             By Kynegos
           </DialogDescription>
         </DialogHeader>
