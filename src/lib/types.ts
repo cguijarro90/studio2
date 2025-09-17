@@ -46,6 +46,7 @@ export type AppState = {
   totalResults: number;
   isLoading: boolean;
   isInitialDialogOpen: boolean;
+  isOutOfSpainDialogOpen: boolean;
   map: google.maps.Map | null;
   selectedSourceId: string | null;
   locale: Locale;
@@ -64,6 +65,7 @@ export type AppActions = {
   setTotalResults: (total: number) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialDialogOpen: (isOpen: boolean) => void;
+  setIsOutOfSpainDialogOpen: (isOpen: boolean) => void;
   setMap: (map: google.maps.Map | null) => void;
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
-import { useBiomassStore } from '@/store/biomass-store';
+import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, BiomassType } from '@/lib/types';
 import MapLegend from './map-legend';
@@ -175,7 +175,7 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated } = useBiomassStore();
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, setIsOutOfSpainDialogOpen } = useBiomassStore();
   const map = useMap();
   
   useEffect(() => {
@@ -199,7 +199,11 @@ export default function BiomassMap() {
         mapId="a3b021396b3b1df4"
         onClick={(e) => {
           if (e.detail.latLng) {
-            setCenter(e.detail.latLng);
+            const point = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
+            if (!isPointInSpain(point)) {
+              setIsOutOfSpainDialogOpen(true);
+            }
+            setCenter(point);
             setSelectedSourceId(null);
             setSearchInitiated(true);
           }

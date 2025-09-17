@@ -9,6 +9,7 @@ import { APIProvider } from '@vis.gl/react-google-maps';
 import SidePanel from '@/components/side-panel';
 import BiomassMap from '@/components/biomass-map';
 import InitialFilterDialog from '@/components/initial-filter-dialog';
+import OutOfSpainDialog from '@/components/out-of-spain-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
 
@@ -126,6 +127,7 @@ export default function BiomassMapperClient() {
         </div>
       </main>
       <InitialFilterDialog />
+      <OutOfSpainDialog />
     </APIProvider>
   );
 }

@@ -39,5 +39,7 @@
     "geolocation_denied": "Could not get your location. Please enable location services in your browser.",
     "provinces_in_area": "Provinces in the area",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "out_of_spain_title": "Location outside of Spain",
+    "out_of_spain_desc": "Biomass search is only available for locations within Spain. Please select a point on the map in Spain."
 }
