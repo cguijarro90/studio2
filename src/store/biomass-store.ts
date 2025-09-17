@@ -44,7 +44,7 @@ export const isPointInSpain = (point: Point) => {
   const { lat, lng } = point;
   
   // Check against mainland/balearic box
-  if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLANC_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
+  if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLAND_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
       return true;
   }
   
