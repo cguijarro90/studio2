@@ -28,20 +28,31 @@ function Markers() {
   return (
     <>
       {results.map((poi: BiomassSource) => {
-        const geojson = JSON.parse(poi.geom_geojson);
-        const [lng, lat] = geojson.coordinates;
-        const pinStyle = getPinStyle(poi.type);
-        return (
-          <AdvancedMarker
-            key={poi.id}
-            position={{ lat, lng }}
-            onClick={() => setSelectedSourceId(poi.id)}
-          >
-            <Pin {...pinStyle} glyphColor="white">
-              {getBiomassIcon(poi.type, 'w-5 h-5')}
-            </Pin>
-          </AdvancedMarker>
-        );
+        try {
+            const locationObject = JSON.parse(poi.geom_geojson);
+            const pointString = locationObject.value;
+            const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
+            const lng = parseFloat(coords[0]);
+            const lat = parseFloat(coords[1]);
+
+            if (isNaN(lat) || isNaN(lng)) return null;
+
+            const pinStyle = getPinStyle(poi.type);
+            return (
+              <AdvancedMarker
+                key={poi.id}
+                position={{ lat, lng }}
+                onClick={() => setSelectedSourceId(poi.id)}
+              >
+                <Pin {...pinStyle} glyphColor="white">
+                  {getBiomassIcon(poi.type, 'w-5 h-5')}
+                </Pin>
+              </AdvancedMarker>
+            );
+        } catch (e) {
+            console.error("Failed to parse coordinates for", poi, e);
+            return null;
+        }
       })}
     </>
   );
@@ -126,10 +137,23 @@ export default function BiomassMap() {
 
 
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
-  const selectedPosition = selectedSource ? {
-    lat: JSON.parse(selectedSource.geom_geojson).coordinates[1],
-    lng: JSON.parse(selectedSource.geom_geojson).coordinates[0],
-  } : null;
+  
+  let selectedPosition: google.maps.LatLngLiteral | null = null;
+    if (selectedSource) {
+        try {
+            const locationObject = JSON.parse(selectedSource.geom_geojson);
+            const pointString = locationObject.value;
+            const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
+            const lng = parseFloat(coords[0]);
+            const lat = parseFloat(coords[1]);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                selectedPosition = { lat, lng };
+            }
+        } catch (e) {
+            console.error("Failed to parse selected source coordinates", e);
+        }
+    }
+
   
   const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null; } }) => {
     if (!e.detail.latLng) return;
