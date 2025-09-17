@@ -32,12 +32,17 @@ export async function searchBiomass(
   const { lat, lng, radius_m, page, limit } = validation.data;
   const offset = (page - 1) * limit;
 
-  // The BigQuery table name should be in the format `project-id.dataset-id.table-id`
   const table = '`ce-sdx-platform-0007.REE_BRONZE.INSTALACIONES_COGEN_2025_05`';
 
   // We use ST_GEOGRAPHY functions for geospatial queries.
   // The query finds points within a given radius of the search center.
   let query = `
+    WITH data AS (
+      SELECT
+        *,
+        ST_GEOGPOINT(longitud, latitud) as location
+      FROM ${table}
+    )
     SELECT
       id,
       name,
@@ -45,7 +50,7 @@ export async function searchBiomass(
       quantity,
       location,
       ST_DISTANCE(location, ST_GEOGPOINT(@lng, @lat)) as distance_m
-    FROM ${table}
+    FROM data
     WHERE ST_DWITHIN(location, ST_GEOGPOINT(@lng, @lat), @radius_m)
   `;
 
