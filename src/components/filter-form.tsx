@@ -16,7 +16,7 @@ import { Label } from './ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 
 const formSchema = z.object({
-  radiusKm: z.number().min(0.1).max(200),
+  radiusKm: z.number().min(0.1).max(75),
   overlays: z.object({
     biomassPlants: z.boolean(),
     agriculturalData: z.boolean(),
@@ -89,7 +89,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 <div className="flex items-center space-x-4">
                   <Slider
                     min={0.1}
-                    max={200}
+                    max={75}
                     step={0.1}
                     value={value ? [value] : [0]}
                     onValueChange={(vals) => onChange(vals[0])}
@@ -98,7 +98,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                   <Input
                     type="number"
                     min={0.1}
-                    max={200}
+                    max={75}
                     step={0.1}
                     value={value || 0}
                     onChange={(e) => onChange(e.target.valueAsNumber)}

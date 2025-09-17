@@ -10,7 +10,7 @@ const bigquery = new BigQuery();
 const searchSchema = z.object({
   lat: z.number(),
   lng: z.number(),
-  radius_m: z.number().min(100).max(200000),
+  radius_m: z.number().min(100).max(75000),
   page: z.number().min(1),
   limit: z.number().min(1).max(100),
 });
