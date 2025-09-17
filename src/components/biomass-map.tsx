@@ -172,6 +172,7 @@ export default function BiomassMap() {
              <InfoWindow
                 position={selectedPosition}
                 onCloseClick={() => setSelectedSourceId(null)}
+                disableAutoPan={true}
               >
                 <InfoWindowContent source={selectedSource} />
               </InfoWindow>
