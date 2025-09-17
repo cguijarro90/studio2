@@ -24,7 +24,7 @@ export default function SidePanel({ onSearch }: SidePanelProps) {
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
             <div>
-                <h1 className="text-2xl font-bold font-headline text-muted-foreground">{t('app_title')}</h1>
+                <h1 className="text-2xl font-bold font-headline text-primary">{t('app_title')}</h1>
                 <p className="text-sm text-muted-foreground">{t('app_subtitle')}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setIsInitialDialogOpen(true)}>
