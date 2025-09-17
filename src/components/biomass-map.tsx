@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
 function Markers() {
-  const { results, setSelectedSourceId } = useBiomassStore();
+  const { results, overlays, setSelectedSourceId } = useBiomassStore();
 
   const getPinStyle = (type: string) => {
     switch (type) {
@@ -23,6 +23,8 @@ function Markers() {
         return { background: 'hsl(var(--primary))', borderColor: 'hsl(var(--primary))' };
     }
   };
+
+  if (!overlays.biomassPlants) return null;
 
   return (
     <>
@@ -44,47 +46,6 @@ function Markers() {
       })}
     </>
   );
-}
-
-function CadastralDataLayer() {
-    const map = useMap();
-    const parcels = useBiomassStore(s => s.cadastralParcels);
-    const showCadastral = useBiomassStore(s => s.overlays.cadastral);
-
-    useEffect(() => {
-        if (!map) return;
-
-        // Clear previous data features to avoid duplicates
-        map.data.forEach(feature => {
-            map.data.remove(feature);
-        });
-
-        if (showCadastral && parcels.length > 0) {
-            parcels.forEach(parcel => {
-                try {
-                    const geojson = JSON.parse(parcel.geom_geojson);
-                    map.data.addGeoJson({
-                        type: 'Feature',
-                        geometry: geojson,
-                        properties: { id: parcel.id },
-                    });
-                } catch (e) {
-                    console.error("Failed to parse parcel GeoJSON", e);
-                }
-            });
-        }
-        
-        map.data.setStyle({
-            fillColor: 'hsl(var(--accent))',
-            strokeColor: 'hsl(var(--primary))',
-            strokeWeight: 1,
-            fillOpacity: showCadastral ? 0.3 : 0,
-            clickable: false,
-        });
-
-    }, [map, parcels, showCadastral]);
-    
-    return null;
 }
 
 function InfoWindowContent({source}: {source: BiomassSource}) {
@@ -127,7 +88,6 @@ export default function BiomassMap() {
   useEffect(() => {
       if (!map) return;
 
-      // Create the circle instance only once
       if (!circleRef.current) {
           circleRef.current = new google.maps.Circle({
               strokeColor: 'hsl(var(--primary))',
@@ -136,11 +96,10 @@ export default function BiomassMap() {
               fillColor: 'hsl(var(--primary))',
               fillOpacity: 0.1,
               map: map,
-              clickable: false, // Ensure circle does not intercept clicks
+              clickable: false,
           });
       }
 
-      // Update circle properties based on state
       if (center && searchInitiated) {
           circleRef.current.setCenter(center);
           circleRef.current.setRadius(radiusKm * 1000);
@@ -183,7 +142,6 @@ export default function BiomassMap() {
         onClick={handleClick}
       >
         <Markers />
-        <CadastralDataLayer />
 
         {selectedPosition && selectedSource && (
              <InfoWindow

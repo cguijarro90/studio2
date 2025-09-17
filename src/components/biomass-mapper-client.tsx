@@ -3,9 +3,8 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
-import { searchBiomass, searchCadastralParcels } from '@/app/actions';
+import { searchBiomass } from '@/app/actions';
 import { APIProvider } from '@vis.gl/react-google-maps';
-import { useDebounce } from '@/hooks/use-debounce';
 
 import SidePanel from '@/components/side-panel';
 import BiomassMap from '@/components/biomass-map';
@@ -19,7 +18,6 @@ export default function BiomassMapperClient() {
     center,
     radiusKm,
     biomassTypes,
-    overlays,
     page,
     searchInitiated,
     setIsLoading,
@@ -27,17 +25,12 @@ export default function BiomassMapperClient() {
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
-    setPage,
-    setCadastralParcels,
-    setIsLoadingParcels
+    setPage
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   useQuerySync();
-
-  const debouncedCenter = useDebounce(center, 500);
-  const debouncedRadiusKm = useDebounce(radiusKm, 500);
 
   const performSearch = useCallback(async (searchPage = page) => {
     if (!center) {
@@ -64,28 +57,6 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, biomassTypes, page, setIsLoading, setResults, resetResults]);
   
-  const fetchParcels = useCallback(async () => {
-    if (!debouncedCenter || !searchInitiated || !overlays.cadastral) {
-      setCadastralParcels([]);
-      return;
-    }
-
-    setIsLoadingParcels(true);
-    try {
-      const results = await searchCadastralParcels({
-        lat: debouncedCenter.lat,
-        lng: debouncedCenter.lng,
-        radius_m: debouncedRadiusKm * 1000,
-      });
-      setCadastralParcels(results);
-    } catch (error) {
-      console.error('Failed to fetch cadastral parcels:', error);
-      setCadastralParcels([]);
-    } finally {
-      setIsLoadingParcels(false);
-    }
-  }, [debouncedCenter, debouncedRadiusKm, searchInitiated, overlays.cadastral, setCadastralParcels, setIsLoadingParcels]);
-
 
   useEffect(() => {
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
@@ -99,24 +70,11 @@ export default function BiomassMapperClient() {
   }, []);
 
   useEffect(() => {
-    if (searchInitiated) {
-      if (page > 1) {
+    if (searchInitiated && page > 1) {
         performSearch(page);
-      }
-      if(overlays.cadastral) {
-        fetchParcels();
-      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchInitiated, overlays.cadastral, fetchParcels]);
-  
-  useEffect(() => {
-    if (overlays.cadastral) {
-        fetchParcels();
-    } else {
-        setCadastralParcels([]);
-    }
-  }, [overlays.cadastral, fetchParcels, setCadastralParcels]);
+  }, [page, searchInitiated]);
   
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -133,10 +91,6 @@ export default function BiomassMapperClient() {
         setPage(1); 
     }
     performSearch(1);
-    
-    if (useBiomassStore.getState().overlays.cadastral) {
-      fetchParcels();
-    }
   }
 
   return (

@@ -12,11 +12,6 @@ export type BiomassSource = {
   geom_geojson: string; // JSON string of a GeoJSON point
 };
 
-export type CadastralParcel = {
-  id: string;
-  geom_geojson: string; // JSON string of a GeoJSON polygon
-};
-
 export type Point = {
   lat: number;
   lng: number;
@@ -39,7 +34,6 @@ export type AppState = {
     biomassPlants: boolean;
     agriculturalData: boolean;
     forestData: boolean;
-    cadastral: boolean;
   };
   page: number;
   results: BiomassSource[];
@@ -53,8 +47,6 @@ export type AppState = {
   searchInitiated: boolean;
   intersectingProvinces: string[];
   isLoadingProvinces: boolean;
-  cadastralParcels: CadastralParcel[];
-  isLoadingParcels: boolean;
 };
 
 export type AppActions = {
@@ -74,8 +66,6 @@ export type AppActions = {
   setSearchInitiated: (initiated: boolean) => void;
   setIntersectingProvinces: (provinces: string[]) => void;
   setIsLoadingProvinces: (loading: boolean) => void;
-  setCadastralParcels: (parcels: CadastralParcel[]) => void;
-  setIsLoadingParcels: (loading: boolean) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

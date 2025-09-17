@@ -62,7 +62,6 @@ const initialState: AppState = {
     biomassPlants: true,
     agriculturalData: false,
     forestData: false,
-    cadastral: false,
   },
   page: 1,
   results: [],
@@ -76,8 +75,6 @@ const initialState: AppState = {
   searchInitiated: false,
   intersectingProvinces: [],
   isLoadingProvinces: false,
-  cadastralParcels: [],
-  isLoadingParcels: false,
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -98,8 +95,6 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
   setIntersectingProvinces: (provinces) => set({ intersectingProvinces: provinces }),
   setIsLoadingProvinces: (loading) => set({ isLoadingProvinces: loading }),
-  setCadastralParcels: (parcels) => set({ cadastralParcels: parcels }),
-  setIsLoadingParcels: (loading) => set({ isLoadingParcels: loading }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,

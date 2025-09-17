@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
-import type { SearchResults, BiomassSource, CadastralParcel } from '@/lib/types';
+import type { SearchResults, BiomassSource } from '@/lib/types';
 import { spainProvinces } from '@/lib/provinces';
 
 const bigquery = new BigQuery();
@@ -170,59 +170,4 @@ export async function getIntersectingProvinces(params: z.infer<typeof provincesS
     }
     
     return foundProvinces.sort();
-}
-
-const parcelsSchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
-  radius_m: z.number().min(100).max(200000), // Same radius as biomass
-});
-
-export async function searchCadastralParcels(
-  params: z.infer<typeof parcelsSchema>
-): Promise<CadastralParcel[]> {
-  const validation = parcelsSchema.safeParse(params);
-  if (!validation.success) {
-    throw new Error(`Invalid search parameters: ${validation.error.message}`);
-  }
-
-  const { lat, lng, radius_m } = validation.data;
-
-  // Assumes a table `biomass.cadastral_parcels` with a `geometry` column
-  const table = '`biomass-mapper.biomass.cadastral_parcels`';
-
-  const query = `
-    SELECT
-      id,
-      geometry
-    FROM ${table}
-    WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
-    LIMIT 2000
-  `; // Limiting results to prevent browser overload
-
-  const queryParams = {
-    lng,
-    lat,
-    radius_m,
-  };
-
-  try {
-    const [rows] = await bigquery.query({
-      query: query,
-      params: queryParams,
-    });
-
-    const items: CadastralParcel[] = rows.map((row: any) => ({
-      id: row.id,
-      geom_geojson: JSON.stringify(row.geometry),
-    }));
-
-    return items;
-  } catch (error) {
-    console.error('BigQuery Error fetching parcels:', error);
-    if (error instanceof Error) {
-        throw new Error(`Failed to fetch parcel data from BigQuery: ${error.message}`);
-    }
-    throw new Error('An unknown error occurred while fetching parcel data from BigQuery.');
-  }
 }
