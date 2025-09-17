@@ -5,8 +5,8 @@ import { BIOMASS_TYPES } from '@/lib/types';
 // Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
 const SPAIN_BOUNDS = {
   north: 44.0,
-  south: 27.6, // Adjusted from 27.5
-  west: -18.2, // Adjusted from -18.5
+  south: 27.6,
+  west: -18.2,
   east: 4.5,
 };
 
@@ -18,24 +18,49 @@ const MAINLAND_BOUNDS = {
   east: 4.5,
 };
 
+const CANARIES_BOUNDS = {
+    north: 29.5,
+    south: 27.6,
+    west: -18.2,
+    east: -13.3
+};
+
+const CEUTA_BOUNDS = {
+    north: 35.95,
+    south: 35.86,
+    west: -5.4,
+    east: -5.27
+};
+
+const MELILLA_BOUNDS = {
+    north: 35.32,
+    south: 35.26,
+    west: -3.0,
+    east: -2.91
+};
+
+
 export const isPointInSpain = (point: Point) => {
   const { lat, lng } = point;
   
-  // Quick check against the larger bounding box
-  if (lat > SPAIN_BOUNDS.north || lat < SPAIN_BOUNDS.south || lng > SPAIN_BOUNDS.east || lng < SPAIN_BOUNDS.west) {
-    return false;
-  }
-
   // Check against mainland/balearic box
-  if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLAND_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
-      // This is complex, but for now we assume it's in Spain if in this box
+  if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLANC_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
       return true;
   }
   
-  // If not in mainland box, check if it's in Canaries box (already passed general check)
-  // A simple check is enough here since the general box is already quite restrictive
-  if (lat < 30) {
-      return true;
+  // Check against Canaries box
+  if (lat <= CANARIES_BOUNDS.north && lat >= CANARIES_BOUNDS.south && lng <= CANARIES_BOUNDS.east && lng >= CANARIES_BOUNDS.west) {
+    return true;
+  }
+
+  // Check against Ceuta box
+  if (lat <= CEUTA_BOUNDS.north && lat >= CEUTA_BOUNDS.south && lng <= CEUTA_BOUNDS.east && lng >= CEUTA_BOUNDS.west) {
+    return true;
+  }
+
+  // Check against Melilla box
+  if (lat <= MELILLA_BOUNDS.north && lat >= MELILLA_BOUNDS.south && lng <= MELILLA_BOUNDS.east && lng >= MELILLA_BOUNDS.west) {
+    return true;
   }
 
   return false;
