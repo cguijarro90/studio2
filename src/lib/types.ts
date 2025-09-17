@@ -12,6 +12,11 @@ export type BiomassSource = {
   geom_geojson: string; // JSON string of a GeoJSON point
 };
 
+export type CadastralParcel = {
+  id: string;
+  geom_geojson: string; // JSON string of a GeoJSON polygon
+};
+
 export type Point = {
   lat: number;
   lng: number;
@@ -34,6 +39,7 @@ export type AppState = {
     markers: boolean;
     clusters: boolean;
     heatmap: boolean;
+    cadastral: boolean;
   };
   page: number;
   results: BiomassSource[];

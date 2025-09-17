@@ -10,6 +10,7 @@ const initialState: AppState = {
     markers: true,
     clusters: true,
     heatmap: false,
+    cadastral: false,
   },
   page: 1,
   results: [],

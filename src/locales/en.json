@@ -9,6 +9,7 @@
     "map_layers": "Map Layers",
     "cluster_markers": "Cluster Markers",
     "heatmap": "Heatmap",
+    "cadastral_layer": "Cadastral Layer",
     "search": "Search",
     "searching": "Searching...",
     "results_show": "Showing {count} of {total} results",

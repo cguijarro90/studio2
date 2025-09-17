@@ -9,6 +9,7 @@ import type { BiomassSource, BiomassType } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
+import CadastralLayer from './cadastral-layer';
 
 function Markers() {
   const map = useMap();
@@ -207,6 +208,7 @@ export default function BiomassMap() {
         <Markers />
         <RadiusCircle />
         <Heatmap />
+        <CadastralLayer />
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}
