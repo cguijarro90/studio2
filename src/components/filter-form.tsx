@@ -70,7 +70,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
           <div className="space-y-2">
-             <Label>{t('location')}</Label>
+             <Label className="text-muted-foreground">{t('location')}</Label>
              <PlacesAutocomplete />
              {center && (
                 <div className="flex gap-4 text-xs text-muted-foreground pt-1">
@@ -85,7 +85,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             name="radiusKm"
             render={({ field: { value, onChange } }) => (
               <FormItem>
-                <FormLabel>{t('radius_km').replace('{radius}', value ? value.toFixed(1) : '0.0')}</FormLabel>
+                <FormLabel className="text-muted-foreground">{t('radius_km').replace('{radius}', value ? value.toFixed(1) : '0.0')}</FormLabel>
                 <div className="flex items-center space-x-4">
                   <Slider
                     min={0.1}
@@ -111,14 +111,14 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
           />
 
           <div className="space-y-4">
-            <FormLabel>{t('map_layers')}</FormLabel>
+            <FormLabel className="text-muted-foreground">{t('map_layers')}</FormLabel>
              <FormField
                 control={form.control}
                 name="overlays.biomassPlants"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>{t('biomass_plants')}</FormLabel>
+                      <FormLabel className="text-muted-foreground">{t('biomass_plants')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -132,7 +132,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>{t('agricultural_data')}</FormLabel>
+                      <FormLabel className="text-muted-foreground">{t('agricultural_data')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -146,7 +146,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel>{t('forest_data')}</FormLabel>
+                      <FormLabel className="text-muted-foreground">{t('forest_data')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />

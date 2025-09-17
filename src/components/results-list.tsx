@@ -45,7 +45,7 @@ function ResultItem({
   return (
     <Card className={cn("transition-all", selectedSourceId === id ? "border-primary shadow-lg" : "")}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base font-medium capitalize">{name}</CardTitle>
+        <CardTitle className="text-base font-medium capitalize text-muted-foreground">{name}</CardTitle>
         <Button variant="ghost" size="sm" onClick={viewOnMap}>
           {t('view_on_map')}
         </Button>
@@ -127,7 +127,7 @@ export default function ResultsList() {
 
   return (
     <div className="flex flex-col h-full">
-        <div className="p-4 text-sm font-semibold">
+        <div className="p-4 text-sm font-semibold text-muted-foreground">
             {t('results_show').replace('{count}', results.length.toString()).replace('{total}', totalResults.toString())}
         </div>
         <div className="flex-1 p-4 pt-0 space-y-4">
