@@ -11,7 +11,7 @@ import type { BiomassType } from "@/lib/types";
 
 export default function MapLegend() {
   const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Card className="absolute bottom-4 left-4 w-auto bg-card/80 backdrop-blur-sm transition-all">
