@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/types';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useBiomassStore();
@@ -37,7 +38,9 @@ export default function LanguageSwitcher() {
         </Button>
       </div>
       <div>
-        <Image src="/kynegos-logo.svg" alt="Kynegos Logo" width={100} height={29} />
+        <a href="https://kynegos.com/" target="_blank" rel="noopener noreferrer">
+          <Image src="/kynegos-logo.svg" alt="Kynegos Logo" width={100} height={29} />
+        </a>
       </div>
     </div>
   );
