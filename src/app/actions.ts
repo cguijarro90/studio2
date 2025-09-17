@@ -44,7 +44,7 @@ export async function searchBiomass(
       FROM ${table}
     )
     SELECT
-      id,
+      ID_INSTALACION as id,
       name,
       type,
       quantity,
