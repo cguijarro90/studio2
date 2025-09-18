@@ -3,10 +3,9 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
-import type { BiomassSource, BiomassType } from '@/lib/types';
+import type { BiomassSource } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
@@ -47,38 +46,11 @@ const getCoordinates = (geom: string): [number, number] | null => {
 
 
 function Markers() {
-  const map = useMap();
   const { results, overlays, setSelectedSourceId } = useBiomassStore();
-  const clusterer = useRef<MarkerClusterer | null>(null);
   
   const shouldShowMarkers = overlays.biomassPlants;
 
-  useEffect(() => {
-    if (!map) return;
-    if (!clusterer.current) {
-      clusterer.current = new MarkerClusterer({ map });
-    }
-  }, [map]);
-
-  useEffect(() => {
-    clusterer.current?.clearMarkers();
-    if (shouldShowMarkers && results.length > 0) {
-      const markers = results.map(poi => {
-        const coordinates = getCoordinates(poi.geom_geojson);
-        if (!coordinates) return null;
-        const [lng, lat] = coordinates;
-        const marker = new google.maps.Marker({ position: { lat, lng } });
-        marker.addListener('click', () => {
-          setSelectedSourceId(poi.id);
-        });
-        return marker;
-      }).filter(Boolean) as google.maps.Marker[];
-      clusterer.current.addMarkers(markers);
-    }
-  }, [map, results, shouldShowMarkers, setSelectedSourceId]);
-
   if (!shouldShowMarkers) {
-      clusterer.current?.clearMarkers();
       return null;
   }
 

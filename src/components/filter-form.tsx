@@ -80,7 +80,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             render={({ field: { value, onChange } }) => (
               <FormItem>
                 <div className="flex items-center space-x-2">
-                  <FormLabel className="text-muted-foreground font-bold text-sm whitespace-nowrap">{t('radius')}</FormLabel>
+                  <FormLabel className="text-muted-foreground font-bold text-sm whitespace-nowrap">{t('radius' as any)}</FormLabel>
                   <Slider
                     min={0.1}
                     max={75}
