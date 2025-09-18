@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -12,31 +13,41 @@ import GeolocateControl from './geolocate-control';
 
 // Helper to safely extract coordinates from various GeoJSON/WKT formats
 const getCoordinates = (geom: string): [number, number] | null => {
+    let data: any;
     try {
-        const geojson = JSON.parse(geom);
-        // Handle standard GeoJSON Point
-        if (geojson.coordinates) {
-            return geojson.coordinates;
-        }
-        // Handle BigQuery's geography type which wraps GeoJSON in a 'value' property
-        if (geojson.value) {
-            const innerJson = JSON.parse(geojson.value);
-            if (innerJson.coordinates) {
-                return innerJson.coordinates;
-            }
-        }
-        return null;
+        data = JSON.parse(geom);
     } catch (e) {
-        // Fallback for non-JSON strings, like WKT "POINT(lng lat)"
-        if (typeof geom === 'string' && geom.startsWith('POINT')) {
-            const match = geom.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
-            if (match && match.length === 3) {
-                return [parseFloat(match[1]), parseFloat(match[2])];
+        data = geom; // Not a JSON string, assume WKT or other format
+    }
+
+    if (typeof data === 'object' && data !== null) {
+        // Handle BigQuery geography wrapper
+        if (data.value) {
+            data = data.value;
+            // The value itself might be a JSON string
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                // It's not a JSON string, leave it as is (e.g., WKT)
             }
         }
-        console.error("Failed to parse coordinates", geom, e);
-        return null;
+        
+        // Handle standard GeoJSON Point
+        if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length === 2) {
+            return data.coordinates;
+        }
     }
+    
+    // Fallback for non-JSON strings, like WKT "POINT(lng lat)"
+    if (typeof data === 'string' && data.startsWith('POINT')) {
+        const match = data.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
+        if (match && match.length === 3) {
+            return [parseFloat(match[1]), parseFloat(match[2])];
+        }
+    }
+    
+    console.error("Failed to parse coordinates", geom);
+    return null;
 };
 
 
@@ -274,3 +285,5 @@ export default function BiomassMap() {
     </>
   );
 }
+
+    
