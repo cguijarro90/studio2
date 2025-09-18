@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, BiomassType } from '@/lib/types';
@@ -10,50 +11,68 @@ import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
 function Markers() {
-  const { results, setSelectedSourceId } = useBiomassStore();
+  const map = useMap();
+  const { results, overlays, setSelectedSourceId } = useBiomassStore();
+  const clusterer = useRef<MarkerClusterer | null>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    if (!clusterer.current) {
+      clusterer.current = new MarkerClusterer({ map });
+    }
+  }, [map]);
+
+  useEffect(() => {
+    clusterer.current?.clearMarkers();
+    if (overlays.clusters && results.length > 0) {
+      const markers = results.map(poi => {
+        const geojson = JSON.parse(poi.geom_geojson);
+        const [lng, lat] = geojson.coordinates;
+        const marker = new google.maps.Marker({ position: { lat, lng } });
+        marker.addListener('click', () => {
+          setSelectedSourceId(poi.id);
+          map?.panTo({ lat, lng });
+          map?.setZoom(14);
+        });
+        return marker;
+      });
+      clusterer.current.addMarkers(markers);
+    }
+  }, [map, results, overlays.clusters, setSelectedSourceId]);
+
+  if (overlays.clusters) {
+    return null; // MarkerClusterer is handling markers
+  }
 
   const getPinStyle = (type: string) => {
-    const lowerCaseType = type?.toLowerCase() || '';
-    if (lowerCaseType.includes('biomasa')) {
-        return { background: 'hsl(var(--chart-3))', borderColor: 'hsl(var(--chart-3))' };
-    }
-    if (lowerCaseType.includes('cogeneración')) {
-        return { background: 'hsl(var(--chart-2))', borderColor: 'hsl(var(--chart-2))' };
-    }
-    if (lowerCaseType.includes('residuos')) {
+    switch (type) {
+      case 'pellets':
         return { background: 'hsl(var(--chart-4))', borderColor: 'hsl(var(--chart-4))' };
+      case 'carbon':
+        return { background: 'hsl(var(--chart-2))', borderColor: 'hsl(var(--chart-2))' };
+      case 'otros':
+      default:
+        return { background: 'hsl(var(--primary))', borderColor: 'hsl(var(--primary))' };
     }
-    return { background: 'hsl(var(--chart-1))', borderColor: 'hsl(var(--chart-1))' };
   };
 
   return (
     <>
       {results.map((poi: BiomassSource) => {
-        try {
-            const locationObject = JSON.parse(poi.geom_geojson);
-            const pointString = locationObject.value;
-            const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
-            const lng = parseFloat(coords[0]);
-            const lat = parseFloat(coords[1]);
-
-            if (isNaN(lat) || isNaN(lng)) return null;
-
-            const pinStyle = getPinStyle(poi.type);
-            return (
-              <AdvancedMarker
-                key={poi.id}
-                position={{ lat, lng }}
-                onClick={() => setSelectedSourceId(poi.id)}
-              >
-                <Pin {...pinStyle} glyphColor="white">
-                  {getBiomassIcon(poi.type, 'w-5 h-5')}
-                </Pin>
-              </AdvancedMarker>
-            );
-        } catch (e) {
-            console.error("Failed to parse coordinates for", poi, e);
-            return null;
-        }
+        const geojson = JSON.parse(poi.geom_geojson);
+        const [lng, lat] = geojson.coordinates;
+        const pinStyle = getPinStyle(poi.type);
+        return (
+          <AdvancedMarker
+            key={poi.id}
+            position={{ lat, lng }}
+            onClick={() => setSelectedSourceId(poi.id)}
+          >
+            <Pin {...pinStyle} glyphColor="white">
+              {getBiomassIcon(poi.type, 'w-5 h-5')}
+            </Pin>
+          </AdvancedMarker>
+        );
       })}
     </>
   );
@@ -100,6 +119,43 @@ function RadiusCircle() {
   return null;
 }
 
+function Heatmap() {
+    const map = useMap();
+    const { results, overlays } = useBiomassStore();
+    const [heatmap, setHeatmap] = useState<google.maps.visualization.HeatmapLayer | null>(null);
+
+    useEffect(() => {
+        if (!map) return;
+        if (!heatmap) {
+            setHeatmap(new google.maps.visualization.HeatmapLayer({
+                map,
+                radius: 40,
+            }));
+        }
+        return () => {
+            heatmap?.setMap(null);
+        };
+    }, [map, heatmap]);
+
+    useEffect(() => {
+        if (heatmap) {
+            if (overlays.heatmap && results.length > 0) {
+                const data = results.map(poi => {
+                    const geojson = JSON.parse(poi.geom_geojson);
+                    const [lng, lat] = geojson.coordinates;
+                    return new google.maps.LatLng(lat, lng);
+                });
+                heatmap.setData(data);
+                heatmap.setMap(map);
+            } else {
+                heatmap.setMap(null);
+            }
+        }
+    }, [heatmap, results, overlays.heatmap, map]);
+
+    return null;
+}
+
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
     return (
@@ -107,58 +163,34 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
             <h3 className="font-bold text-lg">{source.name}</h3>
             <div className="flex items-center mt-2">
                 {getColoredBiomassIcon(source.type)}
-                <span className="ml-2 capitalize">{source.type}</span>
+                <span className="ml-2 capitalize">{t(source.type as BiomassType)}</span>
             </div>
              <div className="flex items-center mt-1">
                 <Icons.weight className="w-4 h-4 text-muted-foreground" />
-                <span className="ml-2">{source.quantity.toLocaleString()} {t('mw')}</span>
+                <span className="ml-2">{source.quantity.toLocaleString()} {t('tons')}</span>
             </div>
         </div>
     );
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, results } = useBiomassStore();
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated } = useBiomassStore();
   const map = useMap();
   
   useEffect(() => {
     if (map) setMap(map);
   }, [map, setMap]);
 
-  const selectedSource = results.find(r => r.id === selectedSourceId);
+  const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
   
-  // Effect to pan map when a source is selected from the list
-  useEffect(() => {
-    if (selectedSource && map) {
-       try {
-            const locationObject = JSON.parse(selectedSource.geom_geojson);
-            const pointString = locationObject.value;
-            const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
-            const lng = parseFloat(coords[0]);
-            const lat = parseFloat(coords[1]);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                map.panTo({ lat, lng });
-                map.setZoom(14);
-            }
-        } catch (e) {
-            console.error("Failed to parse selected source coordinates for panning", e);
-        }
-    }
-  }, [selectedSource, map]);
-
   let selectedPosition: google.maps.LatLngLiteral | null = null;
   if (selectedSource) {
       try {
-          const locationObject = JSON.parse(selectedSource.geom_geojson);
-          const pointString = locationObject.value;
-          const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
-          const lng = parseFloat(coords[0]);
-          const lat = parseFloat(coords[1]);
-          if (!isNaN(lat) && !isNaN(lng)) {
-              selectedPosition = { lat, lng };
-          }
-      } catch (e) {
-          console.error("Failed to parse selected source coordinates for InfoWindow", e);
+        const geojson = JSON.parse(selectedSource.geom_geojson);
+        const [lng, lat] = geojson.coordinates;
+        selectedPosition = { lat, lng };
+      } catch(e) {
+        console.error("Failed to parse coordinates for InfoWindow", e);
       }
   }
 
@@ -182,6 +214,7 @@ export default function BiomassMap() {
       >
         <Markers />
         <RadiusCircle />
+        <Heatmap />
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}
