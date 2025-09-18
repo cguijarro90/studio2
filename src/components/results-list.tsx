@@ -4,7 +4,6 @@ import { useBiomassStore } from '@/store/biomass-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Icons, getColoredBiomassIcon } from './icons';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import type { BiomassType } from '@/lib/types';
@@ -12,9 +11,6 @@ import type { BiomassType } from '@/lib/types';
 function ResultItem({
   id,
   name,
-  type,
-  quantity,
-  distance_m,
   geom_geojson,
 }: {
   id: string;
@@ -26,8 +22,7 @@ function ResultItem({
 }) {
   const { t } = useTranslation();
   const { map, setSelectedSourceId, selectedSourceId } = useBiomassStore();
-  const distance_km = (distance_m / 1000).toFixed(2);
-
+  
   const viewOnMap = () => {
     if (map && geom_geojson) {
       try {
@@ -53,24 +48,12 @@ function ResultItem({
 
   return (
     <Card className={cn("transition-all", selectedSourceId === id ? "border-primary shadow-lg" : "")}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base font-medium capitalize text-muted-foreground">{name}</CardTitle>
-        <Button variant="ghost" size="sm" onClick={viewOnMap}>
-          {t('view_on_map')}
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-2 text-sm text-muted-foreground">
-        <div className="flex items-center">
-          {getColoredBiomassIcon(type)}
-          <span className="ml-2 capitalize">{t(type)}</span>
-        </div>
-        <div className="flex items-center">
-          <Icons.weight className="w-4 h-4 text-muted-foreground" />
-          <span className="ml-2">{quantity.toLocaleString()} {t('tons')}</span>
-        </div>
-        <div className="flex items-center">
-          <Icons.distance className="w-4 h-4 text-muted-foreground" />
-          <span className="ml-2">{distance_km} {t('km_away')}</span>
+      <CardContent className="p-0">
+        <div className="flex items-center justify-between p-3">
+            <h3 className="text-sm font-medium capitalize text-muted-foreground flex-1 pr-2">{name}</h3>
+            <Button variant="ghost" size="sm" onClick={viewOnMap}>
+                {t('view_on_map')}
+            </Button>
         </div>
       </CardContent>
     </Card>
@@ -107,10 +90,9 @@ export default function ResultsList() {
   if (isLoading) {
     return (
       <div className="p-4 space-y-4">
-        {[...Array(5)].map((_, i) => (
+        {[...Array(10)].map((_, i) => (
           <div key={i} className="p-4 border rounded-lg">
-            <Skeleton className="h-5 w-3/4 mb-4" />
-            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-5 w-full" />
           </div>
         ))}
       </div>
@@ -139,7 +121,7 @@ export default function ResultsList() {
         <div className="p-4 text-sm font-semibold text-muted-foreground">
             {t('results_show').replace('{count}', results.length.toString()).replace('{total}', totalResults.toString())}
         </div>
-        <div className="flex-1 p-4 pt-0 space-y-4">
+        <div className="flex-1 p-4 pt-0 space-y-2">
         {results.map((item) => (
             <ResultItem key={item.id} {...item} />
         ))}
