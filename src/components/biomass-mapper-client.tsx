@@ -97,7 +97,7 @@ export default function BiomassMapperClient() {
         <div className="relative w-full h-full">
           <BiomassMap />
         </div>
-        <div className="hidden md:flex md:flex-col h-full border-l border-border bg-card">
+        <div className="hidden md:flex md:flex-col h-full border-l border-border bg-card overflow-hidden">
           <SidePanel onSearch={handleSearch} />
         </div>
 

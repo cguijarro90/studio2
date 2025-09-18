@@ -37,7 +37,7 @@ export default function SidePanel({ onSearch }: SidePanelProps) {
         <FilterForm onSearch={onSearch} />
       </div>
       <Separator />
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <ProvinceList />
         <ResultsList />
       </ScrollArea>
