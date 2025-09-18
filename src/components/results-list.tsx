@@ -7,11 +7,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import type { BiomassSource } from '@/lib/types';
+import { getColoredBiomassIcon } from './icons';
 
 function ResultItem({
   id,
   name,
   geom_geojson,
+  type,
+  quantity,
 }: BiomassSource) {
   const { t } = useTranslation();
   const { map, setSelectedSourceId, selectedSourceId } = useBiomassStore();
@@ -40,13 +43,17 @@ function ResultItem({
   };
 
   return (
-    <Card className={cn("transition-all", selectedSourceId === id ? "border-primary shadow-lg" : "")}>
+    <Card 
+        className={cn("transition-all cursor-pointer hover:border-primary", selectedSourceId === id ? "border-primary shadow-lg" : "")}
+        onClick={viewOnMap}
+    >
       <CardContent className="p-0">
         <div className="flex items-center justify-between p-3">
             <h3 className="text-sm font-medium capitalize text-muted-foreground flex-1 pr-2">{name}</h3>
-            <Button variant="ghost" size="sm" onClick={viewOnMap}>
-                {t('view_on_map')}
-            </Button>
+             <div className="flex items-center gap-2 text-sm text-muted-foreground font-semibold">
+                {getColoredBiomassIcon(type, "h-5 w-5")}
+                <span>{quantity.toFixed(2)} {t('mw')}</span>
+            </div>
         </div>
       </CardContent>
     </Card>

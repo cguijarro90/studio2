@@ -1,5 +1,5 @@
 import type { LucideProps } from 'lucide-react';
-import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair } from 'lucide-react';
+import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Icons = {
@@ -14,6 +14,7 @@ export const Icons = {
   flame: (props: LucideProps) => <Flame {...props} />,
   circle: (props: LucideProps) => <Circle {...props} />,
   crosshair: (props: LucideProps) => <Crosshair {...props} />,
+  recycle: (props: LucideProps) => <Recycle {...props} />,
   kynegosLogo: (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       width="120"
@@ -38,27 +39,33 @@ export const Icons = {
 // Returns uncolored icon for map pins
 export function getBiomassIcon(type: string, className?: string) {
     const props = { className: cn("w-4 h-4", className) };
-    switch(type) {
-        case 'pellets':
-            return <Icons.circle {...props} />;
-        case 'carbon':
-            return <Icons.flame {...props} />;
-        case 'otros':
-        default:
-            return <Icons.leaf {...props} />;
+    const lowerCaseType = type?.toLowerCase() || '';
+
+    if (lowerCaseType.includes('biomasa')) {
+        return <Icons.leaf {...props} />;
     }
+    if (lowerCaseType.includes('cogeneración')) {
+        return <Icons.flame {...props} />;
+    }
+    if (lowerCaseType.includes('residuos')) {
+        return <Icons.recycle {...props} />;
+    }
+    return <Icons.circle {...props} />;
 }
 
 // Returns colored icon for UI elements like lists and legends
 export function getColoredBiomassIcon(type: string, className?: string) {
     const props = { className: cn("w-4 h-4", className) };
-    switch(type) {
-        case 'pellets':
-            return <Icons.circle {...props} className={cn(props.className, "text-chart-1")} />;
-        case 'carbon':
-            return <Icons.flame {...props} className={cn(props.className, "text-chart-2")} />;
-        case 'otros':
-        default:
-            return <Icons.leaf {...props} className={cn(props.className, "text-chart-3")} />;
+    const lowerCaseType = type?.toLowerCase() || '';
+
+    if (lowerCaseType.includes('biomasa')) {
+        return <Icons.leaf {...props} className={cn(props.className, "text-chart-3")} />;
     }
+    if (lowerCaseType.includes('cogeneración')) {
+        return <Icons.flame {...props} className={cn(props.className, "text-chart-2")} />;
+    }
+    if (lowerCaseType.includes('residuos')) {
+        return <Icons.recycle {...props} className={cn(props.className, "text-chart-4")} />;
+    }
+    return <Icons.circle {...props} className={cn(props.className, "text-chart-1")} />;
 }
