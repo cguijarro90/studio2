@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useBiomassStore } from '@/store/biomass-store';
 import type { BiomassType, Locale, Point } from '@/lib/types';
-import { BIOMASS_TYPES } from '@/lib/types';
 import { useDebounce } from './use-debounce';
 
 export function useQuerySync() {
@@ -46,8 +45,8 @@ export function useQuerySync() {
         const pageParam = params.get('page');
         if (pageParam) setPage(parseInt(pageParam, 10));
         
-        // This indicates a search state is being restored from URL
-        setSearchInitiated(true); 
+        // Do not initiate search on load, just set the state
+        // setSearchInitiated(true); 
       }
       
       const lang = params.get('lang');
@@ -60,36 +59,35 @@ export function useQuerySync() {
 
   // Write to URL when state changes (only if search has been initiated)
   useEffect(() => {
-    if (isInitialLoad.current || !searchInitiated) return;
+    if (isInitialLoad.current || !searchInitiated) {
+        if (searchParams.toString() !== '') {
+            router.replace(pathname, { scroll: false });
+        }
+        return;
+    };
 
     const params = new URLSearchParams();
-    let changed = false;
 
     if (debouncedCenter) {
       params.set('lat', debouncedCenter.lat.toFixed(6));
       params.set('lng', debouncedCenter.lng.toFixed(6));
-      changed = true;
     }
 
     if (debouncedRadiusKm) {
         params.set('radius', debouncedRadiusKm.toString());
-        changed = true;
     }
     
     if (debouncedPage > 1) {
        params.set('page', debouncedPage.toString());
-       changed = true;
     }
 
     if (locale) {
         params.set('lang', locale);
-        changed = true;
     }
     
-    const currentQuery = searchParams.toString();
     const newQuery = params.toString();
     
-    if (changed && currentQuery !== newQuery) {
+    if (searchParams.toString() !== newQuery) {
         router.replace(`${pathname}?${newQuery}`, { scroll: false });
     }
 

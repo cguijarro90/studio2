@@ -80,9 +80,8 @@ export default function BiomassMapperClient() {
   useEffect(() => {
     if (!overlays.biomassPlants) {
         resetResults();
-        setMapResults([]);
     }
-  }, [overlays.biomassPlants, resetResults, setMapResults]);
+  }, [overlays.biomassPlants, resetResults]);
 
   useEffect(() => {
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
@@ -96,7 +95,7 @@ export default function BiomassMapperClient() {
   }, []);
 
   useEffect(() => {
-    if (searchInitiated) {
+    if (searchInitiated && page > 1) {
         performListSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,6 +107,8 @@ export default function BiomassMapperClient() {
   }
 
   const handleSearch = () => {
+    if (!center) return;
+    
     if (!searchInitiated) {
         setSearchInitiated(true);
     }
