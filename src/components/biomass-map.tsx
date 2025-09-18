@@ -9,8 +9,7 @@ import type { BiomassSource } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
+import CoordinatesDisplay from './coordinates-display';
 
 const getCoordinates = (geom: string): [number, number] | null => {
     try {
@@ -137,16 +136,10 @@ function RadiusCircle() {
 
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
-    const { setSelectedSourceId } = useBiomassStore();
     return (
-        <Card className="min-w-[250px] shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between p-3">
-                <CardTitle className="text-base font-bold leading-none">{source.name}</CardTitle>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedSourceId(null)}>
-                    <Icons.close className="h-4 w-4" />
-                </Button>
-            </CardHeader>
-            <CardContent className="p-3 pt-0 space-y-2 text-sm">
+        <div className="p-1">
+            <h3 className="font-bold text-base text-foreground mb-2">{source.name}</h3>
+            <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                     {getColoredBiomassIcon(source.type)}
                     <span className="ml-2 capitalize">{t(source.type as any)}</span>
@@ -155,8 +148,8 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
                     <Icons.weight className="w-4 h-4 text-muted-foreground" />
                     <span className="ml-2">{source.quantity.toLocaleString()} {t('mw' as any)}</span>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
 
@@ -208,7 +201,6 @@ export default function BiomassMap() {
           if (e.detail.latLng) {
             setCenter(e.detail.latLng);
             setSelectedSourceId(null);
-            setSearchInitiated(true);
           }
         }}
       >
@@ -218,7 +210,7 @@ export default function BiomassMap() {
              <InfoWindow
                 position={selectedPosition}
                 pixelOffset={[0, -40]}
-                disableAutoPan={true}
+                onCloseClick={() => setSelectedSourceId(null)}
               >
                 <InfoWindowContent source={selectedSource} />
               </InfoWindow>
@@ -226,6 +218,7 @@ export default function BiomassMap() {
       </Map>
       <GeolocateControl />
       <MapLegend />
+      <CoordinatesDisplay />
     </>
   );
 }
