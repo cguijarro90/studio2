@@ -32,6 +32,7 @@ export default function PlacesAutocomplete() {
         const point = { lat, lng };
         if (!isPointInSpain(point)) {
           setIsOutOfSpainDialogOpen(true);
+          return;
         }
         setCenter(point);
         setSearchInitiated(true);

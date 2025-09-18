@@ -206,6 +206,7 @@ export default function BiomassMap() {
             const point = e.detail.latLng;
             if (!isPointInSpain(point)) {
               setIsOutOfSpainDialogOpen(true);
+              return;
             }
             setCenter(point);
             setSelectedSourceId(null);
