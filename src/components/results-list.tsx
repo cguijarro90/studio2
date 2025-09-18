@@ -17,11 +17,16 @@ function ResultItem({
   quantity,
 }: BiomassSource) {
   const { t } = useTranslation();
-  const { selectedSourceId } = useBiomassStore();
+  const { selectedSourceId, setSelectedSourceId } = useBiomassStore();
+
+  const handleSelect = () => {
+    setSelectedSourceId(id);
+  };
 
   return (
     <Card 
-        className={cn("transition-all", selectedSourceId === id ? "border-primary shadow-lg" : "")}
+        className={cn("transition-all cursor-pointer hover:border-primary", selectedSourceId === id ? "border-primary shadow-lg" : "")}
+        onClick={handleSelect}
     >
       <CardContent className="p-0">
         <div className="flex items-center justify-between p-3">
