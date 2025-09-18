@@ -1,5 +1,5 @@
 import type { LucideProps } from 'lucide-react';
-import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle } from 'lucide-react';
+import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Icons = {
@@ -8,6 +8,7 @@ export const Icons = {
   searchPin: (props: LucideProps) => <MapPin {...props} />,
   layers: (props: LucideProps) => <Layers {...props} />,
   weight: (props: LucideProps) => <Weight {...props} />,
+  zap: (props: LucideProps) => <Zap {...props} />,
   distance: (props: LucideProps) => <Route {...props} />,
   radius: (props: LucideProps) => <Milestone {...props} />,
   close: (props: LucideProps) => <X {...props} />,

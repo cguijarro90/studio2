@@ -10,6 +10,8 @@ import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 import CoordinatesDisplay from './coordinates-display';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
 
 const getCoordinates = (geom: string): [number, number] | null => {
     try {
@@ -134,18 +136,21 @@ function RadiusCircle() {
 }
 
 
-function InfoWindowContent({source}: {source: BiomassSource}) {
+function InfoWindowContent({source, onClose}: {source: BiomassSource, onClose: () => void}) {
     const { t } = useTranslation();
     return (
-        <div className="p-1">
-            <h3 className="font-bold text-base text-foreground mb-2">{source.name}</h3>
+        <div className="p-1 min-w-48">
+            <div className="flex justify-between items-start">
+                <h3 className="font-bold text-base text-foreground mb-2 pr-4">{source.name}</h3>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onClose}><Icons.close className="w-4 h-4" /></Button>
+            </div>
             <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                     {getColoredBiomassIcon(source.type)}
                     <span className="ml-2 capitalize">{t(source.type as any)}</span>
                 </div>
                 <div className="flex items-center">
-                    <Icons.weight className="w-4 h-4 text-muted-foreground" />
+                    <Icons.zap className="w-4 h-4 text-muted-foreground" />
                     <span className="ml-2">{source.quantity.toLocaleString()} {t('mw' as any)}</span>
                 </div>
             </div>
@@ -211,8 +216,9 @@ export default function BiomassMap() {
                 position={selectedPosition}
                 pixelOffset={[0, -40]}
                 onCloseClick={() => setSelectedSourceId(null)}
+                headerDisabled
               >
-                <InfoWindowContent source={selectedSource} />
+                <InfoWindowContent source={selectedSource} onClose={() => setSelectedSourceId(null)} />
               </InfoWindow>
         )}
       </Map>
