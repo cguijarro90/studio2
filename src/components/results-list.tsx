@@ -17,16 +17,11 @@ function ResultItem({
   quantity,
 }: BiomassSource) {
   const { t } = useTranslation();
-  const { setSelectedSourceId, selectedSourceId } = useBiomassStore();
-  
-  const viewOnMap = () => {
-    setSelectedSourceId(id);
-  };
+  const { selectedSourceId } = useBiomassStore();
 
   return (
     <Card 
-        className={cn("transition-all cursor-pointer hover:border-primary", selectedSourceId === id ? "border-primary shadow-lg" : "")}
-        onClick={viewOnMap}
+        className={cn("transition-all", selectedSourceId === id ? "border-primary shadow-lg" : "")}
     >
       <CardContent className="p-0">
         <div className="flex items-center justify-between p-3">
