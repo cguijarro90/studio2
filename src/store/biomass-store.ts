@@ -94,5 +94,5 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
       overlays: initialState.overlays,
       page: 1,
     }),
-  resetResults: () => set({ results: [], totalResults: 0, page: 1 }),
+  resetResults: () => set({ results: [], totalResults: 0, page: 1, searchInitiated: false }),
 }));

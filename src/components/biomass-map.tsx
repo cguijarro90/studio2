@@ -50,6 +50,8 @@ function Markers() {
   const map = useMap();
   const { results, overlays, setSelectedSourceId } = useBiomassStore();
   const clusterer = useRef<MarkerClusterer | null>(null);
+  
+  const shouldShowMarkers = overlays.biomassPlants;
 
   useEffect(() => {
     if (!map) return;
@@ -60,7 +62,7 @@ function Markers() {
 
   useEffect(() => {
     clusterer.current?.clearMarkers();
-    if (overlays.clusters && results.length > 0) {
+    if (shouldShowMarkers && results.length > 0) {
       const markers = results.map(poi => {
         const coordinates = getCoordinates(poi.geom_geojson);
         if (!coordinates) return null;
@@ -68,17 +70,15 @@ function Markers() {
         const marker = new google.maps.Marker({ position: { lat, lng } });
         marker.addListener('click', () => {
           setSelectedSourceId(poi.id);
-          map?.panTo({ lat, lng });
-          map?.setZoom(14);
         });
         return marker;
       }).filter(Boolean) as google.maps.Marker[];
       clusterer.current.addMarkers(markers);
     }
-  }, [map, results, overlays.clusters, setSelectedSourceId]);
+  }, [map, results, shouldShowMarkers, setSelectedSourceId]);
 
-  if (overlays.clusters) {
-    return null; // MarkerClusterer is handling markers
+  if (!shouldShowMarkers) {
+      return null;
   }
 
   const getPinStyle = (type: string) => {
@@ -163,6 +163,7 @@ function Heatmap() {
     const map = useMap();
     const { results, overlays } = useBiomassStore();
     const [heatmap, setHeatmap] = useState<google.maps.visualization.HeatmapLayer | null>(null);
+    const shouldShowHeatmap = overlays.biomassPlants;
 
     useEffect(() => {
         if (!map) return;
@@ -179,7 +180,7 @@ function Heatmap() {
 
     useEffect(() => {
         if (heatmap) {
-            if (overlays.heatmap && results.length > 0) {
+            if (shouldShowHeatmap && results.length > 0) {
                 const data = results.map(poi => {
                     const coordinates = getCoordinates(poi.geom_geojson);
                     if (!coordinates) return null;
@@ -192,7 +193,7 @@ function Heatmap() {
                 heatmap.setMap(null);
             }
         }
-    }, [heatmap, results, overlays.heatmap, map]);
+    }, [heatmap, results, shouldShowHeatmap, map]);
 
     return null;
 }
@@ -230,7 +231,6 @@ export default function BiomassMap() {
       if (coordinates) {
         const [lng, lat] = coordinates;
         storeMap.panTo({ lat, lng });
-        storeMap.setZoom(14);
       }
     }
   }, [selectedSource, storeMap]);
@@ -280,5 +280,3 @@ export default function BiomassMap() {
     </>
   );
 }
-
-    
