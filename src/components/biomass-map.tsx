@@ -15,11 +15,30 @@ const getCoordinates = (geom: string): [number, number] | null => {
     try {
         const data = JSON.parse(geom);
         // BigQuery returns GEOGRAPHY data in a wrapper object with a 'value' property
-        // which contains a GeoJSON string.
-        const geoJson = JSON.parse(data.value);
-        if (geoJson.coordinates && Array.isArray(geoJson.coordinates) && geoJson.coordinates.length === 2) {
-            return geoJson.coordinates;
+        // which can contain either a GeoJSON string or a WKT string.
+        if (data && data.value) {
+            const innerValue = data.value;
+            try {
+                // Case 1: The inner value is a GeoJSON string
+                const geoJson = JSON.parse(innerValue);
+                if (geoJson.coordinates && Array.isArray(geoJson.coordinates) && geoJson.coordinates.length === 2) {
+                    return geoJson.coordinates as [number, number];
+                }
+            } catch (e) {
+                // Case 2: The inner value is a WKT string like "POINT(lng lat)"
+                if (typeof innerValue === 'string' && innerValue.startsWith('POINT')) {
+                    const match = innerValue.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
+                    if (match && match.length === 3) {
+                        return [parseFloat(match[1]), parseFloat(match[2])];
+                    }
+                }
+            }
         }
+        // Fallback for simple GeoJSON object
+        if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length === 2) {
+            return data.coordinates as [number, number];
+        }
+
     } catch (e) {
         console.error("Failed to parse coordinates", geom, e);
     }
@@ -261,3 +280,5 @@ export default function BiomassMap() {
     </>
   );
 }
+
+    
