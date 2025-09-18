@@ -158,7 +158,11 @@ export default function BiomassMap() {
     if (map) setMap(map);
   }, [map, setMap]);
 
-  const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
+  useEffect(() => {
+    if (storeMap && center) {
+        storeMap.panTo(center);
+    }
+  }, [center, storeMap]);
   
   useEffect(() => {
     if (selectedSource && storeMap) {
@@ -186,7 +190,6 @@ export default function BiomassMap() {
       <Map
         defaultCenter={{ lat: 40.416775, lng: -3.703790 }}
         defaultZoom={6}
-        center={center || undefined}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
