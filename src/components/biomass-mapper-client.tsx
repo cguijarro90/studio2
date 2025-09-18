@@ -77,6 +77,12 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, setMapResults, overlays.biomassPlants]);
   
+  useEffect(() => {
+    if (!overlays.biomassPlants) {
+        resetResults();
+        setMapResults([]);
+    }
+  }, [overlays.biomassPlants, resetResults, setMapResults]);
 
   useEffect(() => {
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
