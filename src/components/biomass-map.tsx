@@ -153,6 +153,7 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, map: storeMap } = useBiomassStore();
   const map = useMap();
+  const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
   
   useEffect(() => {
     if (map) setMap(map);
