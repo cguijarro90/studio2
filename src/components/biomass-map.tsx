@@ -9,6 +9,8 @@ import type { BiomassSource } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
 
 const getCoordinates = (geom: string): [number, number] | null => {
     try {
@@ -135,25 +137,33 @@ function RadiusCircle() {
 
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
+    const { setSelectedSourceId } = useBiomassStore();
     return (
-        <div className="p-2">
-            <h3 className="font-bold text-lg">{source.name}</h3>
-            <div className="flex items-center mt-2">
-                {getColoredBiomassIcon(source.type)}
-                <span className="ml-2 capitalize">{t(source.type as any)}</span>
-            </div>
-             <div className="flex items-center mt-1">
-                <Icons.weight className="w-4 h-4 text-muted-foreground" />
-                <span className="ml-2">{source.quantity.toLocaleString()} {t('mw' as any)}</span>
-            </div>
-        </div>
+        <Card className="min-w-[250px] shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between p-3">
+                <CardTitle className="text-base font-bold leading-none">{source.name}</CardTitle>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedSourceId(null)}>
+                    <Icons.close className="h-4 w-4" />
+                </Button>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 space-y-2 text-sm">
+                <div className="flex items-center">
+                    {getColoredBiomassIcon(source.type)}
+                    <span className="ml-2 capitalize">{t(source.type as any)}</span>
+                </div>
+                <div className="flex items-center">
+                    <Icons.weight className="w-4 h-4 text-muted-foreground" />
+                    <span className="ml-2">{source.quantity.toLocaleString()} {t('mw' as any)}</span>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, map: storeMap } = useBiomassStore();
-  const map = useMap();
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, map: storeMap } = useBiomassStore();
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
+  const map = useMap();
   
   useEffect(() => {
     if (map) setMap(map);
@@ -207,7 +217,8 @@ export default function BiomassMap() {
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}
-                onCloseClick={() => setSelectedSourceId(null)}
+                pixelOffset={[0, -40]}
+                disableAutoPan={true}
               >
                 <InfoWindowContent source={selectedSource} />
               </InfoWindow>
