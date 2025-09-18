@@ -1,7 +1,7 @@
 
 
 export const BIOMASS_TYPES = ['pellets', 'carbon', 'otros'] as const;
-export type BiomassType = (typeof BIOMASS_TYPES)[number];
+export type BiomassType = string;
 
 export type BiomassSource = {
   id: string;

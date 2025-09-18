@@ -2,24 +2,17 @@
 
 import { useBiomassStore } from '@/store/biomass-store';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
-import type { BiomassType } from '@/lib/types';
+import type { BiomassSource } from '@/lib/types';
 
 function ResultItem({
   id,
   name,
   geom_geojson,
-}: {
-  id: string;
-  name: string;
-  type: BiomassType;
-  quantity: number;
-  distance_m: number;
-  geom_geojson: string;
-}) {
+}: BiomassSource) {
   const { t } = useTranslation();
   const { map, setSelectedSourceId, selectedSourceId } = useBiomassStore();
   
@@ -85,7 +78,7 @@ function Pagination() {
 
 export default function ResultsList() {
   const { t } = useTranslation();
-  const { results, isLoading, totalResults, center } = useBiomassStore();
+  const { results, isLoading, center } = useBiomassStore();
 
   if (isLoading) {
     return (
@@ -119,7 +112,7 @@ export default function ResultsList() {
   return (
     <div className="flex flex-col h-full">
         <div className="p-4 text-sm font-semibold text-muted-foreground">
-            {t('results_show').replace('{count}', results.length.toString()).replace('{total}', totalResults.toString())}
+            {t('results_show').replace('{count}', results.length.toString()).replace('{total}', useBiomassStore.getState().totalResults.toString())}
         </div>
         <div className="flex-1 p-4 pt-0 space-y-2">
         {results.map((item) => (
