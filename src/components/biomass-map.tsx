@@ -10,6 +10,36 @@ import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
+// Helper to safely extract coordinates from various GeoJSON/WKT formats
+const getCoordinates = (geom: string): [number, number] | null => {
+    try {
+        const geojson = JSON.parse(geom);
+        // Handle standard GeoJSON Point
+        if (geojson.coordinates) {
+            return geojson.coordinates;
+        }
+        // Handle BigQuery's geography type which wraps GeoJSON in a 'value' property
+        if (geojson.value) {
+            const innerJson = JSON.parse(geojson.value);
+            if (innerJson.coordinates) {
+                return innerJson.coordinates;
+            }
+        }
+        return null;
+    } catch (e) {
+        // Fallback for non-JSON strings, like WKT "POINT(lng lat)"
+        if (typeof geom === 'string' && geom.startsWith('POINT')) {
+            const match = geom.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
+            if (match && match.length === 3) {
+                return [parseFloat(match[1]), parseFloat(match[2])];
+            }
+        }
+        console.error("Failed to parse coordinates", geom, e);
+        return null;
+    }
+};
+
+
 function Markers() {
   const map = useMap();
   const { results, overlays, setSelectedSourceId } = useBiomassStore();
@@ -26,8 +56,7 @@ function Markers() {
     clusterer.current?.clearMarkers();
     if (overlays.clusters && results.length > 0) {
       const markers = results.map(poi => {
-        const geojson = JSON.parse(poi.geom_geojson);
-        const coordinates = geojson.coordinates || (geojson.value && JSON.parse(geojson.value).coordinates);
+        const coordinates = getCoordinates(poi.geom_geojson);
         if (!coordinates) return null;
         const [lng, lat] = coordinates;
         const marker = new google.maps.Marker({ position: { lat, lng } });
@@ -63,8 +92,7 @@ function Markers() {
   return (
     <>
       {results.map((poi: BiomassSource) => {
-        const geojson = JSON.parse(poi.geom_geojson);
-        const coordinates = geojson.coordinates || (geojson.value && JSON.parse(geojson.value).coordinates);
+        const coordinates = getCoordinates(poi.geom_geojson);
         if (!coordinates) return null;
         const [lng, lat] = coordinates;
         const pinStyle = getPinStyle(poi.type);
@@ -147,8 +175,7 @@ function Heatmap() {
         if (heatmap) {
             if (overlays.heatmap && results.length > 0) {
                 const data = results.map(poi => {
-                    const geojson = JSON.parse(poi.geom_geojson);
-                    const coordinates = geojson.coordinates || (geojson.value && JSON.parse(geojson.value).coordinates);
+                    const coordinates = getCoordinates(poi.geom_geojson);
                     if (!coordinates) return null;
                     const [lng, lat] = coordinates;
                     return new google.maps.LatLng(lat, lng);
@@ -193,16 +220,11 @@ export default function BiomassMap() {
   
   useEffect(() => {
     if (selectedSource && storeMap) {
-      try {
-        const geojson = JSON.parse(selectedSource.geom_geojson);
-        const coordinates = geojson.coordinates || (geojson.value && JSON.parse(geojson.value).coordinates);
-        if(coordinates) {
-          const [lng, lat] = coordinates;
-          storeMap.panTo({ lat, lng });
-          storeMap.setZoom(14);
-        }
-      } catch (e) {
-        console.error("Failed to parse geojson for panning", e);
+      const coordinates = getCoordinates(selectedSource.geom_geojson);
+      if (coordinates) {
+        const [lng, lat] = coordinates;
+        storeMap.panTo({ lat, lng });
+        storeMap.setZoom(14);
       }
     }
   }, [selectedSource, storeMap]);
@@ -210,16 +232,10 @@ export default function BiomassMap() {
 
   const getSelectedPosition = () => {
     if (!selectedSource) return null;
-    try {
-      const geojson = JSON.parse(selectedSource.geom_geojson);
-      const coordinates = geojson.coordinates || (geojson.value && JSON.parse(geojson.value).coordinates);
-      if(!coordinates) return null;
-      const [lng, lat] = coordinates;
-      return { lat, lng };
-    } catch (e) {
-      console.error("Failed to parse coordinates for InfoWindow", e);
-      return null;
-    }
+    const coordinates = getCoordinates(selectedSource.geom_geojson);
+    if(!coordinates) return null;
+    const [lng, lat] = coordinates;
+    return { lat, lng };
   };
 
   const selectedPosition = getSelectedPosition();
