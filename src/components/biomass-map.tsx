@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
-import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
+import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource } from '@/lib/types';
 import MapLegend from './map-legend';
@@ -157,6 +157,29 @@ function InfoWindowContent({source, onClose}: {source: BiomassSource, onClose: (
     );
 }
 
+const checkIsSpain = (
+    latLng: google.maps.LatLng,
+    onResult: (isSpain: boolean) => void
+  ) => {
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: latLng }, (results, status) => {
+      if (status === "OK" && results) {
+        for (const result of results) {
+          for (const component of result.address_components) {
+            if (
+              component.types.includes("country") &&
+              component.short_name === "ES"
+            ) {
+              onResult(true);
+              return;
+            }
+          }
+        }
+      }
+      onResult(false);
+    });
+  };
+
 export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, map: storeMap, setIsOutOfSpainDialogOpen, setSearchInitiated } = useBiomassStore();
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
@@ -202,17 +225,19 @@ export default function BiomassMap() {
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
         onClick={(e) => {
-          if (e.detail.latLng) {
-            const point = e.detail.latLng;
-            if (!isPointInSpain(point)) {
-              setIsOutOfSpainDialogOpen(true);
-              return;
+            if (e.detail.latLng) {
+              const point = e.detail.latLng;
+              checkIsSpain(point, (isSpain) => {
+                if (!isSpain) {
+                  setIsOutOfSpainDialogOpen(true);
+                  return;
+                }
+                setCenter({ lat: point.lat(), lng: point.lng() });
+                setSelectedSourceId(null);
+                setSearchInitiated(true);
+              });
             }
-            setCenter(point);
-            setSelectedSourceId(null);
-            setSearchInitiated(true);
-          }
-        }}
+          }}
       >
         <Markers />
         <RadiusCircle />

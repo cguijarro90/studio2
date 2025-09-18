@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
-import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
+import { useBiomassStore } from '@/store/biomass-store';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -19,21 +19,32 @@ export default function PlacesAutocomplete() {
     autocompleteRef.current = new google.maps.places.Autocomplete(
       inputRef.current,
       {
-        fields: ['geometry.location', 'name'],
+        fields: ['geometry.location', 'name', 'address_components'],
         types: ['geocode'],
       }
     );
 
     const listener = autocompleteRef.current.addListener('place_changed', () => {
       const place = autocompleteRef.current?.getPlace();
+      
+      const isSpain = place?.address_components?.some(
+        (component) =>
+          component.types.includes("country") && component.short_name === "ES"
+      );
+
+      if (!isSpain) {
+        setIsOutOfSpainDialogOpen(true);
+        if (inputRef.current) {
+            inputRef.current.value = "";
+        }
+        return;
+      }
+      
       if (place?.geometry?.location) {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         const point = { lat, lng };
-        if (!isPointInSpain(point)) {
-          setIsOutOfSpainDialogOpen(true);
-          return;
-        }
+        
         setCenter(point);
         setSearchInitiated(true);
         map.panTo({ lat, lng });
