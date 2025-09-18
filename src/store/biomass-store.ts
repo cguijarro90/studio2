@@ -3,8 +3,8 @@ import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/t
 
 // Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
 const BOUNDS = [
-  // Mainland and Balearic Islands
-  { north: 44.0, south: 35.9, west: -9.31, east: 4.5 },
+  // Mainland Spain (tighter box to exclude Portugal/France) & Balearic Islands
+  { north: 43.79, south: 35.9, west: -9.3, east: 4.32 },
   // Canary Islands
   { north: 29.5, south: 27.6, west: -18.2, east: -13.3 },
   // Ceuta
