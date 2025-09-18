@@ -78,6 +78,7 @@ function Markers() {
   }, [map, results, shouldShowMarkers, setSelectedSourceId]);
 
   if (!shouldShowMarkers) {
+      clusterer.current?.clearMarkers();
       return null;
   }
 
@@ -159,44 +160,6 @@ function RadiusCircle() {
   return null;
 }
 
-function Heatmap() {
-    const map = useMap();
-    const { results, overlays } = useBiomassStore();
-    const [heatmap, setHeatmap] = useState<google.maps.visualization.HeatmapLayer | null>(null);
-    const shouldShowHeatmap = overlays.biomassPlants;
-
-    useEffect(() => {
-        if (!map) return;
-        if (!heatmap) {
-            setHeatmap(new google.maps.visualization.HeatmapLayer({
-                map,
-                radius: 40,
-            }));
-        }
-        return () => {
-            heatmap?.setMap(null);
-        };
-    }, [map, heatmap]);
-
-    useEffect(() => {
-        if (heatmap) {
-            if (shouldShowHeatmap && results.length > 0) {
-                const data = results.map(poi => {
-                    const coordinates = getCoordinates(poi.geom_geojson);
-                    if (!coordinates) return null;
-                    const [lng, lat] = coordinates;
-                    return new google.maps.LatLng(lat, lng);
-                }).filter(Boolean) as google.maps.LatLng[];
-                heatmap.setData(data);
-                heatmap.setMap(map);
-            } else {
-                heatmap.setMap(null);
-            }
-        }
-    }, [heatmap, results, shouldShowHeatmap, map]);
-
-    return null;
-}
 
 function InfoWindowContent({source}: {source: BiomassSource}) {
     const { t } = useTranslation();
@@ -265,7 +228,6 @@ export default function BiomassMap() {
       >
         <Markers />
         <RadiusCircle />
-        <Heatmap />
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}

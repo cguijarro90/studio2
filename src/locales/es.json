@@ -11,7 +11,6 @@
     "radius": "Radio (km)",
     "map_layers": "Capas del Mapa",
     "cluster_markers": "Agrupar Marcadores",
-    "heatmap": "Mapa de Calor",
     "search": "Buscar",
     "searching": "Buscando...",
     "results_show": "Mostrando {count} de {total} resultados",

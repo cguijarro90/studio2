@@ -11,7 +11,6 @@
     "radius": "Radius (km)",
     "map_layers": "Map Layers",
     "cluster_markers": "Cluster Markers",
-    "heatmap": "Heatmap",
     "search": "Search",
     "searching": "Searching...",
     "results_show": "Showing {count} of {total} results",
