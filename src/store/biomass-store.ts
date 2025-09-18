@@ -5,7 +5,7 @@ import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/t
 const MAINLAND_BOUNDS = {
   north: 44.0,
   south: 35.9,
-  west: -9.5,
+  west: -9.31, // Corrected western boundary to exclude Portugal
   east: 4.5,
 };
 
