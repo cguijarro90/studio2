@@ -68,7 +68,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     <>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
-          <div className="space-y-2">
+          <div>
              <Label className="text-muted-foreground font-bold">{t('location')}</Label>
              <PlacesAutocomplete />
           </div>
