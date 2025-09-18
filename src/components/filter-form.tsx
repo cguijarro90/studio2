@@ -110,15 +110,15 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             )}
           />
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <FormLabel className="text-muted-foreground font-bold">{t('map_layers')}</FormLabel>
              <FormField
                 control={form.control}
                 name="overlays.biomassPlants"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-muted-foreground">{t('biomass_plants')}</FormLabel>
+                      <FormLabel className="text-sm text-muted-foreground">{t('biomass_plants')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -130,9 +130,9 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 control={form.control}
                 name="overlays.agriculturalData"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-muted-foreground">{t('agricultural_data')}</FormLabel>
+                      <FormLabel className="text-sm text-muted-foreground">{t('agricultural_data')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -144,9 +144,9 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 control={form.control}
                 name="overlays.forestData"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-muted-foreground">{t('forest_data')}</FormLabel>
+                      <FormLabel className="text-sm text-muted-foreground">{t('forest_data')}</FormLabel>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
