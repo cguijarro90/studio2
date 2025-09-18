@@ -12,6 +12,7 @@ import InitialFilterDialog from '@/components/initial-filter-dialog';
 import OutOfSpainDialog from '@/components/out-of-spain-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
+import CoordinatesDisplay from './coordinates-display';
 
 export default function BiomassMapperClient() {
   const {
@@ -95,6 +96,7 @@ export default function BiomassMapperClient() {
     <APIProvider apiKey={apiKey} libraries={['places', 'visualization']}>
       <main className="grid grid-cols-1 md:grid-cols-[1fr,30%] lg:grid-cols-[1fr,30rem] h-screen w-screen bg-background">
         <div className="relative w-full h-full">
+          <CoordinatesDisplay />
           <BiomassMap />
         </div>
         <div className="hidden md:flex md:flex-col h-full border-l border-border bg-card overflow-hidden">

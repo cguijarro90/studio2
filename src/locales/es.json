@@ -4,6 +4,8 @@
     "app_subtitle": "Encuentra fuentes de biomasa cerca de ti.",
     "location": "Ubicación",
     "search_location_placeholder": "Busca una ubicación...",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
     "biomass_types": "Tipos de Biomasa",
     "radius_km": "Radio ({radius} km)",
     "map_layers": "Capas del Mapa",
@@ -24,6 +26,9 @@
     "biomass": "Biomasa",
     "cogeneration": "Cogeneración",
     "waste": "Residuos",
+    "biomass_plants": "Plantas de Biomasa",
+    "agricultural_data": "Datos Agrícolas",
+    "forest_data": "Datos Forestales",
     "otros": "Otros",
     "legend": "Leyenda",
     "initial_dialog_title": "Configura tu Área de Búsqueda",
@@ -39,5 +44,7 @@
     "close": "Cerrar",
     "geolocate_me": "Centrar en mi ubicación",
     "geolocation_not_supported": "La geolocalización no es compatible con tu navegador.",
-    "geolocation_denied": "No se pudo obtener tu ubicación. Por favor, activa los servicios de localización en tu navegador."
+    "geolocation_denied": "No se pudo obtener tu ubicación. Por favor, activa los servicios de localización en tu navegador.",
+    "out_of_spain_title": "Ubicación fuera de España",
+    "out_of_spain_desc": "La ubicación seleccionada está fuera de España. Los datos disponibles se limitan al territorio español."
 }
