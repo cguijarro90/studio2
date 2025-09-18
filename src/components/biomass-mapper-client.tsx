@@ -19,6 +19,7 @@ export default function BiomassMapperClient() {
     center,
     radiusKm,
     page,
+    overlays,
     searchInitiated,
     setIsLoading,
     setResults,
@@ -34,7 +35,7 @@ export default function BiomassMapperClient() {
   useQuerySync();
 
   const performListSearch = useCallback(async (searchPage = page) => {
-    if (!center) {
+    if (!center || !overlays.biomassPlants) {
       resetResults();
       return;
     }
@@ -55,10 +56,11 @@ export default function BiomassMapperClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [center, radiusKm, page, setIsLoading, setResults, resetResults]);
+  }, [center, radiusKm, page, setIsLoading, setResults, resetResults, overlays.biomassPlants]);
 
   const performMapSearch = useCallback(async () => {
-    if (!center) {
+    if (!center || !overlays.biomassPlants) {
+      setMapResults([]);
       return;
     }
     try {
@@ -73,7 +75,7 @@ export default function BiomassMapperClient() {
       console.error('Map search failed:', error);
       setMapResults([]);
     }
-  }, [center, radiusKm, setMapResults]);
+  }, [center, radiusKm, setMapResults, overlays.biomassPlants]);
   
 
   useEffect(() => {

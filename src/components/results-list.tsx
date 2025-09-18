@@ -33,7 +33,7 @@ function ResultItem({
             <h3 className="text-sm font-medium capitalize text-muted-foreground flex-1 pr-2">{name}</h3>
              <div className="flex items-center gap-2 text-sm text-muted-foreground font-semibold">
                 {getColoredBiomassIcon(type, "h-5 w-5")}
-                <span>{quantity.toFixed(2)} {t('mw')}</span>
+                <span>{quantity.toFixed(2)} {t('mw' as any)}</span>
             </div>
         </div>
       </CardContent>
@@ -66,7 +66,7 @@ function Pagination() {
 
 export default function ResultsList() {
   const { t } = useTranslation();
-  const { results, isLoading, center } = useBiomassStore();
+  const { results, isLoading, center, overlays } = useBiomassStore();
 
   if (isLoading) {
     return (
@@ -86,6 +86,10 @@ export default function ResultsList() {
             <p>{t('initial_prompt')}</p>
         </div>
     );
+  }
+
+  if (!overlays.biomassPlants) {
+      return null;
   }
 
   if (results.length === 0) {
