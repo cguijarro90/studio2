@@ -5,8 +5,8 @@ import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/t
 const MAINLAND_BOUNDS = {
   north: 44.0,
   south: 35.9,
-  west: -9.31, // Corrected western boundary to exclude Portugal
-  east: 4.5,
+  west: -9.31, // Western boundary of mainland Spain (Cape Touriñán)
+  east: 4.5,   // Eastern boundary of mainland Spain
 };
 
 const CANARIES_BOUNDS = {
@@ -34,18 +34,22 @@ const MELILLA_BOUNDS = {
 export const isPointInSpain = (point: Point) => {
   const { lat, lng } = point;
   
+  // Check mainland Spain and Balearic Islands
   if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLAND_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
       return true;
   }
   
+  // Check Canary Islands
   if (lat <= CANARIES_BOUNDS.north && lat >= CANARIES_BOUNDS.south && lng <= CANARIES_BOUNDS.east && lng >= CANARIES_BOUNDS.west) {
     return true;
   }
 
+  // Check Ceuta
   if (lat <= CEUTA_BOUNDS.north && lat >= CEUTA_BOUNDS.south && lng <= CEUTA_BOUNDS.east && lng >= CEUTA_BOUNDS.west) {
     return true;
   }
 
+  // Check Melilla
   if (lat <= MELILLA_BOUNDS.north && lat >= MELILLA_BOUNDS.south && lng <= MELILLA_BOUNDS.east && lng >= MELILLA_BOUNDS.west) {
     return true;
   }
