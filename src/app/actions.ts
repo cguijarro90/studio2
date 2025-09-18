@@ -37,21 +37,15 @@ export async function searchBiomass(
   // We use ST_GEOGRAPHY functions for geospatial queries.
   // The query finds points within a given radius of the search center.
   let query = `
-    WITH data AS (
-      SELECT
-        *,
-        ST_GEOGPOINT(coord_x, coord_y) as location
-      FROM ${table}
-    )
     SELECT
       objectid as id,
       descripcion as name,
       tecnologia as type,
       mw as quantity,
-      location,
-      ST_DISTANCE(location, ST_GEOGPOINT(@lng, @lat)) as distance_m
-    FROM data
-    WHERE ST_DWITHIN(location, ST_GEOGPOINT(@lng, @lat), @radius_m)
+      geometry as location,
+      ST_DISTANCE(geometry, ST_GEOGPOINT(@lng, @lat)) as distance_m
+    FROM ${table}
+    WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
   `;
 
   const queryParams: any = {

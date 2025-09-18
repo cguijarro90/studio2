@@ -11,42 +11,18 @@ import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
-// Helper to safely extract coordinates from various GeoJSON/WKT formats
 const getCoordinates = (geom: string): [number, number] | null => {
-    let data: any;
     try {
-        data = JSON.parse(geom);
+        const data = JSON.parse(geom);
+        // BigQuery returns GEOGRAPHY data in a wrapper object with a 'value' property
+        // which contains a GeoJSON string.
+        const geoJson = JSON.parse(data.value);
+        if (geoJson.coordinates && Array.isArray(geoJson.coordinates) && geoJson.coordinates.length === 2) {
+            return geoJson.coordinates;
+        }
     } catch (e) {
-        data = geom; // Not a JSON string, assume WKT or other format
+        console.error("Failed to parse coordinates", geom, e);
     }
-
-    if (typeof data === 'object' && data !== null) {
-        // Handle BigQuery geography wrapper
-        if (data.value) {
-            data = data.value;
-            // The value itself might be a JSON string
-            try {
-                data = JSON.parse(data);
-            } catch (e) {
-                // It's not a JSON string, leave it as is (e.g., WKT)
-            }
-        }
-        
-        // Handle standard GeoJSON Point
-        if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length === 2) {
-            return data.coordinates;
-        }
-    }
-    
-    // Fallback for non-JSON strings, like WKT "POINT(lng lat)"
-    if (typeof data === 'string' && data.startsWith('POINT')) {
-        const match = data.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
-        if (match && match.length === 3) {
-            return [parseFloat(match[1]), parseFloat(match[2])];
-        }
-    }
-    
-    console.error("Failed to parse coordinates", geom);
     return null;
 };
 
@@ -285,5 +261,3 @@ export default function BiomassMap() {
     </>
   );
 }
-
-    
