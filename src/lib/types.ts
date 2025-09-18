@@ -1,6 +1,7 @@
 
 
 export const BIOMASS_TYPES = ['pellets', 'carbon', 'otros'] as const;
+export const BIOMASS_TECHNOLOGIES = ['Biomasa', 'Cogeneración', 'Residuos', 'Otros'] as const;
 export type BiomassType = string;
 
 export type BiomassSource = {
@@ -29,41 +30,37 @@ export type Locale = 'en' | 'es';
 export type AppState = {
   center: Point | null;
   radiusKm: number;
+  biomassTypes: BiomassType[];
   overlays: {
-    biomassPlants: boolean;
-    agriculturalData: boolean;
-    forestData: boolean;
+    markers: boolean;
+    clusters: boolean;
+    heatmap: boolean;
   };
   page: number;
   results: BiomassSource[];
   totalResults: number;
   isLoading: boolean;
   isInitialDialogOpen: boolean;
-  isOutOfSpainDialogOpen: boolean;
   map: google.maps.Map | null;
   selectedSourceId: string | null;
   locale: Locale;
   searchInitiated: boolean;
-  intersectingProvinces: string[];
-  isLoadingProvinces: boolean;
 };
 
 export type AppActions = {
   setCenter: (center: Point) => void;
   setRadiusKm: (radius: number) => void;
+  setBiomassTypes: (types: BiomassType[]) => void;
   setOverlays: (overlays: AppState['overlays']) => void;
   setPage: (page: number) => void;
   setResults: (data: SearchResults) => void;
   setTotalResults: (total: number) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialDialogOpen: (isOpen: boolean) => void;
-  setIsOutOfSpainDialogOpen: (isOpen: boolean) => void;
   setMap: (map: google.maps.Map | null) => void;
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;
   setSearchInitiated: (initiated: boolean) => void;
-  setIntersectingProvinces: (provinces: string[]) => void;
-  setIsLoadingProvinces: (loading: boolean) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

@@ -2,28 +2,29 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
-import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
+import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, BiomassType } from '@/lib/types';
+import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 
 function Markers() {
-  const { results, overlays, setSelectedSourceId } = useBiomassStore();
+  const { results, setSelectedSourceId } = useBiomassStore();
 
   const getPinStyle = (type: string) => {
-    switch (type) {
-      case 'pellets':
-        return { background: 'hsl(var(--chart-4))', borderColor: 'hsl(var(--chart-4))' };
-      case 'carbon':
-        return { background: 'hsl(var(--chart-2))', borderColor: 'hsl(var(--chart-2))' };
-      case 'otros':
-      default:
-        return { background: 'hsl(var(--primary))', borderColor: 'hsl(var(--primary))' };
+    const lowerCaseType = type?.toLowerCase() || '';
+    if (lowerCaseType.includes('biomasa')) {
+        return { background: 'hsl(var(--chart-3))', borderColor: 'hsl(var(--chart-3))' };
     }
+    if (lowerCaseType.includes('cogeneración')) {
+        return { background: 'hsl(var(--chart-2))', borderColor: 'hsl(var(--chart-2))' };
+    }
+    if (lowerCaseType.includes('residuos')) {
+        return { background: 'hsl(var(--chart-4))', borderColor: 'hsl(var(--chart-4))' };
+    }
+    return { background: 'hsl(var(--chart-1))', borderColor: 'hsl(var(--chart-1))' };
   };
-
-  if (!overlays.biomassPlants) return null;
 
   return (
     <>
@@ -58,20 +59,45 @@ function Markers() {
   );
 }
 
-function SearchCenterMarker() {
-  const { center, searchInitiated } = useBiomassStore();
+function RadiusCircle() {
+  const map = useMap();
+  const { center, radiusKm, searchInitiated } = useBiomassStore();
+  const [circle, setCircle] = useState<google.maps.Circle | null>(null);
 
-  if (!center || !searchInitiated) {
-    return null;
-  }
+  useEffect(() => {
+    if (!map) return;
 
-  return (
-    <AdvancedMarker position={center} zIndex={google.maps.Marker.MAX_ZINDEX + 1}>
-        <Pin background={"#000033"} glyphColor={"#FFFFFF"} borderColor={"#000033"} scale={1.2}>
-            <Icons.searchPin className="w-6 h-6" />
-        </Pin>
-    </AdvancedMarker>
-  );
+    if (!circle) {
+      setCircle(
+        new google.maps.Circle({
+          strokeColor: 'hsl(var(--primary))',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: 'hsl(var(--primary))',
+          fillOpacity: 0.1,
+          map,
+        })
+      );
+    }
+
+    return () => {
+      if (circle) {
+        circle.setMap(null);
+      }
+    };
+  }, [map, circle]);
+
+  useEffect(() => {
+    if (circle && center && searchInitiated) {
+      circle.setCenter(center);
+      circle.setRadius(radiusKm * 1000);
+      circle.setVisible(true);
+    } else {
+      circle?.setVisible(false);
+    }
+  }, [circle, center, radiusKm, searchInitiated]);
+
+  return null;
 }
 
 function InfoWindowContent({source}: {source: BiomassSource}) {
@@ -81,60 +107,23 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
             <h3 className="font-bold text-lg">{source.name}</h3>
             <div className="flex items-center mt-2">
                 {getColoredBiomassIcon(source.type)}
-                <span className="ml-2 capitalize">{t(source.type as BiomassType)}</span>
+                <span className="ml-2 capitalize">{source.type}</span>
             </div>
              <div className="flex items-center mt-1">
                 <Icons.weight className="w-4 h-4 text-muted-foreground" />
-                <span className="ml-2">{source.quantity.toLocaleString()} {t('tons')}</span>
+                <span className="ml-2">{source.quantity.toLocaleString()} {t('mw')}</span>
             </div>
         </div>
     );
 }
 
 export default function BiomassMap() {
-  const { 
-      center, 
-      setCenter, 
-      setMap, 
-      selectedSourceId, 
-      setSelectedSourceId, 
-      setSearchInitiated, 
-      setIsOutOfSpainDialogOpen,
-      radiusKm,
-      searchInitiated
-  } = useBiomassStore();
-  
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated } = useBiomassStore();
   const map = useMap();
-  const circleRef = useRef<google.maps.Circle | null>(null);
   
   useEffect(() => {
     if (map) setMap(map);
   }, [map, setMap]);
-
-  useEffect(() => {
-      if (!map) return;
-
-      if (!circleRef.current) {
-          circleRef.current = new google.maps.Circle({
-              strokeColor: 'hsl(var(--primary))',
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillColor: 'hsl(var(--primary))',
-              fillOpacity: 0.1,
-              map: map,
-              clickable: false,
-          });
-      }
-
-      if (center && searchInitiated) {
-          circleRef.current.setCenter(center);
-          circleRef.current.setRadius(radiusKm * 1000);
-          circleRef.current.setVisible(true);
-      } else {
-          circleRef.current.setVisible(false);
-      }
-  }, [map, center, radiusKm, searchInitiated]);
-
 
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
   
@@ -154,20 +143,6 @@ export default function BiomassMap() {
         }
     }
 
-  
-  const handleClick = (e: { detail: { latLng: google.maps.LatLngLiteral | null; } }) => {
-    if (!e.detail.latLng) return;
-
-    const point = e.detail.latLng;
-
-    if (!isPointInSpain(point)) {
-      setIsOutOfSpainDialogOpen(true);
-    }
-    
-    setCenter(point);
-    setSelectedSourceId(null);
-    setSearchInitiated(true);
-  };
 
   return (
     <>
@@ -178,22 +153,27 @@ export default function BiomassMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapId="a3b021396b3b1df4"
-        onClick={handleClick}
+        onClick={(e) => {
+          if (e.detail.latLng) {
+            setCenter(e.detail.latLng);
+            setSelectedSourceId(null);
+            setSearchInitiated(true);
+          }
+        }}
       >
         <Markers />
-        <SearchCenterMarker />
-
+        <RadiusCircle />
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}
                 onCloseClick={() => setSelectedSourceId(null)}
-                disableAutoPan={true}
               >
                 <InfoWindowContent source={selectedSource} />
               </InfoWindow>
         )}
       </Map>
       <GeolocateControl />
+      <MapLegend />
     </>
   );
 }
