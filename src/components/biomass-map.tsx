@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
-import { useBiomassStore } from '@/store/biomass-store';
+import { useBiomassStore, isPointInSpain } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource } from '@/lib/types';
 import MapLegend from './map-legend';
@@ -158,7 +158,7 @@ function InfoWindowContent({source, onClose}: {source: BiomassSource, onClose: (
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, map: storeMap } = useBiomassStore();
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, map: storeMap, setIsOutOfSpainDialogOpen, setSearchInitiated } = useBiomassStore();
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
   const map = useMap();
   
@@ -203,9 +203,13 @@ export default function BiomassMap() {
         mapId="a3b021396b3b1df4"
         onClick={(e) => {
           if (e.detail.latLng) {
-            setCenter(e.detail.latLng);
+            const point = e.detail.latLng;
+            if (!isPointInSpain(point)) {
+              setIsOutOfSpainDialogOpen(true);
+            }
+            setCenter(point);
             setSelectedSourceId(null);
-            useBiomassStore.getState().setSearchInitiated(true);
+            setSearchInitiated(true);
           }
         }}
       >

@@ -25,11 +25,11 @@ export default function OutOfSpainDialog() {
               <TriangleAlert className="h-6 w-6 text-yellow-600" />
           </div>
           <DialogTitle className="text-xl font-bold text-center">
-            {t('out_of_spain_title')}
+            {t('out_of_spain_title' as any)}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4 text-sm text-center text-muted-foreground">
-          <p>{t('out_of_spain_desc')}</p>
+          <p>{t('out_of_spain_desc' as any)}</p>
         </div>
         <DialogFooter>
             <Button onClick={() => setIsOutOfSpainDialogOpen(false)} className="w-full">{t('close')}</Button>
