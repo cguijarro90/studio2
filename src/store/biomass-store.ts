@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppState, AppActions, Locale, Point } from '@/lib/types';
+import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/types';
 
 // Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
 const MAINLAND_BOUNDS = {
@@ -63,6 +63,7 @@ const initialState: AppState = {
   },
   page: 1,
   results: [],
+  mapResults: [],
   totalResults: 0,
   isLoading: false,
   isInitialDialogOpen: false,
@@ -80,6 +81,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setOverlays: (overlays) => set({ overlays }),
   setPage: (page) => set({ page }),
   setResults: (data) => set({ results: data.items, totalResults: data.total }),
+  setMapResults: (results: BiomassSource[]) => set({ mapResults: results }),
   setTotalResults: (total) => set({ totalResults: total }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsInitialDialogOpen: (isInitialDialogOpen) => set({ isInitialDialogOpen }),
@@ -94,5 +96,5 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
       overlays: initialState.overlays,
       page: 1,
     }),
-  resetResults: () => set({ results: [], totalResults: 0, page: 1, searchInitiated: false }),
+  resetResults: () => set({ results: [], totalResults: 0, page: 1, mapResults: [], searchInitiated: false }),
 }));

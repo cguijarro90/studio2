@@ -16,8 +16,9 @@ const searchSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   radius_m: z.number().min(100).max(75000),
-  page: z.number().min(1),
-  limit: z.number().min(1).max(100),
+  page: z.number().min(1).optional(),
+  limit: z.number().min(1).max(100).optional(),
+  fetchAll: z.boolean().optional(),
 });
 
 export async function searchBiomass(
@@ -28,7 +29,7 @@ export async function searchBiomass(
     throw new Error(`Invalid search parameters: ${validation.error.message}`);
   }
 
-  const { lat, lng, radius_m, page, limit } = validation.data;
+  const { lat, lng, radius_m, page = 1, limit = 50, fetchAll = false } = validation.data;
   const offset = (page - 1) * limit;
 
   const table = '`ce-sdx-platform-0007.REE_BRONZE.INSTALACIONES_COGEN_2025_05`';
@@ -55,14 +56,17 @@ export async function searchBiomass(
   
   const countQuery = `SELECT COUNT(*) as count FROM (${query})`;
 
-  query += `
-    ORDER BY distance_m
-    LIMIT @limit
-    OFFSET @offset
-  `;
-  
-  queryParams.limit = limit;
-  queryParams.offset = offset;
+  if (!fetchAll) {
+      query += `
+        ORDER BY distance_m
+        LIMIT @limit
+        OFFSET @offset
+      `;
+      queryParams.limit = limit;
+      queryParams.offset = offset;
+  } else {
+      query += ` ORDER BY distance_m LIMIT 1000`; // Limit to 1000 for map view to avoid overload
+  }
 
   try {
     const [totalRows] = await bigquery.query({

@@ -10,7 +10,6 @@ import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 import CoordinatesDisplay from './coordinates-display';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 
 const getCoordinates = (geom: string): [number, number] | null => {
@@ -49,7 +48,7 @@ const getCoordinates = (geom: string): [number, number] | null => {
 
 
 function Markers() {
-  const { results, overlays, setSelectedSourceId } = useBiomassStore();
+  const { mapResults, overlays, setSelectedSourceId } = useBiomassStore();
   
   const shouldShowMarkers = overlays.biomassPlants;
 
@@ -73,7 +72,7 @@ function Markers() {
 
   return (
     <>
-      {results.map((poi: BiomassSource) => {
+      {mapResults.map((poi: BiomassSource) => {
         const coordinates = getCoordinates(poi.geom_geojson);
         if (!coordinates) return null;
         const [lng, lat] = coordinates;
@@ -140,7 +139,7 @@ function InfoWindowContent({source, onClose}: {source: BiomassSource, onClose: (
     const { t } = useTranslation();
     return (
         <div className="p-1 min-w-48">
-            <div className="flex justify-between items-start">
+             <div className="flex justify-between items-start">
                 <h3 className="font-bold text-base text-foreground mb-2 pr-4">{source.name}</h3>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onClose}><Icons.close className="w-4 h-4" /></Button>
             </div>
@@ -206,6 +205,7 @@ export default function BiomassMap() {
           if (e.detail.latLng) {
             setCenter(e.detail.latLng);
             setSelectedSourceId(null);
+            useBiomassStore.getState().setSearchInitiated(true);
           }
         }}
       >

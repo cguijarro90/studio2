@@ -22,6 +22,7 @@ export default function BiomassMapperClient() {
     searchInitiated,
     setIsLoading,
     setResults,
+    setMapResults,
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
@@ -32,7 +33,7 @@ export default function BiomassMapperClient() {
   
   useQuerySync();
 
-  const performSearch = useCallback(async (searchPage = page) => {
+  const performListSearch = useCallback(async (searchPage = page) => {
     if (!center) {
       resetResults();
       return;
@@ -55,6 +56,24 @@ export default function BiomassMapperClient() {
       setIsLoading(false);
     }
   }, [center, radiusKm, page, setIsLoading, setResults, resetResults]);
+
+  const performMapSearch = useCallback(async () => {
+    if (!center) {
+      return;
+    }
+    try {
+      const results = await searchBiomass({
+        lat: center.lat,
+        lng: center.lng,
+        radius_m: radiusKm * 1000,
+        fetchAll: true,
+      });
+      setMapResults(results.items);
+    } catch (error) {
+      console.error('Map search failed:', error);
+      setMapResults([]);
+    }
+  }, [center, radiusKm, setMapResults]);
   
 
   useEffect(() => {
@@ -69,8 +88,8 @@ export default function BiomassMapperClient() {
   }, []);
 
   useEffect(() => {
-    if (searchInitiated && page > 1) {
-        performSearch(page);
+    if (searchInitiated) {
+        performListSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, searchInitiated]);
@@ -89,7 +108,8 @@ export default function BiomassMapperClient() {
     if (currentPage !== 1) {
         setPage(1); 
     }
-    performSearch(1);
+    performListSearch(1);
+    performMapSearch();
   }
 
   return (

@@ -36,6 +36,7 @@ export type AppState = {
   };
   page: number;
   results: BiomassSource[];
+  mapResults: BiomassSource[];
   totalResults: number;
   isLoading: boolean;
   isInitialDialogOpen: boolean;
@@ -52,6 +53,7 @@ export type AppActions = {
   setOverlays: (overlays: AppState['overlays']) => void;
   setPage: (page: number) => void;
   setResults: (data: SearchResults) => void;
+  setMapResults: (results: BiomassSource[]) => void;
   setTotalResults: (total: number) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialDialogOpen: (isOpen: boolean) => void;
