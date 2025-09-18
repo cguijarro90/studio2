@@ -227,12 +227,12 @@ export default function BiomassMap() {
         onClick={(e) => {
             if (e.detail.latLng) {
               const point = e.detail.latLng;
-              checkIsSpain(point, (isSpain) => {
+              checkIsSpain(new google.maps.LatLng(point), (isSpain) => {
                 if (!isSpain) {
                   setIsOutOfSpainDialogOpen(true);
                   return;
                 }
-                setCenter({ lat: point.lat(), lng: point.lng() });
+                setCenter({ lat: point.lat, lng: point.lng });
                 setSelectedSourceId(null);
                 setSearchInitiated(true);
               });
