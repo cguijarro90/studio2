@@ -78,8 +78,8 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
             name="radiusKm"
             render={({ field: { value, onChange } }) => (
               <FormItem>
-                <FormLabel className="text-muted-foreground font-bold">{t('radius_km').replace('{radius}', value ? value.toFixed(1) : '0.0')}</FormLabel>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <FormLabel className="text-muted-foreground font-bold text-sm whitespace-nowrap">{t('radius_km').split('(')[0]}</FormLabel>
                   <Slider
                     min={0.1}
                     max={75}
@@ -93,9 +93,9 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                     min={0.1}
                     max={75}
                     step={0.1}
-                    value={value || 0}
+                    value={value ? parseFloat(value.toFixed(1)) : 0}
                     onChange={(e) => onChange(e.target.valueAsNumber)}
-                    className="w-24"
+                    className="w-20"
                   />
                 </div>
                 <FormMessage />

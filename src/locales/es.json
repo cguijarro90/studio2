@@ -7,7 +7,7 @@
     "latitude": "Latitud",
     "longitude": "Longitud",
     "biomass_types": "Tipos de Biomasa",
-    "radius_km": "Radio ({radius} km)",
+    "radius_km": "Radio (km)",
     "map_layers": "Capas del Mapa",
     "cluster_markers": "Agrupar Marcadores",
     "heatmap": "Mapa de Calor",
