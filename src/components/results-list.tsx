@@ -17,29 +17,10 @@ function ResultItem({
   quantity,
 }: BiomassSource) {
   const { t } = useTranslation();
-  const { map, setSelectedSourceId, selectedSourceId } = useBiomassStore();
+  const { setSelectedSourceId, selectedSourceId } = useBiomassStore();
   
   const viewOnMap = () => {
-    if (map && geom_geojson) {
-      try {
-        const locationObject = JSON.parse(geom_geojson);
-        const pointString = locationObject.value;
-        const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
-        const lng = parseFloat(coords[0]);
-        const lat = parseFloat(coords[1]);
-
-        if (isNaN(lat) || isNaN(lng)) {
-            console.error("Invalid coordinates in result item");
-            return;
-        }
-
-        map.panTo({ lat, lng });
-        map.setZoom(14);
-        setSelectedSourceId(id);
-      } catch (e) {
-        console.error('Failed to parse geojson', e);
-      }
-    }
+    setSelectedSourceId(id);
   };
 
   return (

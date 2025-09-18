@@ -118,30 +118,49 @@ function InfoWindowContent({source}: {source: BiomassSource}) {
 }
 
 export default function BiomassMap() {
-  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated } = useBiomassStore();
+  const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, setSearchInitiated, results } = useBiomassStore();
   const map = useMap();
   
   useEffect(() => {
     if (map) setMap(map);
   }, [map, setMap]);
 
-  const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
+  const selectedSource = results.find(r => r.id === selectedSourceId);
   
-  let selectedPosition: google.maps.LatLngLiteral | null = null;
-    if (selectedSource) {
-        try {
+  // Effect to pan map when a source is selected from the list
+  useEffect(() => {
+    if (selectedSource && map) {
+       try {
             const locationObject = JSON.parse(selectedSource.geom_geojson);
             const pointString = locationObject.value;
             const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
             const lng = parseFloat(coords[0]);
             const lat = parseFloat(coords[1]);
             if (!isNaN(lat) && !isNaN(lng)) {
-                selectedPosition = { lat, lng };
+                map.panTo({ lat, lng });
+                map.setZoom(14);
             }
         } catch (e) {
-            console.error("Failed to parse selected source coordinates", e);
+            console.error("Failed to parse selected source coordinates for panning", e);
         }
     }
+  }, [selectedSource, map]);
+
+  let selectedPosition: google.maps.LatLngLiteral | null = null;
+  if (selectedSource) {
+      try {
+          const locationObject = JSON.parse(selectedSource.geom_geojson);
+          const pointString = locationObject.value;
+          const coords = pointString.replace('POINT(', '').replace(')', '').split(' ');
+          const lng = parseFloat(coords[0]);
+          const lat = parseFloat(coords[1]);
+          if (!isNaN(lat) && !isNaN(lng)) {
+              selectedPosition = { lat, lng };
+          }
+      } catch (e) {
+          console.error("Failed to parse selected source coordinates for InfoWindow", e);
+      }
+  }
 
 
   return (
