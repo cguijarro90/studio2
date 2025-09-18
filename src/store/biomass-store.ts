@@ -1,10 +1,18 @@
 import { create } from 'zustand';
 import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/types';
 
-// Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
+// Bounding box for Spain, using multiple boxes for a more accurate mainland shape.
 const BOUNDS = [
-  // Mainland Spain (tighter box to exclude Portugal/France) & Balearic Islands
-  { north: 43.79, south: 35.9, west: -9.3, east: 4.32 },
+  // Main peninsula area (most of the country)
+  { north: 43.79, south: 36.0, west: -5.6, east: 3.3 },
+  // Galicia and western part
+  { north: 43.79, south: 41.8, west: -9.3, east: -6.9 },
+  // Huelva and southern border area
+  { north: 38.0, south: 37.0, west: -7.5, east: -6.7 },
+  // Extremadura border area
+  { north: 40.0, south: 38.0, west: -7.4, east: -5.6 },
+  // Balearic Islands
+  { north: 40.1, south: 38.6, west: 1.2, east: 4.4 },
   // Canary Islands
   { north: 29.5, south: 27.6, west: -18.2, east: -13.3 },
   // Ceuta
@@ -12,6 +20,7 @@ const BOUNDS = [
   // Melilla
   { north: 35.32, south: 35.26, west: -3.0, east: -2.91 }
 ];
+
 
 export const isPointInSpain = (point: Point) => {
   const { lat, lng } = point;
