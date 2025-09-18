@@ -2,59 +2,27 @@ import { create } from 'zustand';
 import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/types';
 
 // Bounding box for Spain (mainland, Balearic, Canary Islands, Ceuta, Melilla)
-const MAINLAND_BOUNDS = {
-  north: 44.0,
-  south: 35.9,
-  west: -9.31, // Western boundary of mainland Spain (Cape Touriñán)
-  east: 4.5,   // Eastern boundary of mainland Spain
-};
-
-const CANARIES_BOUNDS = {
-    north: 29.5,
-    south: 27.6,
-    west: -18.2,
-    east: -13.3
-};
-
-const CEUTA_BOUNDS = {
-    north: 35.95,
-    south: 35.86,
-    west: -5.4,
-    east: -5.27
-};
-
-const MELILLA_BOUNDS = {
-    north: 35.32,
-    south: 35.26,
-    west: -3.0,
-    east: -2.91
-};
-
+const BOUNDS = [
+  // Mainland and Balearic Islands
+  { north: 44.0, south: 35.9, west: -9.31, east: 4.5 },
+  // Canary Islands
+  { north: 29.5, south: 27.6, west: -18.2, east: -13.3 },
+  // Ceuta
+  { north: 35.95, south: 35.86, west: -5.4, east: -5.27 },
+  // Melilla
+  { north: 35.32, south: 35.26, west: -3.0, east: -2.91 }
+];
 
 export const isPointInSpain = (point: Point) => {
   const { lat, lng } = point;
-  
-  // Check mainland Spain and Balearic Islands
-  if (lat <= MAINLAND_BOUNDS.north && lat >= MAINLAND_BOUNDS.south && lng <= MAINLAND_BOUNDS.east && lng >= MAINLAND_BOUNDS.west) {
-      return true;
-  }
-  
-  // Check Canary Islands
-  if (lat <= CANARIES_BOUNDS.north && lat >= CANARIES_BOUNDS.south && lng <= CANARIES_BOUNDS.east && lng >= CANARIES_BOUNDS.west) {
-    return true;
+
+  for (const bound of BOUNDS) {
+    if (lat <= bound.north && lat >= bound.south && lng >= bound.west && lng <= bound.east) {
+      return true; // Point is within one of the valid bounds
+    }
   }
 
-  // Check Ceuta
-  if (lat <= CEUTA_BOUNDS.north && lat >= CEUTA_BOUNDS.south && lng <= CEUTA_BOUNDS.east && lng >= CEUTA_BOUNDS.west) {
-    return true;
-  }
-
-  // Check Melilla
-  if (lat <= MELILLA_BOUNDS.north && lat >= MELILLA_BOUNDS.south && lng <= MELILLA_BOUNDS.east && lng >= MELILLA_BOUNDS.west) {
-    return true;
-  }
-
-  return false;
+  return false; // Point is outside all valid bounds
 };
 
 const initialState: AppState = {
