@@ -167,9 +167,11 @@ const AgriculturalPolygons = () => {
   useEffect(() => {
     if (!map) return;
 
+    const dataLayer = map.data;
+
     // Clear existing polygons from the Data layer
-    map.data.forEach(feature => {
-      map.data.remove(feature);
+    dataLayer.forEach(feature => {
+      dataLayer.remove(feature);
     });
     setSelectedPlot(null);
 
@@ -177,7 +179,7 @@ const AgriculturalPolygons = () => {
       agriculturalPlots.forEach(plot => {
         try {
           const geoJson = JSON.parse(plot.geometry);
-          map.data.addGeoJson({
+          dataLayer.addGeoJson({
             type: 'Feature',
             geometry: geoJson,
             properties: {
@@ -192,7 +194,7 @@ const AgriculturalPolygons = () => {
         }
       });
       
-      map.data.setStyle(feature => {
+      dataLayer.setStyle(feature => {
         const cropType = feature.getProperty('cropType');
         const color = cropTypeColors[cropType] || '#808080';
         return {
@@ -203,7 +205,7 @@ const AgriculturalPolygons = () => {
         };
       });
 
-      const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      const clickListener = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
         const plotData = {
           id: event.feature.getProperty('id'),
           cropType: event.feature.getProperty('cropType'),
@@ -211,13 +213,15 @@ const AgriculturalPolygons = () => {
           area_ha: event.feature.getProperty('area_ha'),
         };
         setSelectedPlot(plotData);
-        setInfoWindowPos(event.latLng!.toJSON());
+        if (event.latLng) {
+            setInfoWindowPos(event.latLng.toJSON());
+        }
       });
 
       return () => {
         google.maps.event.removeListener(clickListener);
-        map.data.forEach(feature => {
-          map.data.remove(feature);
+        dataLayer.forEach(feature => {
+            dataLayer.remove(feature);
         });
       };
     }
