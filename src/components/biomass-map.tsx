@@ -170,18 +170,15 @@ const AgriculturalPolygons = () => {
     }
     const dataLayer = dataLayerRef.current;
 
-    const cleanup = () => {
-        dataLayer.forEach(feature => dataLayer.remove(feature));
-        if (clickListenerRef.current) {
-            clickListenerRef.current.remove();
-            clickListenerRef.current = null;
-        }
-        setSelectedPlot(null);
-    };
+    // Clear previous data
+    dataLayer.forEach(feature => dataLayer.remove(feature));
+    if (clickListenerRef.current) {
+        clickListenerRef.current.remove();
+        clickListenerRef.current = null;
+    }
+    setSelectedPlot(null);
 
     if (overlays.agriculturalData && agriculturalPlots.length > 0) {
-      cleanup();
-
       dataLayer.addGeoJson({
         type: 'FeatureCollection',
         features: agriculturalPlots.map(plot => ({
@@ -219,11 +216,13 @@ const AgriculturalPolygons = () => {
           setInfoWindowPos(event.latLng.toJSON());
         }
       });
-    } else {
-      cleanup();
     }
-
-    return cleanup;
+    
+    return () => {
+        if (clickListenerRef.current) {
+            clickListenerRef.current.remove();
+        }
+    };
 
   }, [map, agriculturalPlots, overlays.agriculturalData, cropTypeColors]);
 
