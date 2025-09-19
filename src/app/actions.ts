@@ -134,7 +134,7 @@ export async function searchAgriculturalPlots(
       ST_ASGEOJSON(geometry) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
-    LIMIT 5000
+    LIMIT 10000
   `;
 
   const queryParams = {
@@ -189,7 +189,7 @@ export async function searchForestPlots(
         ST_ASGEOJSON(geometry) as geometry
       FROM ${table}
       WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND SP1 IS NOT NULL
-      LIMIT 5000
+      LIMIT 10000
     `;
   
     const queryParams = {
