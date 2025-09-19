@@ -128,6 +128,7 @@ export async function searchAgriculturalPlots(
 
   // ST_SIMPLIFY is used to reduce the complexity of polygons, improving performance.
   // The tolerance (100) is in meters. Adjust as needed.
+  // The query selects only the required columns.
   const query = `
     SELECT
       objectid as id,
