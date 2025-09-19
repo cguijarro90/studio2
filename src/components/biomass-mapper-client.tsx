@@ -83,7 +83,6 @@ export default function BiomassMapperClient() {
       setAgriculturalPlots([]);
       return;
     }
-    // Potentially show a loading indicator for plots
     try {
       const plots = await searchAgriculturalPlots({
         lat: center.lat,
@@ -97,6 +96,17 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, overlays.agriculturalData, setAgriculturalPlots]);
   
+  useEffect(() => {
+    if (searchInitiated) {
+      if (overlays.agriculturalData) {
+        performPlotSearch();
+      } else {
+        setAgriculturalPlots([]);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [overlays.agriculturalData, searchInitiated]);
+
   useEffect(() => {
     if (!overlays.biomassPlants) {
         resetResults();
@@ -137,10 +147,15 @@ export default function BiomassMapperClient() {
     if (currentPage !== 1) {
         setPage(1); 
     }
+
     if (overlays.biomassPlants) {
         performListSearch(1);
         performMapSearch();
+    } else {
+        setResults({ items: [], total: 0, page: 1, limit: 50 });
+        setMapResults([]);
     }
+
      if (overlays.agriculturalData) {
         performPlotSearch();
     } else {
@@ -149,7 +164,7 @@ export default function BiomassMapperClient() {
   }
 
   return (
-    <APIProvider apiKey={apiKey} libraries={['places', 'visualization']}>
+    <APIProvider apiKey={apiKey} libraries={['places', 'visualization', 'geocoding']}>
       <main className="grid grid-cols-1 md:grid-cols-[1fr,30%] lg:grid-cols-[1fr,30rem] h-screen w-screen bg-background">
         <div className="relative w-full h-full">
           <CoordinatesDisplay />
