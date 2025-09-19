@@ -131,7 +131,7 @@ export async function searchAgriculturalPlots(
       descripcion,
       provincia as provincia,
       area_ha as area_ha,
-      ST_ASGEOJSON(ST_SIMPLIFY(geometry, 100)) as geometry
+      ST_ASGEOJSON(geometry) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
     LIMIT 500
