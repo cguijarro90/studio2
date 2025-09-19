@@ -4,13 +4,12 @@ import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
 import type { SearchResults, BiomassSource, AgriculturalPlot } from '@/lib/types';
 
-// Initialize BigQuery client. It will automatically use application-default credentials.
 const bigquery = new BigQuery({
-    projectId: process.env.GOOGLE_PROJECT_ID,
-    credentials: {
-      client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    },
+  projectId: process.env.GOOGLE_PROJECT_ID,
+  credentials: {
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
 });
 
 
@@ -126,15 +125,12 @@ export async function searchAgriculturalPlots(
 
   const table = '`ce-sdx-platform-0007.SPAIN_SIGPAC_LINEAS_GOLD.SPAIN_MAPA_FORESTAL`';
 
-  // ST_SIMPLIFY is used to reduce the complexity of polygons, improving performance.
-  // The tolerance (100) is in meters. Adjust as needed.
-  // The query selects only the required columns.
   const query = `
     SELECT
       objectid as id,
       descripcion,
-      provincia,
-      area_ha,
+      provincia as provincia,
+      area_ha as area_ha,
       ST_ASGEOJSON(ST_SIMPLIFY(geometry, 100)) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
@@ -152,6 +148,8 @@ export async function searchAgriculturalPlots(
       query: query,
       params: queryParams,
     });
+
+    console.log(`[DEBUG-1] BigQuery returned ${rows.length} agricultural plots.`);
 
     const items: AgriculturalPlot[] = rows.map((row: any) => ({
       id: row.id.toString(),

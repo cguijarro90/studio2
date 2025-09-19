@@ -151,6 +151,7 @@ const AgriculturalPolygons = () => {
   const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
   const { t } = useTranslation();
 
+  console.log(`[DEBUG-3] AgriculturalPolygons component received ${agriculturalPlots.length} plots. Overlay visible: ${overlays.agriculturalData}`);
 
   const cropTypeColors = useMemo(() => {
     if (!agriculturalPlots) return {};
@@ -170,52 +171,55 @@ const AgriculturalPolygons = () => {
     }
     const dataLayer = dataLayerRef.current;
 
-    // Clear previous data
+    // Clear previous data and listeners
     dataLayer.forEach(feature => dataLayer.remove(feature));
     if (clickListenerRef.current) {
         clickListenerRef.current.remove();
-        clickListenerRef.current = null;
     }
     setSelectedPlot(null);
 
     if (overlays.agriculturalData && agriculturalPlots.length > 0) {
-      dataLayer.addGeoJson({
-        type: 'FeatureCollection',
-        features: agriculturalPlots.map(plot => ({
-          type: 'Feature',
-          geometry: JSON.parse(plot.geometry),
-          properties: {
-            id: plot.id,
-            cropType: plot.cropType,
-            province: plot.province,
-            area_ha: plot.area_ha,
-          },
-        })),
-      });
+      try {
+        dataLayer.addGeoJson({
+          type: 'FeatureCollection',
+          features: agriculturalPlots.map(plot => ({
+            type: 'Feature',
+            geometry: JSON.parse(plot.geometry),
+            properties: {
+              id: plot.id,
+              cropType: plot.cropType,
+              province: plot.province,
+              area_ha: plot.area_ha,
+            },
+          })),
+        });
 
-      dataLayer.setStyle(feature => {
-        const cropType = feature.getProperty('cropType');
-        const color = cropTypeColors[cropType] || '#808080';
-        return {
-          fillColor: color,
-          strokeColor: color,
-          strokeWeight: 1,
-          fillOpacity: 0.35,
-        };
-      });
+        dataLayer.setStyle(feature => {
+            const cropType = feature.getProperty('cropType');
+            const color = cropTypeColors[cropType] || '#808080';
+            return {
+            fillColor: color,
+            strokeColor: color,
+            strokeWeight: 1,
+            fillOpacity: 0.35,
+            };
+        });
 
-      clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
-        const plotData = {
-          id: event.feature.getProperty('id'),
-          cropType: event.feature.getProperty('cropType'),
-          province: event.feature.getProperty('province'),
-          area_ha: event.feature.getProperty('area_ha'),
-        };
-        setSelectedPlot(plotData);
-        if (event.latLng) {
-          setInfoWindowPos(event.latLng.toJSON());
-        }
-      });
+        clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+            const plotData = {
+            id: event.feature.getProperty('id'),
+            cropType: event.feature.getProperty('cropType'),
+            province: event.feature.getProperty('province'),
+            area_ha: event.feature.getProperty('area_ha'),
+            };
+            setSelectedPlot(plotData);
+            if (event.latLng) {
+            setInfoWindowPos(event.latLng.toJSON());
+            }
+        });
+      } catch (error) {
+        console.error("Error adding GeoJSON to map:", error);
+      }
     }
     
     return () => {
