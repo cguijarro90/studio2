@@ -39,7 +39,7 @@ export async function searchBiomass(
   // The query finds points within a given radius of the search center.
   let query = `
     SELECT
-      objectid as id,
+      id as id,
       descripcion as name,
       tecnologia as type,
       mw as quantity,
@@ -134,7 +134,7 @@ export async function searchAgriculturalPlots(
       ST_ASGEOJSON(geometry) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
-    LIMIT 500
+    LIMIT 2000
   `;
 
   const queryParams = {
