@@ -152,10 +152,10 @@ const getPolygonCenter = (geometry: google.maps.Data.Polygon | google.maps.Data.
       }
     };
   
-    if (geometry instanceof google.maps.Data.Polygon) {
-      geometry.getArray().forEach(processPath);
-    } else if (geometry instanceof google.maps.Data.MultiPolygon) {
-      geometry.getArray().forEach(polygon => polygon.getArray().forEach(processPath));
+    if (geometry.getType() === 'Polygon') {
+        (geometry as google.maps.Data.Polygon).getArray().forEach(processPath);
+    } else if (geometry.getType() === 'MultiPolygon') {
+        (geometry as google.maps.Data.MultiPolygon).getArray().forEach(polygon => polygon.getArray().forEach(processPath));
     }
     
     return bounds.getCenter();
@@ -262,7 +262,10 @@ const AgriculturalPolygons = () => {
         >
             <div className="p-1 min-w-48">
              <div className="flex justify-between items-start">
-                <h3 className="font-bold text-base text-foreground mb-2 pr-4">{selectedPlot.cropType}</h3>
+                <div className="flex items-center gap-2 font-bold text-base text-foreground mb-2 pr-4">
+                    <Icons.wheat className="w-5 h-5 text-muted-foreground" />
+                    <h3 className="capitalize">{selectedPlot.cropType}</h3>
+                </div>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
             </div>
             <div className="space-y-2 text-sm">
@@ -410,3 +413,5 @@ export default function BiomassMap() {
     </>
   );
 }
+
+    

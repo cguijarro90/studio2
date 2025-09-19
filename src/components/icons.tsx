@@ -1,5 +1,5 @@
 import type { LucideProps } from 'lucide-react';
-import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle, Zap } from 'lucide-react';
+import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle, Zap, Wheat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Icons = {
@@ -16,6 +16,7 @@ export const Icons = {
   circle: (props: LucideProps) => <Circle {...props} />,
   crosshair: (props: LucideProps) => <Crosshair {...props} />,
   recycle: (props: LucideProps) => <Recycle {...props} />,
+  wheat: (props: LucideProps) => <Wheat {...props} />,
   kynegosLogo: (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       width="120"
@@ -70,3 +71,5 @@ export function getColoredBiomassIcon(type: string, className?: string) {
     }
     return <Icons.circle {...props} className={cn(props.className, "text-chart-1")} />;
 }
+
+    
