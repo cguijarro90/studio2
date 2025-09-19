@@ -127,7 +127,7 @@ export async function searchAgriculturalPlots(
 
   const query = `
     SELECT
-      objectid as id,
+      id as id,
       descripcion,
       provincia as provincia,
       area_ha as area_ha,
