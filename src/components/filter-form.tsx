@@ -51,16 +51,14 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     form.reset({ radiusKm, overlays });
   }, [radiusKm, overlays, form]);
   
-  const { watch, handleSubmit } = form;
+  const { watch, handleSubmit, getValues } = form;
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === 'radiusKm' && value.radiusKm !== undefined) {
         setRadiusKm(value.radiusKm);
       }
-      if (name === 'overlays' && value.overlays) {
-        setOverlays(value.overlays);
-      }
+      // Overlays are handled by onCheckedChange now
     });
     return () => subscription.unsubscribe();
   }, [watch, setRadiusKm, setOverlays]);
@@ -118,7 +116,13 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                       <FormLabel className="text-sm text-muted-foreground">{t('biomass_plants')}</FormLabel>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          setOverlays({ ...getValues().overlays, biomassPlants: checked });
+                        }}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -132,7 +136,13 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                       <FormLabel className="text-sm text-muted-foreground">{t('agricultural_data')}</FormLabel>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          setOverlays({ ...getValues().overlays, agriculturalData: checked });
+                        }}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -146,7 +156,13 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                       <FormLabel className="text-sm text-muted-foreground">{t('forest_data')}</FormLabel>
                     </div>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          setOverlays({ ...getValues().overlays, forestData: checked });
+                        }}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
