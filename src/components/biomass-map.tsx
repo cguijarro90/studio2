@@ -151,28 +151,8 @@ const stringToColor = (str: string) => {
 const AgriculturalPolygons = () => {
   const map = useMap();
   const { agriculturalPlots, overlays } = useBiomassStore();
-  const [polygons, setPolygons] = useState<google.maps.Polygon[]>([]);
-  const [selectedPlot, setSelectedPlot] = useState<AgriculturalPlot | null>(null);
+  const [selectedPlot, setSelectedPlot] = useState<{[key: string]: any} | null>(null);
   const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLngLiteral | null>(null);
-  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
-
-  useEffect(() => {
-    if (!map) return;
-
-    if (infoWindowRef.current === null) {
-        infoWindowRef.current = new google.maps.InfoWindow({
-            pixelOffset: new google.maps.Size(0, -10),
-            disableAutoPan: true,
-        });
-    }
-
-    const iw = infoWindowRef.current;
-    
-    return () => {
-        iw?.close();
-    }
-  }, [map]);
-
 
   const cropTypeColors = useMemo(() => {
     if (!agriculturalPlots) return {};
@@ -187,52 +167,64 @@ const AgriculturalPolygons = () => {
   useEffect(() => {
     if (!map) return;
 
-    // Clear existing polygons
-    polygons.forEach(p => p.setMap(null));
-    setPolygons([]);
+    // Clear existing polygons from the Data layer
+    map.data.forEach(feature => {
+      map.data.remove(feature);
+    });
+    setSelectedPlot(null);
 
-    if (!overlays.agriculturalData || !agriculturalPlots) {
-      return;
-    }
-    
-    const newPolygons = agriculturalPlots.map(plot => {
-      try {
-        const geoJson = JSON.parse(plot.geometry);
-        const paths = geoJson.coordinates[0][0].map(([lng, lat]: [number, number]) => ({ lat, lng }));
-        
-        const polygon = new google.maps.Polygon({
-          paths: paths,
-          strokeColor: cropTypeColors[plot.cropType],
-          strokeOpacity: 0.8,
+    if (overlays.agriculturalData && agriculturalPlots.length > 0) {
+      agriculturalPlots.forEach(plot => {
+        try {
+          const geoJson = JSON.parse(plot.geometry);
+          map.data.addGeoJson({
+            type: 'Feature',
+            geometry: geoJson,
+            properties: {
+              id: plot.id,
+              cropType: plot.cropType,
+              province: plot.province,
+              area_ha: plot.area_ha
+            },
+          });
+        } catch (e) {
+          console.error("Failed to parse and add GeoJSON for plot", plot.id, e);
+        }
+      });
+      
+      map.data.setStyle(feature => {
+        const cropType = feature.getProperty('cropType');
+        const color = cropTypeColors[cropType] || '#808080';
+        return {
+          fillColor: color,
+          strokeColor: color,
           strokeWeight: 1,
-          fillColor: cropTypeColors[plot.cropType],
           fillOpacity: 0.35,
-          clickable: true,
+        };
+      });
+
+      const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        const plotData = {
+          id: event.feature.getProperty('id'),
+          cropType: event.feature.getProperty('cropType'),
+          province: event.feature.getProperty('province'),
+          area_ha: event.feature.getProperty('area_ha'),
+        };
+        setSelectedPlot(plotData);
+        setInfoWindowPos(event.latLng!.toJSON());
+      });
+
+      return () => {
+        google.maps.event.removeListener(clickListener);
+        map.data.forEach(feature => {
+          map.data.remove(feature);
         });
-
-        polygon.addListener('click', (e: google.maps.PolyMouseEvent) => {
-            setSelectedPlot(plot);
-            setInfoWindowPos(e.latLng!.toJSON());
-        });
-        
-        polygon.setMap(map);
-        return polygon;
-      } catch (e) {
-        console.error("Failed to parse plot geometry", e);
-        return null;
-      }
-    }).filter((p): p is google.maps.Polygon => p !== null);
-
-    setPolygons(newPolygons);
-
-    return () => {
-        newPolygons.forEach(p => p.setMap(null));
-    };
-
+      };
+    }
   }, [map, agriculturalPlots, overlays.agriculturalData, cropTypeColors]);
 
 
-  if (selectedPlot && infoWindowPos && infoWindowRef.current) {
+  if (selectedPlot && infoWindowPos) {
     return (
          <InfoWindow
           position={infoWindowPos}
