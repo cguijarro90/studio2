@@ -127,7 +127,7 @@ export async function searchAgriculturalPlots(
 
   const query = `
     SELECT
-      id as id,
+      FID as id,
       descripcion,
       provincia as provincia,
       area_ha as area_ha,
@@ -148,8 +148,6 @@ export async function searchAgriculturalPlots(
       query: query,
       params: queryParams,
     });
-
-    console.log(`[DEBUG-1] BigQuery returned ${rows.length} agricultural plots.`);
 
     const items: AgriculturalPlot[] = rows.map((row: any) => ({
       id: row.id.toString(),

@@ -151,8 +151,6 @@ const AgriculturalPolygons = () => {
   const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
   const { t } = useTranslation();
 
-  console.log(`[DEBUG-3] AgriculturalPolygons component received ${agriculturalPlots.length} plots. Overlay visible: ${overlays.agriculturalData}`);
-
   const cropTypeColors = useMemo(() => {
     if (!agriculturalPlots) return {};
     const uniqueCropTypes = [...new Set(agriculturalPlots.map(p => p.cropType))];

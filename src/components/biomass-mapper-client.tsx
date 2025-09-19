@@ -86,7 +86,6 @@ export default function BiomassMapperClient() {
         lng: center.lng,
         radius_m: radiusKm * 1000,
       });
-      console.log(`[DEBUG-2] Setting ${plots.length} agricultural plots in state.`);
       setAgriculturalPlots(plots);
     } catch (error) {
       console.error('Agricultural plot search failed:', error);
@@ -133,7 +132,7 @@ export default function BiomassMapperClient() {
 
     setIsLoading(true);
 
-    const searchPromises: Promise<void>[] = [];
+    const searchPromises: Promise<any>[] = [];
 
     if (overlays.biomassPlants) {
         searchPromises.push(performListSearch(1));
