@@ -21,6 +21,7 @@ const initialState: AppState = {
   selectedSourceId: null,
   locale: 'es',
   searchInitiated: false,
+  cropTypeColors: {},
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -40,6 +41,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setSelectedSourceId: (id) => set({ selectedSourceId: id }),
   setLocale: (locale: Locale) => set({ locale }),
   setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
+  setCropTypeColors: (colors) => set({ cropTypeColors: colors }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,

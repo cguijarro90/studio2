@@ -54,6 +54,7 @@ export type AppState = {
   selectedSourceId: string | null;
   locale: Locale;
   searchInitiated: boolean;
+  cropTypeColors: { [key: string]: string };
 };
 
 export type AppActions = {
@@ -72,6 +73,7 @@ export type AppActions = {
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;
   setSearchInitiated: (initiated: boolean) => void;
+  setCropTypeColors: (colors: { [key: string]: string }) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

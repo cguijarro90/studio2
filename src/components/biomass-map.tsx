@@ -7,6 +7,7 @@ import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, AgriculturalPlot } from '@/lib/types';
 import MapLegend from './map-legend';
+import AgriculturalLegend from './agricultural-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 import CoordinatesDisplay from './coordinates-display';
@@ -163,22 +164,22 @@ const getPolygonCenter = (geometry: google.maps.Data.Polygon | google.maps.Data.
 
 const AgriculturalPolygons = () => {
   const map = useMap();
-  const { agriculturalPlots, overlays } = useBiomassStore();
+  const { agriculturalPlots, overlays, setCropTypeColors, cropTypeColors } = useBiomassStore();
   const [selectedPlot, setSelectedPlot] = useState<{[key: string]: any} | null>(null);
   const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLng | null>(null);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
   const { t } = useTranslation();
 
-  const cropTypeColors = useMemo(() => {
-    if (!agriculturalPlots) return {};
+  useEffect(() => {
+    if (!agriculturalPlots) return;
     const uniqueCropTypes = [...new Set(agriculturalPlots.map(p => p.cropType))];
     const colors: { [key: string]: string } = {};
     uniqueCropTypes.forEach(type => {
       colors[type] = stringToColor(type);
     });
-    return colors;
-  }, [agriculturalPlots]);
+    setCropTypeColors(colors);
+  }, [agriculturalPlots, setCropTypeColors]);
 
   useEffect(() => {
     if (!map) return;
@@ -408,10 +409,11 @@ export default function BiomassMap() {
         )}
       </Map>
       <GeolocateControl />
-      <MapLegend />
+      <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+        <MapLegend />
+        <AgriculturalLegend />
+      </div>
       <CoordinatesDisplay />
     </>
   );
 }
-
-    

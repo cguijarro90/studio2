@@ -8,10 +8,12 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 import type { BiomassType } from "@/lib/types";
+import { useBiomassStore } from "@/store/biomass-store";
 
 export default function MapLegend() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
+  const { overlays } = useBiomassStore();
 
   const getTechnologyTranslationKey = (tech: string): BiomassType => {
       const lowerTech = tech.toLowerCase();
@@ -21,8 +23,12 @@ export default function MapLegend() {
       return 'otros';
   }
 
+  if (!overlays.biomassPlants) {
+    return null;
+  }
+
   return (
-    <Card className="absolute bottom-4 left-4 w-auto bg-card/80 backdrop-blur-sm transition-all">
+    <Card className="w-auto bg-card/80 backdrop-blur-sm transition-all">
       <CardHeader className="flex-row items-center space-y-0 p-3 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
         <Layers className="h-5 w-5 mr-2 text-primary" />
         <CardTitle className="text-base">{t('legend')}</CardTitle>
