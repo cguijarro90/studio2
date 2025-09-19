@@ -39,7 +39,7 @@ export async function searchBiomass(
   // The query finds points within a given radius of the search center.
   let query = `
     SELECT
-      id as id,
+      objectid as id,
       descripcion as name,
       tecnologia as type,
       mw as quantity,
