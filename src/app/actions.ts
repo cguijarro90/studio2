@@ -4,7 +4,9 @@ import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
 import type { SearchResults, BiomassSource, AgriculturalPlot } from '@/lib/types';
 
+// Initialize BigQuery client. It will automatically use application-default credentials.
 const bigquery = new BigQuery();
+
 
 const searchSchema = z.object({
   lat: z.number(),
