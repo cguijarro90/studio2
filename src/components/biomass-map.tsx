@@ -153,6 +153,9 @@ const AgriculturalPolygons = () => {
   const { agriculturalPlots, overlays } = useBiomassStore();
   const [selectedPlot, setSelectedPlot] = useState<{[key: string]: any} | null>(null);
   const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLngLiteral | null>(null);
+  const dataLayerRef = useRef<google.maps.Data | null>(null);
+  const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
+
 
   const cropTypeColors = useMemo(() => {
     if (!agriculturalPlots) return {};
@@ -166,34 +169,36 @@ const AgriculturalPolygons = () => {
 
   useEffect(() => {
     if (!map) return;
+    
+    // Use the same data layer instance
+    if (!dataLayerRef.current) {
+        dataLayerRef.current = new google.maps.Data({ map });
+    }
+    const dataLayer = dataLayerRef.current;
 
-    const dataLayer = map.data;
-
-    // Clear existing polygons from the Data layer
-    dataLayer.forEach(feature => {
-      dataLayer.remove(feature);
-    });
+    // Clear previous data and listeners
+    dataLayer.forEach(feature => dataLayer.remove(feature));
+    if (clickListenerRef.current) {
+        clickListenerRef.current.remove();
+    }
     setSelectedPlot(null);
 
+
     if (overlays.agriculturalData && agriculturalPlots.length > 0) {
-      agriculturalPlots.forEach(plot => {
-        try {
-          const geoJson = JSON.parse(plot.geometry);
-          dataLayer.addGeoJson({
-            type: 'Feature',
-            geometry: geoJson,
-            properties: {
-              id: plot.id,
-              cropType: plot.cropType,
-              province: plot.province,
-              area_ha: plot.area_ha
-            },
-          });
-        } catch (e) {
-          console.error("Failed to parse and add GeoJSON for plot", plot.id, e);
-        }
+      dataLayer.addGeoJson({
+        type: 'FeatureCollection',
+        features: agriculturalPlots.map(plot => ({
+          type: 'Feature',
+          geometry: JSON.parse(plot.geometry),
+          properties: {
+            id: plot.id,
+            cropType: plot.cropType,
+            province: plot.province,
+            area_ha: plot.area_ha,
+          },
+        })),
       });
-      
+
       dataLayer.setStyle(feature => {
         const cropType = feature.getProperty('cropType');
         const color = cropTypeColors[cropType] || '#808080';
@@ -205,7 +210,7 @@ const AgriculturalPolygons = () => {
         };
       });
 
-      const clickListener = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
         const plotData = {
           id: event.feature.getProperty('id'),
           cropType: event.feature.getProperty('cropType'),
@@ -214,17 +219,20 @@ const AgriculturalPolygons = () => {
         };
         setSelectedPlot(plotData);
         if (event.latLng) {
-            setInfoWindowPos(event.latLng.toJSON());
+          setInfoWindowPos(event.latLng.toJSON());
         }
       });
-
-      return () => {
-        google.maps.event.removeListener(clickListener);
-        dataLayer.forEach(feature => {
-            dataLayer.remove(feature);
-        });
-      };
     }
+
+    // This cleanup function runs when the component unmounts or dependencies change
+    return () => {
+        if (clickListenerRef.current) {
+            clickListenerRef.current.remove();
+        }
+        // Don't clear data here if we want it to persist across re-renders
+        // It's cleared at the beginning of the effect instead.
+    };
+
   }, [map, agriculturalPlots, overlays.agriculturalData, cropTypeColors]);
 
 
