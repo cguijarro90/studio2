@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
-import type { SearchResults, BiomassSource, AgriculturalPlot } from '@/lib/types';
+import type { SearchResults, BiomassSource, AgriculturalPlot, ForestPlot } from '@/lib/types';
 
 const bigquery = new BigQuery({
   projectId: process.env.GOOGLE_PROJECT_ID,
@@ -166,3 +166,56 @@ export async function searchAgriculturalPlots(
     throw new Error('An unknown error occurred while fetching plot data.');
   }
 }
+
+
+export async function searchForestPlots(
+    params: z.infer<typeof plotSearchSchema>
+  ): Promise<ForestPlot[]> {
+    const validation = plotSearchSchema.safeParse(params);
+    if (!validation.success) {
+      throw new Error(`Invalid search parameters: ${validation.error.message}`);
+    }
+  
+    const { lat, lng, radius_m } = validation.data;
+  
+    const effective_radius_m = Math.min(radius_m, 10000);
+  
+    const table = '`ce-sdx-platform-0007.SPAIN_CCAA_MAPA_FORESTAL_GOLD.SPAIN_MAPA_FORESTAL`';
+  
+    const query = `
+      SELECT
+        FID as id,
+        SP1 as species,
+        ST_ASGEOJSON(geometry) as geometry
+      FROM ${table}
+      WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND SP1 IS NOT NULL
+      LIMIT 5000
+    `;
+  
+    const queryParams = {
+      lng,
+      lat,
+      radius_m: effective_radius_m,
+    };
+  
+    try {
+      const [rows] = await bigquery.query({
+        query: query,
+        params: queryParams,
+      });
+  
+      const items: ForestPlot[] = rows.map((row: any) => ({
+        id: row.id.toString(),
+        species: row.species,
+        geometry: row.geometry, // This is already a GeoJSON string
+      }));
+  
+      return items;
+    } catch (error) {
+      console.error('BigQuery Error fetching forest plots:', error);
+      if (error instanceof Error) {
+          throw new Error(`Failed to fetch forest plot data from BigQuery: ${error.message}`);
+      }
+      throw new Error('An unknown error occurred while fetching forest plot data.');
+    }
+  }

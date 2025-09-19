@@ -20,6 +20,12 @@ export type AgriculturalPlot = {
   geometry: string; // GeoJSON string of a Polygon
 };
 
+export type ForestPlot = {
+    id: string;
+    species: string;
+    geometry: string; // GeoJSON string of a Polygon
+};
+
 export type Point = {
   lat: number;
   lng: number;
@@ -46,6 +52,7 @@ export type AppState = {
   results: BiomassSource[];
   mapResults: BiomassSource[];
   agriculturalPlots: AgriculturalPlot[];
+  forestPlots: ForestPlot[];
   totalResults: number;
   isLoading: boolean;
   isInitialDialogOpen: boolean;
@@ -55,6 +62,7 @@ export type AppState = {
   locale: Locale;
   searchInitiated: boolean;
   cropTypeColors: { [key: string]: string };
+  forestSpeciesColors: { [key: string]: string };
 };
 
 export type AppActions = {
@@ -65,6 +73,7 @@ export type AppActions = {
   setResults: (data: SearchResults) => void;
   setMapResults: (results: BiomassSource[]) => void;
   setAgriculturalPlots: (plots: AgriculturalPlot[]) => void;
+  setForestPlots: (plots: ForestPlot[]) => void;
   setTotalResults: (total: number) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialDialogOpen: (isOpen: boolean) => void;
@@ -74,6 +83,7 @@ export type AppActions = {
   setLocale: (locale: Locale) => void;
   setSearchInitiated: (initiated: boolean) => void;
   setCropTypeColors: (colors: { [key: string]: string }) => void;
+  setForestSpeciesColors: (colors: { [key: string]: string }) => void;
   resetFilters: () => void;
   resetResults: () => void;
 };

@@ -31,6 +31,7 @@
     "otros": "Others",
     "legend": "Legend",
     "agricultural_legend_title": "Crops",
+    "forest_legend_title": "Forest Species",
     "initial_dialog_title": "Set Your Search Area",
     "initial_dialog_desc": "You can adjust the filters to find biomass sources. Click anywhere on the map to change your search center.",
     "page": "Page {page} of {totalPages}",
@@ -48,5 +49,6 @@
     "out_of_spain_title": "Location outside of Spain",
     "out_of_spain_desc": "The selected location is outside of Spain. The available data is limited to Spanish territory.",
     "province": "Province",
-    "area": "Area"
+    "area": "Area",
+    "forest_species": "Forest Species"
 }

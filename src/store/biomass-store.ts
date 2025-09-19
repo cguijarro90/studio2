@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppState, AppActions, Locale, Point, BiomassSource, AgriculturalPlot } from '@/lib/types';
+import type { AppState, AppActions, Locale, Point, BiomassSource, AgriculturalPlot, ForestPlot } from '@/lib/types';
 
 const initialState: AppState = {
   center: null,
@@ -13,6 +13,7 @@ const initialState: AppState = {
   results: [],
   mapResults: [],
   agriculturalPlots: [],
+  forestPlots: [],
   totalResults: 0,
   isLoading: false,
   isInitialDialogOpen: false,
@@ -22,6 +23,7 @@ const initialState: AppState = {
   locale: 'es',
   searchInitiated: false,
   cropTypeColors: {},
+  forestSpeciesColors: {},
 };
 
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
@@ -33,6 +35,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setResults: (data) => set({ results: data.items, totalResults: data.total }),
   setMapResults: (results: BiomassSource[]) => set({ mapResults: results }),
   setAgriculturalPlots: (plots: AgriculturalPlot[]) => set({ agriculturalPlots: plots }),
+  setForestPlots: (plots: ForestPlot[]) => set({ forestPlots: plots }),
   setTotalResults: (total) => set({ totalResults: total }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsInitialDialogOpen: (isInitialDialogOpen) => set({ isInitialDialogOpen }),
@@ -42,11 +45,12 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setLocale: (locale: Locale) => set({ locale }),
   setSearchInitiated: (initiated) => set({ searchInitiated: initiated }),
   setCropTypeColors: (colors) => set({ cropTypeColors: colors }),
+  setForestSpeciesColors: (colors) => set({ forestSpeciesColors: colors }),
   resetFilters: () =>
     set({
       radiusKm: initialState.radiusKm,
       overlays: initialState.overlays,
       page: 1,
     }),
-  resetResults: () => set({ results: [], totalResults: 0, page: 1, mapResults: [], agriculturalPlots: [] }),
+  resetResults: () => set({ results: [], totalResults: 0, page: 1, mapResults: [], agriculturalPlots: [], forestPlots: [] }),
 }));

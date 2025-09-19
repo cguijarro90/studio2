@@ -5,9 +5,10 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
-import type { BiomassSource, AgriculturalPlot } from '@/lib/types';
+import type { BiomassSource, AgriculturalPlot, ForestPlot } from '@/lib/types';
 import MapLegend from './map-legend';
 import AgriculturalLegend from './agricultural-legend';
+import ForestLegend from './forest-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
 import CoordinatesDisplay from './coordinates-display';
@@ -290,6 +291,119 @@ const AgriculturalPolygons = () => {
   return null;
 };
 
+const ForestPolygons = () => {
+    const map = useMap();
+    const { forestPlots, overlays, setForestSpeciesColors, forestSpeciesColors } = useBiomassStore();
+    const [selectedPlot, setSelectedPlot] = useState<ForestPlot | null>(null);
+    const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLng | null>(null);
+    const dataLayerRef = useRef<google.maps.Data | null>(null);
+    const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
+    const { t } = useTranslation();
+  
+    useEffect(() => {
+      if (!forestPlots) return;
+      const uniqueSpecies = [...new Set(forestPlots.map(p => p.species))];
+      const colors: { [key: string]: string } = {};
+      uniqueSpecies.forEach(type => {
+        colors[type] = stringToColor(type);
+      });
+      setForestSpeciesColors(colors);
+    }, [forestPlots, setForestSpeciesColors]);
+  
+    useEffect(() => {
+      if (!map) return;
+      
+      if (!dataLayerRef.current) {
+          dataLayerRef.current = new google.maps.Data({ map });
+      }
+      const dataLayer = dataLayerRef.current;
+  
+      dataLayer.forEach(feature => dataLayer.remove(feature));
+      if (clickListenerRef.current) {
+          clickListenerRef.current.remove();
+      }
+      setSelectedPlot(null);
+  
+      if (overlays.forestData && forestPlots.length > 0) {
+        try {
+          dataLayer.addGeoJson({
+            type: 'FeatureCollection',
+            features: forestPlots.map(plot => ({
+              type: 'Feature',
+              geometry: JSON.parse(plot.geometry),
+              properties: { ...plot },
+            })),
+          });
+  
+          dataLayer.setStyle(feature => {
+              const species = feature.getProperty('species');
+              const color = forestSpeciesColors[species] || '#808080';
+              return {
+                fillColor: color,
+                strokeColor: color,
+                strokeWeight: 1,
+                fillOpacity: 0.45,
+              };
+          });
+  
+          clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+              const plotData: ForestPlot = {
+                  id: event.feature.getProperty('id'),
+                  species: event.feature.getProperty('species'),
+                  geometry: '',
+              };
+              setSelectedPlot(plotData);
+              
+              const geometry = event.feature.getGeometry();
+              if (geometry) {
+                  const center = getPolygonCenter(geometry as google.maps.Data.Polygon);
+                  setInfoWindowPos(center);
+              } else if (event.latLng) {
+                  setInfoWindowPos(event.latLng);
+              }
+          });
+        } catch (error) {
+          console.error("Error adding Forest GeoJSON to map:", error);
+        }
+      }
+      
+      return () => {
+          if (clickListenerRef.current) {
+              clickListenerRef.current.remove();
+          }
+      };
+  
+    }, [map, forestPlots, overlays.forestData, forestSpeciesColors]);
+  
+  
+    if (selectedPlot && infoWindowPos) {
+      return (
+           <InfoWindow
+            position={infoWindowPos}
+            onCloseClick={() => setSelectedPlot(null)}
+            headerDisabled
+          >
+              <div className="p-1 min-w-48">
+               <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2 font-bold text-base text-foreground mb-2 pr-4">
+                      <Icons.trees className="w-5 h-5 text-muted-foreground" />
+                      <h3 className="capitalize">{t('forest_species' as any)}</h3>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
+              </div>
+              <div className="space-y-2 text-sm">
+                  <div className="flex items-center">
+                      <span className="ml-2 font-semibold">{selectedPlot.species}</span>
+                  </div>
+              </div>
+          </div>
+          </InfoWindow>
+      )
+    }
+  
+    return null;
+  };
+
 
 function InfoWindowContent({source, onClose}: {source: BiomassSource, onClose: () => void}) {
     const { t } = useTranslation();
@@ -398,6 +512,7 @@ export default function BiomassMap() {
         <Markers />
         <RadiusCircle />
         <AgriculturalPolygons />
+        <ForestPolygons />
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}
@@ -413,6 +528,7 @@ export default function BiomassMap() {
       <div className="absolute bottom-4 left-4 flex flex-col gap-2">
         <MapLegend />
         <AgriculturalLegend />
+        <ForestLegend />
       </div>
       <CoordinatesDisplay />
     </>

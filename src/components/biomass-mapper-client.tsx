@@ -4,7 +4,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
-import { searchBiomass, searchAgriculturalPlots } from '@/app/actions';
+import { searchBiomass, searchAgriculturalPlots, searchForestPlots } from '@/app/actions';
 import { APIProvider } from '@vis.gl/react-google-maps';
 
 import SidePanel from '@/components/side-panel';
@@ -25,6 +25,7 @@ export default function BiomassMapperClient() {
     setResults,
     setMapResults,
     setAgriculturalPlots,
+    setForestPlots,
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
@@ -93,6 +94,24 @@ export default function BiomassMapperClient() {
     }
   }, [center, radiusKm, setAgriculturalPlots]);
   
+  const performForestSearch = useCallback(async () => {
+    if (!center) {
+      setForestPlots([]);
+      return;
+    }
+    try {
+      const plots = await searchForestPlots({
+        lat: center.lat,
+        lng: center.lng,
+        radius_m: radiusKm * 1000,
+      });
+      setForestPlots(plots);
+    } catch (error) {
+      console.error('Forest plot search failed:', error);
+      setForestPlots([]);
+    }
+  }, [center, radiusKm, setForestPlots]);
+  
   
   useEffect(() => {
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
@@ -146,6 +165,12 @@ export default function BiomassMapperClient() {
         searchPromises.push(performPlotSearch());
     } else {
         setAgriculturalPlots([]);
+    }
+
+    if (overlays.forestData) {
+        searchPromises.push(performForestSearch());
+    } else {
+        setForestPlots([]);
     }
     
     await Promise.all(searchPromises);

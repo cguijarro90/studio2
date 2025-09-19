@@ -1,5 +1,5 @@
 import type { LucideProps } from 'lucide-react';
-import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle, Zap, Wheat } from 'lucide-react';
+import { Leaf, MapPin, Layers, Weight, Milestone, Route, X, Flame, Circle, Crosshair, Recycle, Zap, Wheat, Trees } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Icons = {
@@ -17,6 +17,7 @@ export const Icons = {
   crosshair: (props: LucideProps) => <Crosshair {...props} />,
   recycle: (props: LucideProps) => <Recycle {...props} />,
   wheat: (props: LucideProps) => <Wheat {...props} />,
+  trees: (props: LucideProps) => <Trees {...props} />,
   kynegosLogo: (props: React.SVGProps<SVGSVGElement>) => (
     <svg
       width="120"
