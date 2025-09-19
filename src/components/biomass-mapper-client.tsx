@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useCallback, useState, useRef } from 'react';
@@ -36,11 +37,10 @@ export default function BiomassMapperClient() {
 
   const performListSearch = useCallback(async (searchPage = page) => {
     if (!center) {
-      resetResults();
+      setResults({ items: [], total: 0, page: 1, limit: 50 });
       return;
     }
 
-    setIsLoading(true);
     try {
       const results = await searchBiomass({
         lat: center.lat,
@@ -51,12 +51,10 @@ export default function BiomassMapperClient() {
       });
       setResults(results);
     } catch (error) {
-      console.error('Search failed:', error);
+      console.error('List search failed:', error);
       setResults({ items: [], total: 0, page: 1, limit: 50 });
-    } finally {
-      setIsLoading(false);
     }
-  }, [center, radiusKm, page, setIsLoading, setResults, resetResults]);
+  }, [center, radiusKm, page, setResults]);
 
   const performMapSearch = useCallback(async () => {
     if (!center) {
@@ -114,42 +112,46 @@ export default function BiomassMapperClient() {
         performListSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, searchInitiated]);
   
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return <div className="flex items-center justify-center h-screen bg-destructive text-destructive-foreground">Error: Google Maps API key is not configured.</div>;
   }
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!center) return;
     
     if (!searchInitiated) {
         setSearchInitiated(true);
     }
     
-    // Reset to first page for any new search
     const currentPage = useBiomassStore.getState().page;
     if (currentPage !== 1) {
         setPage(1); 
     }
 
-    // Decide which searches to perform based on overlays
+    setIsLoading(true);
+
+    const searchPromises: Promise<void>[] = [];
+
     if (overlays.biomassPlants) {
-        performListSearch(1);
-        performMapSearch();
+        searchPromises.push(performListSearch(1));
+        searchPromises.push(performMapSearch());
     } else {
-        // Clear biomass plant data if layer is off
         setResults({ items: [], total: 0, page: 1, limit: 50 });
         setMapResults([]);
     }
 
      if (overlays.agriculturalData) {
-        performPlotSearch();
+        searchPromises.push(performPlotSearch());
     } else {
-        // Clear agricultural plot data if layer is off
         setAgriculturalPlots([]);
     }
+    
+    await Promise.all(searchPromises);
+
+    setIsLoading(false);
   }
 
   return (
