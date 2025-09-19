@@ -142,11 +142,30 @@ const stringToColor = (str: string) => {
   return color;
 };
 
+// Function to calculate the center of a polygon
+const getPolygonCenter = (geometry: google.maps.Data.Polygon | google.maps.Data.MultiPolygon): google.maps.LatLng => {
+    const bounds = new google.maps.LatLngBounds();
+    const processPath = (path: google.maps.Data.LinearRing | google.maps.LatLng[]) => {
+      const gmapsPath = path instanceof google.maps.Data.LinearRing ? path.getArray() : path;
+      for (let i = 0; i < gmapsPath.length; i++) {
+        bounds.extend(gmapsPath[i]);
+      }
+    };
+  
+    if (geometry instanceof google.maps.Data.Polygon) {
+      geometry.getArray().forEach(processPath);
+    } else if (geometry instanceof google.maps.Data.MultiPolygon) {
+      geometry.getArray().forEach(polygon => polygon.getArray().forEach(processPath));
+    }
+    
+    return bounds.getCenter();
+  };
+
 const AgriculturalPolygons = () => {
   const map = useMap();
   const { agriculturalPlots, overlays } = useBiomassStore();
   const [selectedPlot, setSelectedPlot] = useState<{[key: string]: any} | null>(null);
-  const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLngLiteral | null>(null);
+  const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLng | null>(null);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
   const { t } = useTranslation();
@@ -205,14 +224,19 @@ const AgriculturalPolygons = () => {
 
         clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
             const plotData = {
-            id: event.feature.getProperty('id'),
-            cropType: event.feature.getProperty('cropType'),
-            province: event.feature.getProperty('province'),
-            area_ha: event.feature.getProperty('area_ha'),
+                id: event.feature.getProperty('id'),
+                cropType: event.feature.getProperty('cropType'),
+                province: event.feature.getProperty('province'),
+                area_ha: event.feature.getProperty('area_ha'),
             };
             setSelectedPlot(plotData);
-            if (event.latLng) {
-            setInfoWindowPos(event.latLng.toJSON());
+            
+            const geometry = event.feature.getGeometry();
+            if (geometry) {
+                const center = getPolygonCenter(geometry as google.maps.Data.Polygon);
+                setInfoWindowPos(center);
+            } else if (event.latLng) {
+                setInfoWindowPos(event.latLng);
             }
         });
       } catch (error) {
