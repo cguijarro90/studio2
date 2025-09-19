@@ -12,7 +12,6 @@ import InitialFilterDialog from '@/components/initial-filter-dialog';
 import OutOfSpainDialog from '@/components/out-of-spain-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
-import CoordinatesDisplay from './coordinates-display';
 
 export default function BiomassMapperClient() {
   const {
@@ -36,7 +35,7 @@ export default function BiomassMapperClient() {
   useQuerySync();
 
   const performListSearch = useCallback(async (searchPage = page) => {
-    if (!center || !overlays.biomassPlants) {
+    if (!center) {
       resetResults();
       return;
     }
@@ -53,14 +52,14 @@ export default function BiomassMapperClient() {
       setResults(results);
     } catch (error) {
       console.error('Search failed:', error);
-      resetResults();
+      setResults({ items: [], total: 0, page: 1, limit: 50 });
     } finally {
       setIsLoading(false);
     }
-  }, [center, radiusKm, page, setIsLoading, setResults, resetResults, overlays.biomassPlants]);
+  }, [center, radiusKm, page, setIsLoading, setResults, resetResults]);
 
   const performMapSearch = useCallback(async () => {
-    if (!center || !overlays.biomassPlants) {
+    if (!center) {
       setMapResults([]);
       return;
     }
@@ -76,10 +75,10 @@ export default function BiomassMapperClient() {
       console.error('Map search failed:', error);
       setMapResults([]);
     }
-  }, [center, radiusKm, setMapResults, overlays.biomassPlants]);
+  }, [center, radiusKm, setMapResults]);
 
   const performPlotSearch = useCallback(async () => {
-    if (!center || !overlays.agriculturalData) {
+    if (!center) {
       setAgriculturalPlots([]);
       return;
     }
@@ -94,25 +93,9 @@ export default function BiomassMapperClient() {
       console.error('Agricultural plot search failed:', error);
       setAgriculturalPlots([]);
     }
-  }, [center, radiusKm, overlays.agriculturalData, setAgriculturalPlots]);
+  }, [center, radiusKm, setAgriculturalPlots]);
   
-  useEffect(() => {
-    if (searchInitiated) {
-      if (overlays.agriculturalData) {
-        performPlotSearch();
-      } else {
-        setAgriculturalPlots([]);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [overlays.agriculturalData, searchInitiated]);
-
-  useEffect(() => {
-    if (!overlays.biomassPlants) {
-        resetResults();
-    }
-  }, [overlays.biomassPlants, resetResults]);
-
+  
   useEffect(() => {
     const hasSearchParams = new URLSearchParams(window.location.search).has('lat');
     if (!hasSearchParams) {
@@ -124,12 +107,13 @@ export default function BiomassMapperClient() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Effect for list pagination
   useEffect(() => {
     if (searchInitiated && page > 1) {
         performListSearch(page);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, searchInitiated]);
+  }, [page]);
   
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -143,15 +127,18 @@ export default function BiomassMapperClient() {
         setSearchInitiated(true);
     }
     
+    // Reset to first page for any new search
     const currentPage = useBiomassStore.getState().page;
     if (currentPage !== 1) {
         setPage(1); 
     }
 
+    // Decide which searches to perform based on overlays
     if (overlays.biomassPlants) {
         performListSearch(1);
         performMapSearch();
     } else {
+        // Clear biomass plant data if layer is off
         setResults({ items: [], total: 0, page: 1, limit: 50 });
         setMapResults([]);
     }
@@ -159,6 +146,7 @@ export default function BiomassMapperClient() {
      if (overlays.agriculturalData) {
         performPlotSearch();
     } else {
+        // Clear agricultural plot data if layer is off
         setAgriculturalPlots([]);
     }
   }
@@ -167,7 +155,6 @@ export default function BiomassMapperClient() {
     <APIProvider apiKey={apiKey} libraries={['places', 'visualization', 'geocoding']}>
       <main className="grid grid-cols-1 md:grid-cols-[1fr,30%] lg:grid-cols-[1fr,30rem] h-screen w-screen bg-background">
         <div className="relative w-full h-full">
-          <CoordinatesDisplay />
           <BiomassMap />
         </div>
         <div className="hidden md:flex md:flex-col h-full border-l border-border bg-card overflow-hidden">
