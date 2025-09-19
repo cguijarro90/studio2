@@ -106,6 +106,7 @@ function RadiusCircle() {
           fillColor: 'hsl(var(--primary))',
           fillOpacity: 0.1,
           map,
+          clickable: false, // Make the circle non-clickable
         })
       );
     }
