@@ -134,7 +134,7 @@ export async function searchAgriculturalPlots(
       ST_ASGEOJSON(geometry) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
-    LIMIT 2000
+    LIMIT 5000
   `;
 
   const queryParams = {
