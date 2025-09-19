@@ -4,13 +4,7 @@ import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
 import type { SearchResults, BiomassSource, AgriculturalPlot } from '@/lib/types';
 
-const bigquery = new BigQuery({
-  projectId: process.env.GOOGLE_PROJECT_ID,
-  credentials: {
-    client_email: process.env.GOOGLE_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  },
-});
+const bigquery = new BigQuery();
 
 const searchSchema = z.object({
   lat: z.number(),
