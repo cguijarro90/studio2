@@ -45,5 +45,7 @@
     "geolocation_not_supported": "La geolocalización no es compatible con tu navegador.",
     "geolocation_denied": "No se pudo obtener tu ubicación. Por favor, activa los servicios de localización en tu navegador.",
     "out_of_spain_title": "Ubicación fuera de España",
-    "out_of_spain_desc": "La ubicación seleccionada está fuera de España. Los datos disponibles se limitan al territorio español."
+    "out_of_spain_desc": "La ubicación seleccionada está fuera de España. Los datos disponibles se limitan al territorio español.",
+    "province": "Provincia",
+    "area": "Superficie"
 }

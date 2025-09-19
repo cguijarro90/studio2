@@ -45,5 +45,7 @@
     "geolocation_not_supported": "Geolocation is not supported by your browser.",
     "geolocation_denied": "Could not get your location. Please enable location services in your browser.",
     "out_of_spain_title": "Location outside of Spain",
-    "out_of_spain_desc": "The selected location is outside of Spain. The available data is limited to Spanish territory."
+    "out_of_spain_desc": "The selected location is outside of Spain. The available data is limited to Spanish territory.",
+    "province": "Province",
+    "area": "Area"
 }

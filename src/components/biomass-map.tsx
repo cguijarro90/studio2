@@ -15,18 +15,14 @@ import { Button } from './ui/button';
 const getCoordinates = (geom: string): [number, number] | null => {
     try {
         const data = JSON.parse(geom);
-        // BigQuery returns GEOGRAPHY data in a wrapper object with a 'value' property
-        // which can contain either a GeoJSON string or a WKT string.
         if (data && data.value) {
             const innerValue = data.value;
             try {
-                // Case 1: The inner value is a GeoJSON string
                 const geoJson = JSON.parse(innerValue);
                 if (geoJson.coordinates && Array.isArray(geoJson.coordinates) && geoJson.coordinates.length === 2) {
                     return geoJson.coordinates as [number, number];
                 }
             } catch (e) {
-                // Case 2: The inner value is a WKT string like "POINT(lng lat)"
                 if (typeof innerValue === 'string' && innerValue.startsWith('POINT')) {
                     const match = innerValue.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
                     if (match && match.length === 3) {
@@ -35,7 +31,6 @@ const getCoordinates = (geom: string): [number, number] | null => {
                 }
             }
         }
-        // Fallback for simple GeoJSON object
         if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length === 2) {
             return data.coordinates as [number, number];
         }
@@ -134,7 +129,6 @@ function RadiusCircle() {
   return null;
 }
 
-// Simple hash function to get a color from a string
 const stringToColor = (str: string) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -155,6 +149,7 @@ const AgriculturalPolygons = () => {
   const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLngLiteral | null>(null);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
   const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
+  const { t } = useTranslation();
 
 
   const cropTypeColors = useMemo(() => {
@@ -170,21 +165,23 @@ const AgriculturalPolygons = () => {
   useEffect(() => {
     if (!map) return;
     
-    // Use the same data layer instance
     if (!dataLayerRef.current) {
         dataLayerRef.current = new google.maps.Data({ map });
     }
     const dataLayer = dataLayerRef.current;
 
-    // Clear previous data and listeners
-    dataLayer.forEach(feature => dataLayer.remove(feature));
-    if (clickListenerRef.current) {
-        clickListenerRef.current.remove();
-    }
-    setSelectedPlot(null);
-
+    const cleanup = () => {
+        dataLayer.forEach(feature => dataLayer.remove(feature));
+        if (clickListenerRef.current) {
+            clickListenerRef.current.remove();
+            clickListenerRef.current = null;
+        }
+        setSelectedPlot(null);
+    };
 
     if (overlays.agriculturalData && agriculturalPlots.length > 0) {
+      cleanup();
+
       dataLayer.addGeoJson({
         type: 'FeatureCollection',
         features: agriculturalPlots.map(plot => ({
@@ -222,16 +219,11 @@ const AgriculturalPolygons = () => {
           setInfoWindowPos(event.latLng.toJSON());
         }
       });
+    } else {
+      cleanup();
     }
 
-    // This cleanup function runs when the component unmounts or dependencies change
-    return () => {
-        if (clickListenerRef.current) {
-            clickListenerRef.current.remove();
-        }
-        // Don't clear data here if we want it to persist across re-renders
-        // It's cleared at the beginning of the effect instead.
-    };
+    return cleanup;
 
   }, [map, agriculturalPlots, overlays.agriculturalData, cropTypeColors]);
 
@@ -251,11 +243,13 @@ const AgriculturalPolygons = () => {
             <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                     <Icons.pin className="w-4 h-4 text-muted-foreground" />
-                    <span className="ml-2">{selectedPlot.province}</span>
+                    <span className="ml-2 font-semibold">{t('province' as any)}:</span>
+                    <span className="ml-1">{selectedPlot.province}</span>
                 </div>
                 <div className="flex items-center">
                     <Icons.layers className="w-4 h-4 text-muted-foreground" />
-                    <span className="ml-2">{selectedPlot.area_ha.toFixed(2)} ha</span>
+                    <span className="ml-2 font-semibold">{t('area' as any)}:</span>
+                    <span className="ml-1">{selectedPlot.area_ha.toFixed(2)} ha</span>
                 </div>
             </div>
         </div>
