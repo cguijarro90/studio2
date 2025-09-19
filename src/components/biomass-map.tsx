@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { Map, useMap, AdvancedMarker, Pin, InfoWindow, Polygon } from '@vis.gl/react-google-maps';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
-import type { BiomassSource } from '@/lib/types';
+import type { BiomassSource, AgriculturalPlot } from '@/lib/types';
 import MapLegend from './map-legend';
 import { useTranslation } from '@/hooks/use-translation';
 import GeolocateControl from './geolocate-control';
@@ -134,6 +134,97 @@ function RadiusCircle() {
   return null;
 }
 
+// Simple hash function to get a color from a string
+const stringToColor = (str: string) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xFF;
+    color += ('00' + value.toString(16)).substr(-2);
+  }
+  return color;
+};
+
+const AgriculturalPolygons = () => {
+  const { agriculturalPlots, overlays } = useBiomassStore();
+  const { t } = useTranslation();
+  const [selectedPlot, setSelectedPlot] = useState<AgriculturalPlot | null>(null);
+  const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLngLiteral | null>(null);
+
+  const cropTypeColors = useMemo(() => {
+    if (!agriculturalPlots) return {};
+    const uniqueCropTypes = [...new Set(agriculturalPlots.map(p => p.cropType))];
+    const colors: { [key: string]: string } = {};
+    uniqueCropTypes.forEach(type => {
+      colors[type] = stringToColor(type);
+    });
+    return colors;
+  }, [agriculturalPlots]);
+
+  if (!overlays.agriculturalData || !agriculturalPlots) {
+    return null;
+  }
+
+  return (
+    <>
+      {agriculturalPlots.map(plot => {
+        try {
+          const geoJson = JSON.parse(plot.geometry);
+          // Assuming MultiPolygon, take the first polygon's exterior ring
+          const paths = geoJson.coordinates[0][0].map(([lng, lat]: [number, number]) => ({ lat, lng }));
+
+          return (
+            <Polygon
+              key={plot.id}
+              paths={paths}
+              strokeColor={cropTypeColors[plot.cropType]}
+              strokeOpacity={0.8}
+              strokeWeight={1}
+              fillColor={cropTypeColors[plot.cropType]}
+              fillOpacity={0.35}
+              clickable={true}
+              onClick={(e) => {
+                setSelectedPlot(plot);
+                setInfoWindowPos(e.latLng!.toJSON());
+              }}
+            />
+          );
+        } catch (e) {
+          console.error("Failed to parse plot geometry", e);
+          return null;
+        }
+      })}
+      {selectedPlot && infoWindowPos && (
+        <InfoWindow
+          position={infoWindowPos}
+          onCloseClick={() => setSelectedPlot(null)}
+          headerDisabled
+        >
+            <div className="p-1 min-w-48">
+             <div className="flex justify-between items-start">
+                <h3 className="font-bold text-base text-foreground mb-2 pr-4">{selectedPlot.cropType}</h3>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
+            </div>
+            <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                    <Icons.pin className="w-4 h-4 text-muted-foreground" />
+                    <span className="ml-2">{selectedPlot.province}</span>
+                </div>
+                <div className="flex items-center">
+                    <Icons.layers className="w-4 h-4 text-muted-foreground" />
+                    <span className="ml-2">{selectedPlot.area_ha.toFixed(2)} ha</span>
+                </div>
+            </div>
+        </div>
+        </InfoWindow>
+      )}
+    </>
+  );
+};
+
 
 function InfoWindowContent({source, onClose}: {source: BiomassSource, onClose: () => void}) {
     const { t } = useTranslation();
@@ -227,7 +318,7 @@ export default function BiomassMap() {
         onClick={(e) => {
             if (e.detail.latLng) {
               const point = e.detail.latLng;
-              checkIsSpain(new google.maps.LatLng(point), (isSpain) => {
+              checkIsSpain(new google.maps.LatLng(point.lat, point.lng), (isSpain) => {
                 if (!isSpain) {
                   setIsOutOfSpainDialogOpen(true);
                   return;
@@ -241,6 +332,7 @@ export default function BiomassMap() {
       >
         <Markers />
         <RadiusCircle />
+        <AgriculturalPolygons />
         {selectedPosition && selectedSource && (
              <InfoWindow
                 position={selectedPosition}

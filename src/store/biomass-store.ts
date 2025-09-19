@@ -1,8 +1,5 @@
 import { create } from 'zustand';
-import type { AppState, AppActions, Locale, Point, BiomassSource } from '@/lib/types';
-
-// This function is no longer reliable and has been replaced by Google's Geocoding API checks.
-// It will be removed.
+import type { AppState, AppActions, Locale, Point, BiomassSource, AgriculturalPlot } from '@/lib/types';
 
 const initialState: AppState = {
   center: null,
@@ -15,6 +12,7 @@ const initialState: AppState = {
   page: 1,
   results: [],
   mapResults: [],
+  agriculturalPlots: [],
   totalResults: 0,
   isLoading: false,
   isInitialDialogOpen: false,
@@ -33,6 +31,7 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   setPage: (page) => set({ page }),
   setResults: (data) => set({ results: data.items, totalResults: data.total }),
   setMapResults: (results: BiomassSource[]) => set({ mapResults: results }),
+  setAgriculturalPlots: (plots: AgriculturalPlot[]) => set({ agriculturalPlots: plots }),
   setTotalResults: (total) => set({ totalResults: total }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsInitialDialogOpen: (isInitialDialogOpen) => set({ isInitialDialogOpen }),
@@ -47,5 +46,5 @@ export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
       overlays: initialState.overlays,
       page: 1,
     }),
-  resetResults: () => set({ results: [], totalResults: 0, page: 1, mapResults: [], searchInitiated: false }),
+  resetResults: () => set({ results: [], totalResults: 0, page: 1, mapResults: [], agriculturalPlots: [], searchInitiated: false }),
 }));

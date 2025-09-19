@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { BigQuery } from '@google-cloud/bigquery';
-import type { SearchResults, BiomassSource } from '@/lib/types';
+import type { SearchResults, BiomassSource, AgriculturalPlot } from '@/lib/types';
 
 const bigquery = new BigQuery({
   projectId: process.env.GOOGLE_PROJECT_ID,
@@ -100,5 +100,70 @@ export async function searchBiomass(
         throw new Error(`Failed to fetch data from BigQuery: ${error.message}`);
     }
     throw new Error('An unknown error occurred while fetching data from BigQuery.');
+  }
+}
+
+const plotSearchSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  radius_m: z.number().min(100).max(75000),
+});
+
+export async function searchAgriculturalPlots(
+  params: z.infer<typeof plotSearchSchema>
+): Promise<AgriculturalPlot[]> {
+  const validation = plotSearchSchema.safeParse(params);
+  if (!validation.success) {
+    throw new Error(`Invalid search parameters: ${validation.error.message}`);
+  }
+
+  const { lat, lng, radius_m } = validation.data;
+
+  // Reduce radius for polygon search to avoid performance issues and huge data transfers
+  const effective_radius_m = Math.min(radius_m, 10000); // Max 10km radius for plots
+
+  const table = '`ce-sdx-platform-0007.SPAIN_SIGPAC_LINEAS_GOLD.SPAIN_MAPA_FORESTAL`';
+
+  // ST_SIMPLIFY is used to reduce the complexity of polygons, improving performance.
+  // The tolerance (100) is in meters. Adjust as needed.
+  const query = `
+    SELECT
+      objectid as id,
+      descripcion,
+      provincia,
+      area_ha,
+      ST_ASGEOJSON(ST_SIMPLIFY(geometry, 100)) as geometry
+    FROM ${table}
+    WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
+    LIMIT 500
+  `;
+
+  const queryParams = {
+    lng,
+    lat,
+    radius_m: effective_radius_m,
+  };
+
+  try {
+    const [rows] = await bigquery.query({
+      query: query,
+      params: queryParams,
+    });
+
+    const items: AgriculturalPlot[] = rows.map((row: any) => ({
+      id: row.id.toString(),
+      cropType: row.descripcion,
+      province: row.provincia,
+      area_ha: row.area_ha,
+      geometry: row.geometry, // This is already a GeoJSON string
+    }));
+
+    return items;
+  } catch (error) {
+    console.error('BigQuery Error fetching plots:', error);
+    if (error instanceof Error) {
+        throw new Error(`Failed to fetch plot data from BigQuery: ${error.message}`);
+    }
+    throw new Error('An unknown error occurred while fetching plot data.');
   }
 }

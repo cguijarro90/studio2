@@ -12,6 +12,14 @@ export type BiomassSource = {
   geom_geojson: string; // JSON string of a GeoJSON point
 };
 
+export type AgriculturalPlot = {
+  id: string;
+  cropType: string;
+  province: string;
+  area_ha: number;
+  geometry: string; // GeoJSON string of a Polygon
+};
+
 export type Point = {
   lat: number;
   lng: number;
@@ -37,6 +45,7 @@ export type AppState = {
   page: number;
   results: BiomassSource[];
   mapResults: BiomassSource[];
+  agriculturalPlots: AgriculturalPlot[];
   totalResults: number;
   isLoading: boolean;
   isInitialDialogOpen: boolean;
@@ -54,6 +63,7 @@ export type AppActions = {
   setPage: (page: number) => void;
   setResults: (data: SearchResults) => void;
   setMapResults: (results: BiomassSource[]) => void;
+  setAgriculturalPlots: (plots: AgriculturalPlot[]) => void;
   setTotalResults: (total: number) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialDialogOpen: (isOpen: boolean) => void;

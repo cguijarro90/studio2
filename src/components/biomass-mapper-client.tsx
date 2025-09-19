@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
-import { searchBiomass } from '@/app/actions';
+import { searchBiomass, searchAgriculturalPlots } from '@/app/actions';
 import { APIProvider } from '@vis.gl/react-google-maps';
 
 import SidePanel from '@/components/side-panel';
@@ -24,6 +24,7 @@ export default function BiomassMapperClient() {
     setIsLoading,
     setResults,
     setMapResults,
+    setAgriculturalPlots,
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
@@ -76,6 +77,25 @@ export default function BiomassMapperClient() {
       setMapResults([]);
     }
   }, [center, radiusKm, setMapResults, overlays.biomassPlants]);
+
+  const performPlotSearch = useCallback(async () => {
+    if (!center || !overlays.agriculturalData) {
+      setAgriculturalPlots([]);
+      return;
+    }
+    // Potentially show a loading indicator for plots
+    try {
+      const plots = await searchAgriculturalPlots({
+        lat: center.lat,
+        lng: center.lng,
+        radius_m: radiusKm * 1000,
+      });
+      setAgriculturalPlots(plots);
+    } catch (error) {
+      console.error('Agricultural plot search failed:', error);
+      setAgriculturalPlots([]);
+    }
+  }, [center, radiusKm, overlays.agriculturalData, setAgriculturalPlots]);
   
   useEffect(() => {
     if (!overlays.biomassPlants) {
@@ -117,8 +137,15 @@ export default function BiomassMapperClient() {
     if (currentPage !== 1) {
         setPage(1); 
     }
-    performListSearch(1);
-    performMapSearch();
+    if (overlays.biomassPlants) {
+        performListSearch(1);
+        performMapSearch();
+    }
+     if (overlays.agriculturalData) {
+        performPlotSearch();
+    } else {
+        setAgriculturalPlots([]);
+    }
   }
 
   return (
