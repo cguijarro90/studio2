@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { Map, useMap, AdvancedMarker, Pin, InfoWindow, Polygon } from '@vis.gl/react-google-maps';
+import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
 import type { BiomassSource, AgriculturalPlot } from '@/lib/types';
@@ -149,10 +149,30 @@ const stringToColor = (str: string) => {
 };
 
 const AgriculturalPolygons = () => {
+  const map = useMap();
   const { agriculturalPlots, overlays } = useBiomassStore();
-  const { t } = useTranslation();
+  const [polygons, setPolygons] = useState<google.maps.Polygon[]>([]);
   const [selectedPlot, setSelectedPlot] = useState<AgriculturalPlot | null>(null);
   const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLngLiteral | null>(null);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+
+  useEffect(() => {
+    if (!map) return;
+
+    if (infoWindowRef.current === null) {
+        infoWindowRef.current = new google.maps.InfoWindow({
+            pixelOffset: new google.maps.Size(0, -10),
+            disableAutoPan: true,
+        });
+    }
+
+    const iw = infoWindowRef.current;
+    
+    return () => {
+        iw?.close();
+    }
+  }, [map]);
+
 
   const cropTypeColors = useMemo(() => {
     if (!agriculturalPlots) return {};
@@ -164,41 +184,57 @@ const AgriculturalPolygons = () => {
     return colors;
   }, [agriculturalPlots]);
 
-  if (!overlays.agriculturalData || !agriculturalPlots) {
-    return null;
-  }
+  useEffect(() => {
+    if (!map) return;
 
-  return (
-    <>
-      {agriculturalPlots.map(plot => {
-        try {
-          const geoJson = JSON.parse(plot.geometry);
-          // Assuming MultiPolygon, take the first polygon's exterior ring
-          const paths = geoJson.coordinates[0][0].map(([lng, lat]: [number, number]) => ({ lat, lng }));
+    // Clear existing polygons
+    polygons.forEach(p => p.setMap(null));
+    setPolygons([]);
 
-          return (
-            <Polygon
-              key={plot.id}
-              paths={paths}
-              strokeColor={cropTypeColors[plot.cropType]}
-              strokeOpacity={0.8}
-              strokeWeight={1}
-              fillColor={cropTypeColors[plot.cropType]}
-              fillOpacity={0.35}
-              clickable={true}
-              onClick={(e) => {
-                setSelectedPlot(plot);
-                setInfoWindowPos(e.latLng!.toJSON());
-              }}
-            />
-          );
-        } catch (e) {
-          console.error("Failed to parse plot geometry", e);
-          return null;
-        }
-      })}
-      {selectedPlot && infoWindowPos && (
-        <InfoWindow
+    if (!overlays.agriculturalData || !agriculturalPlots) {
+      return;
+    }
+    
+    const newPolygons = agriculturalPlots.map(plot => {
+      try {
+        const geoJson = JSON.parse(plot.geometry);
+        const paths = geoJson.coordinates[0][0].map(([lng, lat]: [number, number]) => ({ lat, lng }));
+        
+        const polygon = new google.maps.Polygon({
+          paths: paths,
+          strokeColor: cropTypeColors[plot.cropType],
+          strokeOpacity: 0.8,
+          strokeWeight: 1,
+          fillColor: cropTypeColors[plot.cropType],
+          fillOpacity: 0.35,
+          clickable: true,
+        });
+
+        polygon.addListener('click', (e: google.maps.PolyMouseEvent) => {
+            setSelectedPlot(plot);
+            setInfoWindowPos(e.latLng!.toJSON());
+        });
+        
+        polygon.setMap(map);
+        return polygon;
+      } catch (e) {
+        console.error("Failed to parse plot geometry", e);
+        return null;
+      }
+    }).filter((p): p is google.maps.Polygon => p !== null);
+
+    setPolygons(newPolygons);
+
+    return () => {
+        newPolygons.forEach(p => p.setMap(null));
+    };
+
+  }, [map, agriculturalPlots, overlays.agriculturalData, cropTypeColors]);
+
+
+  if (selectedPlot && infoWindowPos && infoWindowRef.current) {
+    return (
+         <InfoWindow
           position={infoWindowPos}
           onCloseClick={() => setSelectedPlot(null)}
           headerDisabled
@@ -220,9 +256,10 @@ const AgriculturalPolygons = () => {
             </div>
         </div>
         </InfoWindow>
-      )}
-    </>
-  );
+    )
+  }
+
+  return null;
 };
 
 
