@@ -493,6 +493,10 @@ export default function BiomassMap() {
         defaultZoom={6}
         gestureHandling={'greedy'}
         disableDefaultUI={true}
+        mapTypeControl={true}
+        mapTypeControlOptions={{
+          position: google.maps.ControlPosition.TOP_RIGHT,
+        }}
         mapId="a3b021396b3b1df4"
         onClick={(e) => {
             if (e.detail.latLng) {
