@@ -535,8 +535,10 @@ export default function BiomassMap() {
               </InfoWindow>
         )}
       </Map>
-      <CoordinatesDisplay />
-      <GeolocateControl />
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <GeolocateControl />
+        <CoordinatesDisplay />
+      </div>
       <div className="absolute bottom-4 left-4 flex flex-col gap-2">
         <MapLegend />
         <AgriculturalLegend />

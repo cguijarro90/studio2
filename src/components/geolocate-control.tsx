@@ -51,7 +51,6 @@ export default function GeolocateControl() {
       variant="secondary"
       size="icon"
       onClick={handleGeolocate}
-      className="absolute top-4 right-4 z-10"
       title={t('geolocate_me' as any)}
     >
       <Icons.crosshair className="h-5 w-5" />

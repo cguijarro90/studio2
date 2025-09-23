@@ -13,7 +13,7 @@ export default function CoordinatesDisplay() {
   }
 
   return (
-    <Card className="absolute top-4 left-4 z-10 bg-card/80 backdrop-blur-sm p-2 text-xs text-foreground">
+    <Card className="bg-card/80 backdrop-blur-sm p-2 text-xs text-foreground">
       <div>
         <span className="font-semibold">{t('latitude' as any)}:</span> {center.lat.toFixed(6)}
       </div>
