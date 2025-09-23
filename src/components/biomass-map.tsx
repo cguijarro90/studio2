@@ -454,10 +454,19 @@ export default function BiomassMap() {
   const { center, setCenter, setMap, selectedSourceId, setSelectedSourceId, map: storeMap, setIsOutOfSpainDialogOpen, setSearchInitiated } = useBiomassStore();
   const selectedSource = useBiomassStore(s => s.results.find(r => r.id === s.selectedSourceId));
   const map = useMap();
+  const [mapTypeControlOptions, setMapTypeControlOptions] = useState<google.maps.MapTypeControlOptions | undefined>(undefined);
   
   useEffect(() => {
     if (map) setMap(map);
   }, [map, setMap]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof google !== 'undefined') {
+        setMapTypeControlOptions({
+            position: google.maps.ControlPosition.TOP_RIGHT,
+        });
+    }
+  }, []);
 
   useEffect(() => {
     if (storeMap && center) {
@@ -494,9 +503,7 @@ export default function BiomassMap() {
         gestureHandling={'greedy'}
         disableDefaultUI={true}
         mapTypeControl={true}
-        mapTypeControlOptions={{
-          position: google.maps.ControlPosition.TOP_RIGHT,
-        }}
+        mapTypeControlOptions={mapTypeControlOptions}
         mapId="a3b021396b3b1df4"
         onClick={(e) => {
             if (e.detail.latLng) {
