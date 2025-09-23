@@ -6,8 +6,8 @@ const initialState: AppState = {
   radiusKm: 50,
   overlays: {
     biomassPlants: true,
-    agriculturalData: false,
-    forestData: false,
+    agriculturalData: true,
+    forestData: true,
   },
   page: 1,
   results: [],
