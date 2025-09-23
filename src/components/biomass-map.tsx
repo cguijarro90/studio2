@@ -463,7 +463,7 @@ export default function BiomassMap() {
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof google !== 'undefined') {
         setMapTypeControlOptions({
-            position: google.maps.ControlPosition.TOP_RIGHT,
+            position: google.maps.ControlPosition.BOTTOM_LEFT,
         });
     }
   }, []);
