@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { useBiomassStore } from "@/store/biomass-store";
 export default function MapLegend() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
-  const { overlays } = useBiomassStore();
+  const { overlays, mapResults } = useBiomassStore();
 
   const getTechnologyTranslationKey = (tech: string): BiomassType => {
       const lowerTech = tech.toLowerCase();
@@ -23,7 +24,7 @@ export default function MapLegend() {
       return 'otros';
   }
 
-  if (!overlays.biomassPlants) {
+  if (!overlays.biomassPlants || mapResults.length === 0) {
     return null;
   }
 
