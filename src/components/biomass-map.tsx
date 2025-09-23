@@ -463,7 +463,7 @@ export default function BiomassMap() {
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof google !== 'undefined') {
         setMapTypeControlOptions({
-            position: google.maps.ControlPosition.BOTTOM_LEFT,
+            position: google.maps.ControlPosition.TOP_RIGHT,
         });
     }
   }, []);
@@ -535,13 +535,13 @@ export default function BiomassMap() {
               </InfoWindow>
         )}
       </Map>
+      <CoordinatesDisplay />
       <GeolocateControl />
       <div className="absolute bottom-4 left-4 flex flex-col gap-2">
         <MapLegend />
         <AgriculturalLegend />
         <ForestLegend />
       </div>
-      <CoordinatesDisplay />
     </>
   );
 }
