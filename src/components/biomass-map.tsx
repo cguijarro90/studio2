@@ -405,7 +405,7 @@ const ForestPolygons = () => {
                     { !isNaN(occupiedAreaValue) && (
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
-                        <span className="ml-1">{Math.round(occupiedAreaValue)}%</span>
+                        <span className="ml-1">{Math.round(occupiedAreaValue)} %</span>
                     </div>
                     )}
                     <div className="flex">
@@ -558,7 +558,7 @@ export default function BiomassMap() {
               </InfoWindow>
         )}
       </Map>
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+      <div className="absolute top-4 right-16 z-10 flex items-center gap-2">
         <CoordinatesDisplay />
         <GeolocateControl />
       </div>
