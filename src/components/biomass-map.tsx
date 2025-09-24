@@ -296,7 +296,7 @@ const AgriculturalPolygons = () => {
 const ForestPolygons = () => {
     const map = useMap();
     const { forestPlots, overlays, setForestSpeciesColors, forestSpeciesColors } = useBiomassStore();
-    const [selectedPlot, setSelectedPlot] = useState<ForestPlot | null>(null);
+    const [selectedPlot, setSelectedPlot] = useState<Partial<ForestPlot> | null>(null);
     const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLng | null>(null);
     const dataLayerRef = useRef<google.maps.Data | null>(null);
     const clickListenerRef = useRef<google.maps.MapsEventListener | null>(null);
@@ -349,7 +349,7 @@ const ForestPolygons = () => {
           });
   
           clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
-              const plotData: ForestPlot = {
+              const plotData: Partial<ForestPlot> = {
                   id: event.feature.getProperty('id'),
                   title: event.feature.getProperty('title'),
                   occupiedArea: event.feature.getProperty('occupiedArea'),
@@ -357,7 +357,6 @@ const ForestPolygons = () => {
                   mainSpecies: event.feature.getProperty('mainSpecies'),
                   secondarySpecies: event.feature.getProperty('secondarySpecies'),
                   tertiarySpecies: event.feature.getProperty('tertiarySpecies'),
-                  geometry: '',
               };
               setSelectedPlot(plotData);
               
@@ -384,8 +383,8 @@ const ForestPolygons = () => {
   
   
     if (selectedPlot && infoWindowPos) {
-      const areaHaValue = Number(selectedPlot.area_ha);
-      const occupiedAreaValue = Number(selectedPlot.occupiedArea);
+      const areaHaValue = selectedPlot.area_ha ? Number(selectedPlot.area_ha) : null;
+      const occupiedAreaValue = selectedPlot.occupiedArea ? Number(selectedPlot.occupiedArea) : null;
 
       return (
            <InfoWindow
@@ -402,13 +401,13 @@ const ForestPolygons = () => {
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
                 </div>
                 <div className="space-y-1 text-sm">
-                    { !isNaN(areaHaValue) && (
+                    { areaHaValue !== null && !isNaN(areaHaValue) && (
                         <div className="flex">
                            <span className="font-semibold w-32 shrink-0">{t('area' as any)}:</span>
                            <span className="ml-1">{areaHaValue.toFixed(2)} ha</span>
                        </div>
                     )}
-                     { !isNaN(occupiedAreaValue) && (
+                     { occupiedAreaValue !== null && !isNaN(occupiedAreaValue) && (
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
                         <span className="ml-1">{Math.round(occupiedAreaValue)} %</span>
@@ -576,4 +575,3 @@ export default function BiomassMap() {
     </>
   );
 }
-
