@@ -23,7 +23,6 @@ export type AgriculturalPlot = {
 export type ForestPlot = {
     id: string;
     title: string;
-    area: number;
     occupiedArea: number;
     mainSpecies: string;
     secondarySpecies?: string;

@@ -355,7 +355,6 @@ const ForestPolygons = () => {
               const plotData: ForestPlot = {
                   id: event.feature.getProperty('id'),
                   title: event.feature.getProperty('title'),
-                  area: event.feature.getProperty('area'),
                   occupiedArea: event.feature.getProperty('occupiedArea'),
                   mainSpecies: event.feature.getProperty('mainSpecies'),
                   secondarySpecies: event.feature.getProperty('secondarySpecies'),
@@ -402,10 +401,6 @@ const ForestPolygons = () => {
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
                 </div>
                 <div className="space-y-1 text-sm">
-                    <div className="flex">
-                        <span className="font-semibold w-32 shrink-0">{t('area' as any)}:</span>
-                        <span className="ml-1">{selectedPlot.area?.toFixed(2)} ha</span>
-                    </div>
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
                         <span className="ml-1">{selectedPlot.occupiedArea?.toFixed(2)} %</span>

@@ -186,8 +186,7 @@ export async function searchForestPlots(
       SELECT
         FID as id,
         FORARB,
-        area_ha,
-        Fcc,
+        FCCTOT,
         SP1,
         SP2,
         SP3,
@@ -212,12 +211,11 @@ export async function searchForestPlots(
       const items: ForestPlot[] = rows.map((row: any) => ({
         id: row.id.toString(),
         title: row.FORARB,
-        area: row.area_ha,
-        occupiedArea: row.Fcc,
+        occupiedArea: row.FCCTOT,
         mainSpecies: row.SP1,
         secondarySpecies: row.SP2,
         tertiarySpecies: row.SP3,
-        geometry: row.geometry, // This is already a GeoJSON string
+        geometry: row.geometry,
       }));
   
       return items;
