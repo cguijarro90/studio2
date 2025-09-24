@@ -186,7 +186,7 @@ export async function searchForestPlots(
       SELECT
         FID as id,
         FORARB,
-        SUPERFICIE,
+        area_ha,
         Fcc,
         SP1,
         SP2,
@@ -212,7 +212,7 @@ export async function searchForestPlots(
       const items: ForestPlot[] = rows.map((row: any) => ({
         id: row.id.toString(),
         title: row.FORARB,
-        area: row.SUPERFICIE,
+        area: row.area_ha,
         occupiedArea: row.Fcc,
         mainSpecies: row.SP1,
         secondarySpecies: row.SP2,
