@@ -386,6 +386,7 @@ const ForestPolygons = () => {
   
   
     if (selectedPlot && infoWindowPos) {
+      const occupiedAreaValue = Number(selectedPlot.occupiedArea);
       return (
            <InfoWindow
             position={infoWindowPos}
@@ -401,10 +402,12 @@ const ForestPolygons = () => {
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
                 </div>
                 <div className="space-y-1 text-sm">
+                    { !isNaN(occupiedAreaValue) && (
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
-                        <span className="ml-1">{Math.round(Number(selectedPlot.occupiedArea))}%</span>
+                        <span className="ml-1">{Math.round(occupiedAreaValue)}%</span>
                     </div>
+                    )}
                     <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('main_species' as any)}:</span>
                         <span className="ml-1 capitalize">{selectedPlot.mainSpecies?.toLowerCase()}</span>
@@ -483,7 +486,7 @@ export default function BiomassMap() {
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof google !== 'undefined') {
         setMapTypeControlOptions({
-            position: google.maps.ControlPosition.BOTTOM_LEFT,
+            position: google.maps.ControlPosition.TOP_RIGHT,
         });
     }
   }, []);
