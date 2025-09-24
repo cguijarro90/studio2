@@ -36,6 +36,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     overlays,
     isLoading,
     forestPlots,
+    agriculturalPlots,
     setRadiusKm,
     setOverlays,
   } = useBiomassStore();
@@ -134,7 +135,10 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm text-muted-foreground">{t('agricultural_data')}</FormLabel>
+                      <FormLabel className="text-sm text-muted-foreground">
+                        {t('agricultural_data')}
+                        {agriculturalPlots.length > 0 && ` (${agriculturalPlots.length})`}
+                        </FormLabel>
                     </div>
                     <FormControl>
                       <Switch
