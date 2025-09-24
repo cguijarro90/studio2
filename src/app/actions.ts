@@ -121,7 +121,7 @@ export async function searchAgriculturalPlots(
   const { lat, lng, radius_m } = validation.data;
 
   // Reduce radius for polygon search to avoid performance issues and huge data transfers
-  const effective_radius_m = Math.min(radius_m, 10000); // Max 10km radius for plots
+  const effective_radius_m = Math.min(radius_m, 75000); // Max 75km radius for plots
 
   const table = '`ce-sdx-platform-0007.SPAIN_SIGPAC_LINEAS_GOLD.SPAIN_SIGPAC_LINEAS`';
 
@@ -178,7 +178,7 @@ export async function searchForestPlots(
   
     const { lat, lng, radius_m } = validation.data;
   
-    const effective_radius_m = Math.min(radius_m, 10000);
+    const effective_radius_m = Math.min(radius_m, 75000);
   
     const table = '`ce-sdx-platform-0007.SPAIN_CCAA_MAPA_FORESTAL_GOLD.SPAIN_MAPA_FORESTAL`';
   
