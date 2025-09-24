@@ -62,6 +62,7 @@ export type AppState = {
   isLoading: boolean;
   isInitialDialogOpen: boolean;
   isOutOfSpainDialogOpen: boolean;
+  isForestAnalysisOpen: boolean;
   map: google.maps.Map | null;
   selectedSourceId: string | null;
   locale: Locale;
@@ -83,6 +84,7 @@ export type AppActions = {
   setIsLoading: (loading: boolean) => void;
   setIsInitialDialogOpen: (isOpen: boolean) => void;
   setIsOutOfSpainDialogOpen: (isOpen: boolean) => void;
+  setIsForestAnalysisOpen: (isOpen: boolean) => void;
   setMap: (map: google.maps.Map | null) => void;
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;

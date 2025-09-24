@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import PlacesAutocomplete from './places-autocomplete';
 import { Label } from './ui/label';
 import { useTranslation } from '@/hooks/use-translation';
+import { Icons } from './icons';
 
 const formSchema = z.object({
   radiusKm: z.number().min(0.1).max(75),
@@ -39,6 +40,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     agriculturalPlots,
     setRadiusKm,
     setOverlays,
+    setIsForestAnalysisOpen,
   } = useBiomassStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -163,15 +165,28 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                         {forestPlots.length > 0 && ` (${forestPlots.length})`}
                       </FormLabel>
                     </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked);
-                          setOverlays({ ...getValues().overlays, forestData: checked });
-                        }}
-                      />
-                    </FormControl>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={!forestPlots || forestPlots.length === 0}
+                            onClick={() => setIsForestAnalysisOpen(true)}
+                        >
+                            <Icons.barChart className="h-4 w-4" />
+                            <span className="sr-only">{t('show_analysis' as any)}</span>
+                        </Button>
+                        <FormControl>
+                        <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                            field.onChange(checked);
+                            setOverlays({ ...getValues().overlays, forestData: checked });
+                            }}
+                        />
+                        </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />
