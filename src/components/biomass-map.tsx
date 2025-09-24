@@ -403,7 +403,7 @@ const ForestPolygons = () => {
                 <div className="space-y-1 text-sm">
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
-                        <span className="ml-1">{Number(selectedPlot.occupiedArea)?.toFixed(2)}</span>
+                        <span className="ml-1">{Math.round(Number(selectedPlot.occupiedArea))}%</span>
                     </div>
                     <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('main_species' as any)}:</span>
@@ -483,7 +483,7 @@ export default function BiomassMap() {
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof google !== 'undefined') {
         setMapTypeControlOptions({
-            position: google.maps.ControlPosition.TOP_RIGHT,
+            position: google.maps.ControlPosition.BOTTOM_LEFT,
         });
     }
   }, []);
