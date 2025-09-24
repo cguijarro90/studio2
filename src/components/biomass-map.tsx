@@ -403,7 +403,7 @@ const ForestPolygons = () => {
                 <div className="space-y-1 text-sm">
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
-                        <span className="ml-1">{selectedPlot.occupiedArea?.toFixed(2)} %</span>
+                        <span className="ml-1">{Number(selectedPlot.occupiedArea)?.toFixed(2)}</span>
                     </div>
                     <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('main_species' as any)}:</span>
