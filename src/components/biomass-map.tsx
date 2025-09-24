@@ -353,6 +353,7 @@ const ForestPolygons = () => {
                   id: event.feature.getProperty('id'),
                   title: event.feature.getProperty('title'),
                   occupiedArea: event.feature.getProperty('FCCTOT'),
+                  area_ha: event.feature.getProperty('area_ha'),
                   mainSpecies: event.feature.getProperty('mainSpecies'),
                   secondarySpecies: event.feature.getProperty('secondarySpecies'),
                   tertiarySpecies: event.feature.getProperty('tertiarySpecies'),
@@ -384,6 +385,7 @@ const ForestPolygons = () => {
   
     if (selectedPlot && infoWindowPos) {
       const occupiedAreaValue = Number(selectedPlot.occupiedArea);
+      const areaHaValue = Number(selectedPlot.area_ha);
       return (
            <InfoWindow
             position={infoWindowPos}
@@ -399,6 +401,12 @@ const ForestPolygons = () => {
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
                 </div>
                 <div className="space-y-1 text-sm">
+                    { !isNaN(areaHaValue) && (
+                        <div className="flex">
+                           <span className="font-semibold w-32 shrink-0">{t('area' as any)}:</span>
+                           <span className="ml-1">{areaHaValue.toFixed(2)} ha</span>
+                       </div>
+                    )}
                     { !isNaN(occupiedAreaValue) && (
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
@@ -567,7 +575,3 @@ export default function BiomassMap() {
     </>
   );
 }
-
-    
-
-    

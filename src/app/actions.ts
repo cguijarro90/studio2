@@ -134,7 +134,7 @@ export async function searchAgriculturalPlots(
       ST_ASGEOJSON(geometry) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
-    LIMIT 50000
+    LIMIT 5000
   `;
 
   const queryParams = {
@@ -187,13 +187,14 @@ export async function searchForestPlots(
         FID as id,
         FORARB,
         FCCTOT,
+        area_ha,
         SP1,
         SP2,
         SP3,
         ST_ASGEOJSON(geometry) as geometry
       FROM ${table}
       WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND FORARB IS NOT NULL
-      LIMIT 50000
+      LIMIT 5000
     `;
   
     const queryParams = {
@@ -212,6 +213,7 @@ export async function searchForestPlots(
         id: row.id.toString(),
         title: row.FORARB,
         occupiedArea: row.FCCTOT,
+        area_ha: row.area_ha,
         mainSpecies: row.SP1,
         secondarySpecies: row.SP2,
         tertiarySpecies: row.SP3,

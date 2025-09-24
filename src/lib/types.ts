@@ -24,6 +24,7 @@ export type ForestPlot = {
     id: string;
     title: string;
     occupiedArea: number;
+    area_ha: number;
     mainSpecies: string;
     secondarySpecies?: string;
     tertiarySpecies?: string;
