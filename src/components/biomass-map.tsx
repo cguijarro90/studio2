@@ -352,7 +352,7 @@ const ForestPolygons = () => {
               const plotData: ForestPlot = {
                   id: event.feature.getProperty('id'),
                   title: event.feature.getProperty('title'),
-                  occupiedArea: event.feature.getProperty('occupiedArea'),
+                  occupiedArea: event.feature.getProperty('FCCTOT'),
                   mainSpecies: event.feature.getProperty('mainSpecies'),
                   secondarySpecies: event.feature.getProperty('secondarySpecies'),
                   tertiarySpecies: event.feature.getProperty('tertiarySpecies'),
@@ -567,5 +567,7 @@ export default function BiomassMap() {
     </>
   );
 }
+
+    
 
     
