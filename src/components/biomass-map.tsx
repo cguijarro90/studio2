@@ -201,18 +201,19 @@ const AgriculturalPolygons = () => {
 
     if (overlays.agriculturalData && agriculturalPlots.length > 0) {
       try {
-        dataLayer.addGeoJson({
-          type: 'FeatureCollection',
-          features: agriculturalPlots.map(plot => ({
-            type: 'Feature',
-            geometry: JSON.parse(plot.geometry),
-            properties: {
-              id: plot.id,
-              cropType: plot.cropType,
-              province: plot.province,
-              area_ha: plot.area_ha,
-            },
-          })),
+        const features = agriculturalPlots.map(plot => ({
+          type: 'Feature',
+          geometry: JSON.parse(plot.geometry),
+          properties: {
+            id: plot.id,
+            cropType: plot.cropType,
+            province: plot.province,
+            area_ha: plot.area_ha,
+          },
+        }));
+
+        features.forEach(feature => {
+            dataLayer.addGeoJson(feature);
         });
 
         dataLayer.setStyle(feature => {
@@ -333,9 +334,8 @@ const ForestPolygons = () => {
             properties: { ...plot },
           }));
 
-          dataLayer.addGeoJson({
-            type: 'FeatureCollection',
-            features: features,
+          features.forEach(feature => {
+            dataLayer.addGeoJson(feature);
           });
   
           dataLayer.setStyle(feature => {
@@ -350,8 +350,6 @@ const ForestPolygons = () => {
           });
   
           clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
-              const props = event.feature.getProperty('__v') || {}; // temp fix for proxy object issue
-              
               const plotData: ForestPlot = {
                   id: event.feature.getProperty('id'),
                   title: event.feature.getProperty('title'),
