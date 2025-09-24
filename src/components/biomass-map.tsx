@@ -328,13 +328,12 @@ const ForestPolygons = () => {
   
       if (overlays.forestData && forestPlots.length > 0) {
         try {
-          const features = forestPlots.map(plot => ({
-            type: 'Feature',
-            geometry: JSON.parse(plot.geometry),
-            properties: { ...plot },
-          }));
-
-          features.forEach(feature => {
+          forestPlots.forEach(plot => {
+            const feature = {
+                type: 'Feature',
+                geometry: JSON.parse(plot.geometry),
+                properties: { ...plot },
+            };
             dataLayer.addGeoJson(feature);
           });
   
