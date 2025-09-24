@@ -35,6 +35,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     radiusKm,
     overlays,
     isLoading,
+    forestPlots,
     setRadiusKm,
     setOverlays,
   } = useBiomassStore();
@@ -153,7 +154,10 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2 shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-sm text-muted-foreground">{t('forest_data')}</FormLabel>
+                      <FormLabel className="text-sm text-muted-foreground">
+                        {t('forest_data')}
+                        {forestPlots.length > 0 && ` (${forestPlots.length})`}
+                      </FormLabel>
                     </div>
                     <FormControl>
                       <Switch
