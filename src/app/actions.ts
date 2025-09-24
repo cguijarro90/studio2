@@ -229,3 +229,4 @@ export async function searchForestPlots(
       throw new Error('An unknown error occurred while fetching forest plot data.');
     }
   }
+
