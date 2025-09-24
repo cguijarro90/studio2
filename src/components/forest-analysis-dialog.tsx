@@ -30,7 +30,7 @@ interface SpeciesAnalysis {
 }
 
 export default function ForestAnalysisDialog() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { isForestAnalysisOpen, setIsForestAnalysisOpen, forestPlots } = useBiomassStore();
 
   const analysisData: SpeciesAnalysis[] = useMemo(() => {
@@ -81,8 +81,8 @@ export default function ForestAnalysisDialog() {
                         {analysisData.map(species => (
                             <TableRow key={species.name}>
                                 <TableCell className="font-medium capitalize">{species.name.toLowerCase()}</TableCell>
-                                <TableCell className="text-right">{species.totalArea.toFixed(2)}</TableCell>
-                                <TableCell className="text-right">{species.plotCount}</TableCell>
+                                <TableCell className="text-right">{species.totalArea.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                <TableCell className="text-right">{species.plotCount.toLocaleString(locale)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
