@@ -41,6 +41,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     setRadiusKm,
     setOverlays,
     setIsForestAnalysisOpen,
+    setIsAgriculturalAnalysisOpen,
   } = useBiomassStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -142,15 +143,28 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                         {agriculturalPlots.length > 0 && ` (${agriculturalPlots.length})`}
                         </FormLabel>
                     </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked);
-                          setOverlays({ ...getValues().overlays, agriculturalData: checked });
-                        }}
-                      />
-                    </FormControl>
+                     <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={!agriculturalPlots || agriculturalPlots.length === 0}
+                            onClick={() => setIsAgriculturalAnalysisOpen(true)}
+                        >
+                            <Icons.barChart className="h-4 w-4" />
+                            <span className="sr-only">{t('show_analysis' as any)}</span>
+                        </Button>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              setOverlays({ ...getValues().overlays, agriculturalData: checked });
+                            }}
+                          />
+                        </FormControl>
+                    </div>
                   </FormItem>
                 )}
               />

@@ -33,6 +33,8 @@
     "agricultural_legend_title": "Cultivos",
     "forest_legend_title": "Especies Forestales",
     "forest_analysis_title": "Top 10 Especies Forestales por Superficie",
+    "agricultural_analysis_title": "Top 10 Tipos de Cultivo por Superficie",
+    "crop_type": "Tipo de Cultivo",
     "show_analysis": "Mostrar análisis",
     "species": "Especie",
     "total_area_ha": "Superficie Total (ha)",

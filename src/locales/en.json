@@ -33,6 +33,8 @@
     "agricultural_legend_title": "Crops",
     "forest_legend_title": "Forest Species",
     "forest_analysis_title": "Top 10 Forest Species by Area",
+    "agricultural_analysis_title": "Top 10 Crop Types by Area",
+    "crop_type": "Crop Type",
     "show_analysis": "Show analysis",
     "species": "Species",
     "total_area_ha": "Total Area (ha)",

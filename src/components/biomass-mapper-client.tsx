@@ -12,6 +12,7 @@ import BiomassMap from '@/components/biomass-map';
 import InitialFilterDialog from '@/components/initial-filter-dialog';
 import OutOfSpainDialog from '@/components/out-of-spain-dialog';
 import ForestAnalysisDialog from '@/components/forest-analysis-dialog';
+import AgriculturalAnalysisDialog from '@/components/agricultural-analysis-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
 
@@ -203,6 +204,7 @@ export default function BiomassMapperClient() {
       <InitialFilterDialog />
       <OutOfSpainDialog />
       <ForestAnalysisDialog />
+      <AgriculturalAnalysisDialog />
     </APIProvider>
   );
 }
