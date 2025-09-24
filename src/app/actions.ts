@@ -185,10 +185,15 @@ export async function searchForestPlots(
     const query = `
       SELECT
         FID as id,
-        SP1 as species,
+        FORARB,
+        SUPERFICIE,
+        Fcc,
+        SP1,
+        SP2,
+        SP3,
         ST_ASGEOJSON(geometry) as geometry
       FROM ${table}
-      WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND SP1 IS NOT NULL
+      WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND FORARB IS NOT NULL
       LIMIT 50000
     `;
   
@@ -206,7 +211,12 @@ export async function searchForestPlots(
   
       const items: ForestPlot[] = rows.map((row: any) => ({
         id: row.id.toString(),
-        species: row.species,
+        title: row.FORARB,
+        area: row.SUPERFICIE,
+        occupiedArea: row.Fcc,
+        mainSpecies: row.SP1,
+        secondarySpecies: row.SP2,
+        tertiarySpecies: row.SP3,
         geometry: row.geometry, // This is already a GeoJSON string
       }));
   

@@ -50,5 +50,8 @@
     "out_of_spain_desc": "La ubicación seleccionada está fuera de España. Los datos disponibles se limitan al territorio español.",
     "province": "Provincia",
     "area": "Superficie",
-    "forest_species": "Especie Forestal"
+    "forest_plot": "Parcela Forestal",
+    "occupied_area": "Superficie Ocupada",
+    "main_species": "Especie Principal",
+    "secondary_species": "Especie Secundaria"
 }

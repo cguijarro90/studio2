@@ -133,6 +133,7 @@ function RadiusCircle() {
 }
 
 const stringToColor = (str: string) => {
+  if (!str) return '#808080';
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -301,13 +302,13 @@ const ForestPolygons = () => {
     const { t } = useTranslation();
   
     useEffect(() => {
-      if (!forestPlots) return;
-      const uniqueSpecies = [...new Set(forestPlots.map(p => p.species))];
-      const colors: { [key: string]: string } = {};
-      uniqueSpecies.forEach(type => {
-        colors[type] = stringToColor(type);
-      });
-      setForestSpeciesColors(colors);
+        if (!forestPlots) return;
+        const uniqueSpecies = [...new Set(forestPlots.map(p => p.mainSpecies))].filter(Boolean);
+        const colors: { [key: string]: string } = {};
+        uniqueSpecies.forEach(type => {
+            colors[type] = stringToColor(type);
+        });
+        setForestSpeciesColors(colors);
     }, [forestPlots, setForestSpeciesColors]);
   
     useEffect(() => {
@@ -326,17 +327,19 @@ const ForestPolygons = () => {
   
       if (overlays.forestData && forestPlots.length > 0) {
         try {
+          const features = forestPlots.map(plot => ({
+            type: 'Feature',
+            geometry: JSON.parse(plot.geometry),
+            properties: { ...plot },
+          }));
+
           dataLayer.addGeoJson({
             type: 'FeatureCollection',
-            features: forestPlots.map(plot => ({
-              type: 'Feature',
-              geometry: JSON.parse(plot.geometry),
-              properties: { ...plot },
-            })),
+            features: features,
           });
   
           dataLayer.setStyle(feature => {
-              const species = feature.getProperty('species');
+              const species = feature.getProperty('mainSpecies');
               const color = forestSpeciesColors[species] || '#808080';
               return {
                 fillColor: color,
@@ -347,9 +350,16 @@ const ForestPolygons = () => {
           });
   
           clickListenerRef.current = dataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+              const props = event.feature.getProperty('__v') || {}; // temp fix for proxy object issue
+              
               const plotData: ForestPlot = {
                   id: event.feature.getProperty('id'),
-                  species: event.feature.getProperty('species'),
+                  title: event.feature.getProperty('title'),
+                  area: event.feature.getProperty('area'),
+                  occupiedArea: event.feature.getProperty('occupiedArea'),
+                  mainSpecies: event.feature.getProperty('mainSpecies'),
+                  secondarySpecies: event.feature.getProperty('secondarySpecies'),
+                  tertiarySpecies: event.feature.getProperty('tertiarySpecies'),
                   geometry: '',
               };
               setSelectedPlot(plotData);
@@ -383,20 +393,35 @@ const ForestPolygons = () => {
             onCloseClick={() => setSelectedPlot(null)}
             headerDisabled
           >
-              <div className="p-1 min-w-48">
-               <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-2 font-bold text-base text-foreground mb-2 pr-4">
-                      <Icons.trees className="w-5 h-5 text-muted-foreground" />
-                      <h3 className="capitalize">{t('forest_species' as any)}</h3>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
-              </div>
-              <div className="space-y-2 text-sm">
-                  <div className="flex items-center">
-                      <span className="ml-2 font-semibold">{selectedPlot.species}</span>
-                  </div>
-              </div>
-          </div>
+            <div className="p-1 min-w-56">
+                <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-2 font-bold text-base text-foreground mb-2 pr-4">
+                        <Icons.trees className="w-5 h-5 text-muted-foreground" />
+                        <h3 className="capitalize">{selectedPlot.title || t('forest_plot' as any)}</h3>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
+                </div>
+                <div className="space-y-1 text-sm">
+                    <div className="flex">
+                        <span className="font-semibold w-32 shrink-0">{t('area' as any)}:</span>
+                        <span className="ml-1">{selectedPlot.area?.toFixed(2)} ha</span>
+                    </div>
+                     <div className="flex">
+                        <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
+                        <span className="ml-1">{selectedPlot.occupiedArea?.toFixed(2)} %</span>
+                    </div>
+                    <div className="flex">
+                        <span className="font-semibold w-32 shrink-0">{t('main_species' as any)}:</span>
+                        <span className="ml-1 capitalize">{selectedPlot.mainSpecies?.toLowerCase()}</span>
+                    </div>
+                    {selectedPlot.secondarySpecies && (
+                        <div className="flex">
+                            <span className="font-semibold w-32 shrink-0">{t('secondary_species' as any)}:</span>
+                            <span className="ml-1 capitalize">{selectedPlot.secondarySpecies?.toLowerCase()}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
           </InfoWindow>
       )
     }

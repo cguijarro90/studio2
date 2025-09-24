@@ -50,5 +50,8 @@
     "out_of_spain_desc": "The selected location is outside of Spain. The available data is limited to Spanish territory.",
     "province": "Province",
     "area": "Area",
-    "forest_species": "Forest Species"
+    "forest_plot": "Forest Plot",
+    "occupied_area": "Occupied Area",
+    "main_species": "Main Species",
+    "secondary_species": "Secondary Species"
 }
