@@ -81,8 +81,8 @@ export default function AgriculturalAnalysisDialog() {
                         {analysisData.map(crop => (
                             <TableRow key={crop.name}>
                                 <TableCell className="font-medium capitalize">{crop.name.toLowerCase()}</TableCell>
-                                <TableCell className="text-right">{crop.totalArea.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                <TableCell className="text-right">{crop.plotCount.toLocaleString(locale)}</TableCell>
+                                <TableCell className="text-right">{crop.totalArea.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                <TableCell className="text-right">{crop.plotCount.toLocaleString('es-ES')}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

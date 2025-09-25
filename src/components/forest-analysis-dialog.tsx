@@ -81,8 +81,8 @@ export default function ForestAnalysisDialog() {
                         {analysisData.map(species => (
                             <TableRow key={species.name}>
                                 <TableCell className="font-medium capitalize">{species.name.toLowerCase()}</TableCell>
-                                <TableCell className="text-right">{species.totalArea.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                <TableCell className="text-right">{species.plotCount.toLocaleString(locale)}</TableCell>
+                                <TableCell className="text-right">{species.totalArea.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                <TableCell className="text-right">{species.plotCount.toLocaleString('es-ES')}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
