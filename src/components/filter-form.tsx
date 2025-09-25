@@ -140,7 +140,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                     <div className="space-y-0.5">
                       <FormLabel className="text-sm text-muted-foreground">
                         {t('agricultural_data')}
-                        {agriculturalPlots.length > 0 && ` (${agriculturalPlots.length})`}
+                        {agriculturalPlots.length > 0 && ` (${agriculturalPlots.length.toLocaleString('es-ES')})`}
                         </FormLabel>
                     </div>
                      <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                     <div className="space-y-0.5">
                       <FormLabel className="text-sm text-muted-foreground">
                         {t('forest_data')}
-                        {forestPlots.length > 0 && ` (${forestPlots.length})`}
+                        {forestPlots.length > 0 && ` (${forestPlots.length.toLocaleString('es-ES')})`}
                       </FormLabel>
                     </div>
                     <div className="flex items-center gap-2">
