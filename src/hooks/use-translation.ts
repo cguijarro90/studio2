@@ -12,8 +12,16 @@ type TranslationKey = keyof typeof es | keyof typeof en;
 export function useTranslation() {
   const { locale } = useBiomassStore();
 
-  const t = (key: TranslationKey) => {
-    return translations[locale][key as keyof typeof translations[typeof locale]] || key;
+  const t = (key: TranslationKey, replacements?: Record<string, string | number>) => {
+    let translation = translations[locale][key as keyof typeof translations[typeof locale]] || key;
+
+    if (replacements) {
+        Object.keys(replacements).forEach(placeholder => {
+            translation = translation.replace(`{${placeholder}}`, String(replacements[placeholder]));
+        });
+    }
+
+    return translation;
   };
 
   return { t, locale };
