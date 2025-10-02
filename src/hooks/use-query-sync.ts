@@ -18,6 +18,7 @@ export function useQuerySync() {
     page,
     locale,
     searchInitiated,
+    isLiteVersion,
     setCenter,
     setRadiusKm,
     setPage,
@@ -40,7 +41,13 @@ export function useQuerySync() {
         setCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
 
         const radius = params.get('radius');
-        if (radius) setRadiusKm(parseFloat(radius));
+        if (radius) {
+          let radiusValue = parseFloat(radius);
+          if (isLiteVersion && radiusValue > 5) {
+            radiusValue = 5;
+          }
+          setRadiusKm(radiusValue);
+        }
 
         const pageParam = params.get('page');
         if (pageParam) setPage(parseInt(pageParam, 10));

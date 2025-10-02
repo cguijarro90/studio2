@@ -4,7 +4,7 @@ import type { AppState, AppActions, Locale, Point, BiomassSource, AgriculturalPl
 const initialState: AppState = {
   isLiteVersion: true, // Lite version is active by default
   center: null,
-  radiusKm: 50,
+  radiusKm: 5,
   overlays: {
     biomassPlants: true,
     agriculturalData: true,
