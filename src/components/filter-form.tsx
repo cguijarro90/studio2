@@ -17,7 +17,7 @@ import { Label } from './ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 import { Icons } from './icons';
 import { TriangleAlert } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Alert, AlertTitle } from './ui/alert';
 
 const formSchema = z.object({
   radiusKm: z.number().min(0.1).max(75),
@@ -45,6 +45,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     setOverlays,
     setIsForestAnalysisOpen,
     setIsAgriculturalAnalysisOpen,
+    setIsLiteLimitationsDialogOpen,
   } = useBiomassStore();
 
   const maxRadius = isLiteVersion ? 5 : 75;
@@ -100,7 +101,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
           {isLiteVersion && (
-            <Alert variant="destructive" className="bg-gradient-to-r from-yellow-100 to-yellow-200 border-yellow-800 text-yellow-800 [&>svg]:text-yellow-800">
+            <Alert variant="destructive" className="bg-gradient-to-r from-yellow-100 to-yellow-200 border-yellow-800 text-yellow-800 [&>svg]:text-yellow-800 cursor-pointer" onClick={() => setIsLiteLimitationsDialogOpen(true)}>
                 <TriangleAlert className="h-4 w-4" />
                 <AlertTitle className="font-bold">{t('lite_version_limitations' as any)}</AlertTitle>
             </Alert>

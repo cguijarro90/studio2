@@ -14,6 +14,7 @@ import OutOfSpainDialog from '@/components/out-of-spain-dialog';
 import ForestAnalysisDialog from '@/components/forest-analysis-dialog';
 import AgriculturalAnalysisDialog from '@/components/agricultural-analysis-dialog';
 import LiteVersionRibbon from '@/components/lite-version-ribbon';
+import LiteLimitationsDialog from '@/components/lite-limitations-dialog';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
 
@@ -224,6 +225,7 @@ export default function BiomassMapperClient() {
       <OutOfSpainDialog />
       <ForestAnalysisDialog />
       <AgriculturalAnalysisDialog />
+      <LiteLimitationsDialog />
     </APIProvider>
   );
 }

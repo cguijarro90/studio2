@@ -66,5 +66,19 @@
     "protected_data": "Protected Data",
     "lite_version_radius_limit": "Lite version radius is limited to {maxRadius} km.",
     "lite_version": "Lite Version",
-    "lite_version_limitations": "Lite Version Limitations"
+    "lite_version_limitations": "Lite Version Limitations",
+    "lite_vs_full_title": "Lite vs. Full Version",
+    "feature": "Feature",
+    "full_version": "Full Version",
+    "feature_radius": "Search Radius",
+    "feature_radius_lite": "Up to 5 km",
+    "feature_radius_full": "Up to 75 km",
+    "feature_layers": "Simultaneous Layers",
+    "feature_layers_lite": "One at a time",
+    "feature_layers_full": "All at once",
+    "feature_data_access": "Detailed Data Access",
+    "feature_analysis": "Summary Analysis",
+    "feature_plot_limit": "Visible Plots Limit",
+    "feature_plot_limit_lite": "100",
+    "feature_plot_limit_full": "No limit"
 }

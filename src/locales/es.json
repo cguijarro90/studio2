@@ -66,5 +66,19 @@
     "protected_data": "Dato Protegido",
     "lite_version_radius_limit": "El radio en la versión lite está limitado a {maxRadius} km.",
     "lite_version": "Versión Lite",
-    "lite_version_limitations": "Limitaciones versión lite"
+    "lite_version_limitations": "Limitaciones versión lite",
+    "lite_vs_full_title": "Versión Lite vs. Completa",
+    "feature": "Característica",
+    "full_version": "Versión Completa",
+    "feature_radius": "Radio de Búsqueda",
+    "feature_radius_lite": "Hasta 5 km",
+    "feature_radius_full": "Hasta 75 km",
+    "feature_layers": "Capas Simultáneas",
+    "feature_layers_lite": "Una a la vez",
+    "feature_layers_full": "Todas a la vez",
+    "feature_data_access": "Acceso a Datos Detallados",
+    "feature_analysis": "Análisis de Resumen",
+    "feature_plot_limit": "Límite de Parcelas Visibles",
+    "feature_plot_limit_lite": "100",
+    "feature_plot_limit_full": "Sin límite"
 }
