@@ -109,6 +109,7 @@ const plotSearchSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   radius_m: z.number().min(100).max(75000),
+  isLite: z.boolean().optional(),
 });
 
 export async function searchAgriculturalPlots(
@@ -119,10 +120,11 @@ export async function searchAgriculturalPlots(
     throw new Error(`Invalid search parameters: ${validation.error.message}`);
   }
 
-  const { lat, lng, radius_m } = validation.data;
+  const { lat, lng, radius_m, isLite = false } = validation.data;
 
   // Reduce radius for polygon search to avoid performance issues and huge data transfers
   const effective_radius_m = Math.min(radius_m, 75000); // Max 75km radius for plots
+  const limit = isLite ? 100 : 10000;
 
   const table = '`ce-sdx-platform-0007.SPAIN_SIGPAC_LINEAS_GOLD.SPAIN_SIGPAC_LINEAS`';
 
@@ -135,13 +137,14 @@ export async function searchAgriculturalPlots(
       ST_ASGEOJSON(geometry) as geometry
     FROM ${table}
     WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m)
-    LIMIT 10000
+    LIMIT @limit
   `;
 
   const queryParams = {
     lng,
     lat,
     radius_m: effective_radius_m,
+    limit,
   };
 
   try {
@@ -179,9 +182,10 @@ export async function searchForestPlots(
       throw new Error(`Invalid search parameters: ${validation.error.message}`);
     }
   
-    const { lat, lng, radius_m } = validation.data;
+    const { lat, lng, radius_m, isLite = false } = validation.data;
   
     const effective_radius_m = Math.min(radius_m, 75000);
+    const limit = isLite ? 100 : 10000;
   
     const table = '`ce-sdx-platform-0007.SPAIN_CCAA_MAPA_FORESTAL_GOLD.SPAIN_MAPA_FORESTAL`';
   
@@ -197,13 +201,14 @@ export async function searchForestPlots(
         ST_ASGEOJSON(geometry) as geometry
       FROM ${table}
       WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND FORARB IS NOT NULL
-      LIMIT 10000
+      LIMIT @limit
     `;
   
     const queryParams = {
       lng,
       lat,
       radius_m: effective_radius_m,
+      limit,
     };
   
     try {

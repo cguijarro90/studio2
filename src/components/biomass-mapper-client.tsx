@@ -91,13 +91,14 @@ export default function BiomassMapperClient() {
         lat: center.lat,
         lng: center.lng,
         radius_m: radiusKm * 1000,
+        isLite: isLiteVersion,
       });
       setAgriculturalPlots(plots);
     } catch (error) {
       console.error('Agricultural plot search failed:', error);
       setAgriculturalPlots([]);
     }
-  }, [center, radiusKm, setAgriculturalPlots]);
+  }, [center, radiusKm, setAgriculturalPlots, isLiteVersion]);
   
   const performForestSearch = useCallback(async () => {
     if (!center) {
@@ -109,13 +110,14 @@ export default function BiomassMapperClient() {
         lat: center.lat,
         lng: center.lng,
         radius_m: radiusKm * 1000,
+        isLite: isLiteVersion,
       });
       setForestPlots(plots);
     } catch (error) {
       console.error('Forest plot search failed:', error);
       setForestPlots([]);
     }
-  }, [center, radiusKm, setForestPlots]);
+  }, [center, radiusKm, setForestPlots, isLiteVersion]);
   
   
   useEffect(() => {
@@ -145,17 +147,19 @@ export default function BiomassMapperClient() {
   const handleSearch = async () => {
     if (!center) return;
     
-    if (!searchInitiated) {
+    const isFirstSearch = !searchInitiated;
+    if (isFirstSearch) {
         setSearchInitiated(true);
-        if (isLiteVersion) {
-            setOverlays({
-                biomassPlants: true,
-                agriculturalData: false,
-                forestData: false,
-            });
-        }
     }
     
+    if (isLiteVersion && isFirstSearch) {
+        setOverlays({
+            biomassPlants: true,
+            agriculturalData: false,
+            forestData: false,
+        });
+    }
+
     const currentPage = useBiomassStore.getState().page;
     if (currentPage !== 1) {
         setPage(1); 
@@ -163,6 +167,9 @@ export default function BiomassMapperClient() {
 
     setIsLoading(true);
 
+    // Give react time to update the state before we use it
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     const searchPromises: Promise<any>[] = [];
     const currentOverlays = useBiomassStore.getState().overlays;
 
