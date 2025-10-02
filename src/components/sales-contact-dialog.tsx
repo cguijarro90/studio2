@@ -17,10 +17,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from './ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function SalesContactDialog() {
   const { t } = useTranslation();
   const { isContactFormOpen, setIsContactFormOpen } = useBiomassStore();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formSchema = z.object({
     name: z.string().min(1, { message: t('validation_required' as any) }),
@@ -39,10 +43,37 @@ export default function SalesContactDialog() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // This is where you would handle form submission, e.g., send to an API
-    console.log('Form submitted:', values);
-    setIsContactFormOpen(false);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('https://pg-n8n.kynegos.net/webhook-test/8ede1e54-d63b-4217-aa83-43c967e2a58a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      toast({
+        title: t('contact_success_title' as any),
+        description: t('contact_success_desc' as any),
+      });
+      handleClose();
+
+    } catch (error) {
+      console.error('Failed to submit form:', error);
+      toast({
+        variant: 'destructive',
+        title: t('contact_error_title' as any),
+        description: t('contact_error_desc' as any),
+      });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -69,7 +100,7 @@ export default function SalesContactDialog() {
                     <span className="text-destructive"> *</span>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -85,7 +116,7 @@ export default function SalesContactDialog() {
                     <span className="text-destructive"> *</span>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -101,7 +132,7 @@ export default function SalesContactDialog() {
                     <span className="text-destructive"> *</span>
                   </FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
+                    <Input type="email" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,17 +145,19 @@ export default function SalesContactDialog() {
                 <FormItem>
                   <FormLabel>{t('form_phone' as any)} <span className="text-xs text-muted-foreground">({t('form_optional' as any)})</span></FormLabel>
                   <FormControl>
-                    <Input type="tel" {...field} />
+                    <Input type="tel" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter className='pt-4'>
-              <Button type="button" variant="outline" onClick={handleClose} className="border-[#BFBFBF]">
+              <Button type="button" variant="outline" onClick={handleClose} className="border-[#BFBFBF]" disabled={isSubmitting}>
                 {t('cancel' as any)}
               </Button>
-              <Button type="submit">{t('send' as any)}</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t('sending' as any) : t('send' as any)}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

@@ -90,7 +90,12 @@
     "form_phone": "Phone",
     "form_optional": "Optional",
     "send": "Send",
+    "sending": "Sending...",
     "cancel": "Cancel",
     "validation_required": "This field is required",
-    "validation_email": "Please enter a valid email"
+    "validation_email": "Please enter a valid email",
+    "contact_success_title": "Form submitted successfully",
+    "contact_success_desc": "We will contact you as soon as possible.",
+    "contact_error_title": "Error submitting form",
+    "contact_error_desc": "Please try again later."
 }
