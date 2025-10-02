@@ -16,6 +16,8 @@ import PlacesAutocomplete from './places-autocomplete';
 import { Label } from './ui/label';
 import { useTranslation } from '@/hooks/use-translation';
 import { Icons } from './icons';
+import { TriangleAlert } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 const formSchema = z.object({
   radiusKm: z.number().min(0.1).max(75),
@@ -97,6 +99,13 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     <>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
+          {isLiteVersion && (
+            <Alert variant="destructive" className="bg-yellow-50 border-yellow-200 text-yellow-800 [&>svg]:text-yellow-800">
+                <TriangleAlert className="h-4 w-4" />
+                <AlertTitle className="font-bold">{t('lite_version_limitations' as any)}</AlertTitle>
+            </Alert>
+          )}
+
           <div>
              <Label className="text-muted-foreground font-bold">{t('location')}</Label>
              <PlacesAutocomplete />
