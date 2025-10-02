@@ -90,7 +90,8 @@ export default function LiteLimitationsDialog() {
             </Table>
         </div>
         <DialogFooter>
-            <Button onClick={() => setIsLiteLimitationsDialogOpen(false)}>{t('close')}</Button>
+            <Button variant="outline" onClick={() => setIsLiteLimitationsDialogOpen(false)}>{t('close')}</Button>
+            <Button>{t('contact_sales' as any)}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

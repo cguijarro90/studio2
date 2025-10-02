@@ -80,5 +80,6 @@
     "feature_analysis": "Summary Analysis",
     "feature_plot_limit": "Visible Plots Limit",
     "feature_plot_limit_lite": "100",
-    "feature_plot_limit_full": "No limit"
+    "feature_plot_limit_full": "No limit",
+    "contact_sales": "Contact Sales"
 }
