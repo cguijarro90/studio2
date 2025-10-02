@@ -101,7 +101,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
           {isLiteVersion && (
-            <Alert variant="destructive" className="bg-yellow-50 border-yellow-800 text-yellow-800 [&>svg]:text-yellow-800 cursor-pointer" onClick={() => setIsLiteLimitationsDialogOpen(true)}>
+            <Alert variant="destructive" className="bg-yellow-800/20 border-yellow-800 text-yellow-800 [&>svg]:text-yellow-800 cursor-pointer" onClick={() => setIsLiteLimitationsDialogOpen(true)}>
                 <TriangleAlert className="h-4 w-4" />
                 <AlertTitle className="font-bold">{t('lite_version_limitations' as any)}</AlertTitle>
             </Alert>
