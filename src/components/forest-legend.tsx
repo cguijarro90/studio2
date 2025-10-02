@@ -12,13 +12,15 @@ import { ScrollArea } from "./ui/scroll-area";
 export default function ForestLegend() {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
-  const { overlays, forestSpeciesColors, forestPlots } = useBiomassStore();
+  const { overlays, forestSpeciesColors, forestPlots, isLiteVersion } = useBiomassStore();
 
   const species = Object.keys(forestSpeciesColors);
 
   if (!overlays.forestData || forestPlots.length === 0 || species.length === 0) {
     return null;
   }
+  
+  const protectedDataText = t('protected_data' as any);
 
   return (
     <Card className="w-auto max-w-[200px] bg-card/80 backdrop-blur-sm transition-all">
@@ -29,12 +31,19 @@ export default function ForestLegend() {
       <CardContent className={cn("p-0 transition-all duration-300 ease-in-out overflow-hidden", isOpen ? "max-h-60 opacity-100" : "max-h-0 p-0 opacity-0")}>
         <ScrollArea className={cn("h-full", isOpen ? "h-60" : "h-0")}>
             <div className="p-3 pt-0 space-y-2">
-            {species.sort().map((type) => (
-                <div key={type} className="flex items-center text-sm">
-                    <div className="w-4 h-4 rounded-sm mr-2 shrink-0" style={{ backgroundColor: forestSpeciesColors[type] }} />
-                    <span className="capitalize truncate">{type}</span>
+            {isLiteVersion ? (
+                <div className="flex items-center text-sm">
+                    <div className="w-4 h-4 rounded-sm mr-2 shrink-0 bg-gray-400" />
+                    <span className="capitalize truncate">{protectedDataText}</span>
                 </div>
-            ))}
+            ) : (
+                species.sort().map((type) => (
+                    <div key={type} className="flex items-center text-sm">
+                        <div className="w-4 h-4 rounded-sm mr-2 shrink-0" style={{ backgroundColor: forestSpeciesColors[type] }} />
+                        <span className="capitalize truncate">{type}</span>
+                    </div>
+                ))
+            )}
             </div>
         </ScrollArea>
       </CardContent>
