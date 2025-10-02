@@ -64,5 +64,6 @@
     "main_species": "Especie Principal",
     "secondary_species": "Especie Secundaria",
     "protected_data": "Dato Protegido",
-    "lite_version_radius_limit": "El radio en la versión lite está limitado a {maxRadius} km."
+    "lite_version_radius_limit": "El radio en la versión lite está limitado a {maxRadius} km.",
+    "lite_version": "Versión Lite"
 }

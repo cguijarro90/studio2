@@ -13,6 +13,7 @@ import InitialFilterDialog from '@/components/initial-filter-dialog';
 import OutOfSpainDialog from '@/components/out-of-spain-dialog';
 import ForestAnalysisDialog from '@/components/forest-analysis-dialog';
 import AgriculturalAnalysisDialog from '@/components/agricultural-analysis-dialog';
+import LiteVersionRibbon from '@/components/lite-version-ribbon';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import MobilePanelToggle from "@/components/mobile-panel-toggle";
 
@@ -192,8 +193,9 @@ export default function BiomassMapperClient() {
 
   return (
     <APIProvider apiKey={apiKey} libraries={['places', 'visualization', 'geocoding']}>
-      <main className="grid grid-cols-1 md:grid-cols-[1fr,30%] lg:grid-cols-[1fr,30rem] h-screen w-screen bg-background">
+      <main className="grid grid-cols-1 md:grid-cols-[1fr,30%] lg:grid-cols-[1fr,30rem] h-screen w-screen bg-background overflow-hidden">
         <div className="relative w-full h-full">
+          <LiteVersionRibbon />
           <BiomassMap />
         </div>
         <div className="hidden md:flex md:flex-col h-full border-l border-border bg-card overflow-hidden">

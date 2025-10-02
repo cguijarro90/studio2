@@ -64,5 +64,6 @@
     "main_species": "Main Species",
     "secondary_species": "Secondary Species",
     "protected_data": "Protected Data",
-    "lite_version_radius_limit": "Lite version radius is limited to {maxRadius} km."
+    "lite_version_radius_limit": "Lite version radius is limited to {maxRadius} km.",
+    "lite_version": "Lite Version"
 }

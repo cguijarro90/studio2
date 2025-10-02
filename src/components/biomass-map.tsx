@@ -493,7 +493,7 @@ export default function BiomassMap() {
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof google !== 'undefined') {
         setMapTypeControlOptions({
-            position: google.maps.ControlPosition.TOP_RIGHT,
+            position: google.maps.ControlPosition.TOP_LEFT,
         });
     }
   }, []);
@@ -565,7 +565,7 @@ export default function BiomassMap() {
               </InfoWindow>
         )}
       </Map>
-      <div className="absolute top-4 right-16 z-10 flex items-center gap-2">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
         <CoordinatesDisplay />
         <GeolocateControl />
       </div>
