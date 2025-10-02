@@ -23,7 +23,12 @@ import { Check, X } from 'lucide-react';
 
 export default function LiteLimitationsDialog() {
   const { t } = useTranslation();
-  const { isLiteLimitationsDialogOpen, setIsLiteLimitationsDialogOpen } = useBiomassStore();
+  const { isLiteLimitationsDialogOpen, setIsLiteLimitationsDialogOpen, setIsContactFormOpen } = useBiomassStore();
+
+  const handleContactClick = () => {
+    setIsLiteLimitationsDialogOpen(false);
+    setIsContactFormOpen(true);
+  };
 
   const features = [
     {
@@ -91,7 +96,7 @@ export default function LiteLimitationsDialog() {
         </div>
         <DialogFooter>
             <Button variant="outline" onClick={() => setIsLiteLimitationsDialogOpen(false)} className="border-[#BFBFBF]">{t('close')}</Button>
-            <Button>{t('contact_sales' as any)}</Button>
+            <Button onClick={handleContactClick}>{t('contact_sales' as any)}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

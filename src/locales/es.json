@@ -81,5 +81,16 @@
     "feature_plot_limit": "Límite de Parcelas Visibles",
     "feature_plot_limit_lite": "100",
     "feature_plot_limit_full": "Sin límite",
-    "contact_sales": "Contactar con Ventas"
+    "contact_sales": "Contactar con Ventas",
+    "contact_sales_title": "Contactar con Ventas",
+    "contact_sales_desc": "Rellena el formulario y nos pondremos en contacto contigo lo antes posible.",
+    "form_name": "Nombre",
+    "form_surname": "Apellidos",
+    "form_email": "Email",
+    "form_phone": "Teléfono",
+    "form_optional": "Opcional",
+    "send": "Enviar",
+    "cancel": "Cancelar",
+    "validation_required": "Este campo es obligatorio",
+    "validation_email": "Por favor, introduce un email válido"
 }

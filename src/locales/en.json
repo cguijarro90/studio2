@@ -81,5 +81,16 @@
     "feature_plot_limit": "Visible Plots Limit",
     "feature_plot_limit_lite": "100",
     "feature_plot_limit_full": "No limit",
-    "contact_sales": "Contact Sales"
+    "contact_sales": "Contact Sales",
+    "contact_sales_title": "Contact Sales",
+    "contact_sales_desc": "Fill out the form and we will contact you as soon as possible.",
+    "form_name": "Name",
+    "form_surname": "Surname",
+    "form_email": "Email",
+    "form_phone": "Phone",
+    "form_optional": "Optional",
+    "send": "Send",
+    "cancel": "Cancel",
+    "validation_required": "This field is required",
+    "validation_email": "Please enter a valid email"
 }

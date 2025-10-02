@@ -70,6 +70,7 @@ export type AppState = {
   isForestAnalysisOpen: boolean;
   isAgriculturalAnalysisOpen: boolean;
   isLiteLimitationsDialogOpen: boolean;
+  isContactFormOpen: boolean;
   map: google.maps.Map | null;
   selectedSourceId: string | null;
   locale: Locale;
@@ -94,6 +95,7 @@ export type AppActions = {
   setIsForestAnalysisOpen: (isOpen: boolean) => void;
   setIsAgriculturalAnalysisOpen: (isOpen: boolean) => void;
   setIsLiteLimitationsDialogOpen: (isOpen: boolean) => void;
+  setIsContactFormOpen: (isOpen: boolean) => void;
   setMap: (map: google.maps.Map | null) => void;
   setSelectedSourceId: (id: string | null) => void;
   setLocale: (locale: Locale) => void;
