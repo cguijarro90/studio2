@@ -17,6 +17,8 @@ export type AgriculturalPlot = {
   cropType: string;
   province: string;
   area_ha: number;
+  potentialTn: number;
+  calorificValue: number;
   geometry: string; // GeoJSON string of a Polygon
 };
 
@@ -28,6 +30,8 @@ export type ForestPlot = {
     mainSpecies: string;
     secondarySpecies?: string;
     tertiarySpecies?: string;
+    potentialTn: number;
+    calorificValue: number;
     geometry: string; // GeoJSON string of a Polygon
 };
 
@@ -46,6 +50,7 @@ export type SearchResults = {
 export type Locale = 'en' | 'es';
 
 export type AppState = {
+  isLiteVersion: boolean;
   center: Point | null;
   radiusKm: number;
   overlays: {

@@ -38,11 +38,14 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     isLoading,
     forestPlots,
     agriculturalPlots,
+    isLiteVersion,
     setRadiusKm,
     setOverlays,
     setIsForestAnalysisOpen,
     setIsAgriculturalAnalysisOpen,
   } = useBiomassStore();
+
+  const maxRadius = isLiteVersion ? 5 : 75;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,17 +59,39 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
     form.reset({ radiusKm, overlays });
   }, [radiusKm, overlays, form]);
   
-  const { watch, handleSubmit, getValues } = form;
+  const { watch, handleSubmit, getValues, setValue } = form;
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === 'radiusKm' && value.radiusKm !== undefined) {
-        setRadiusKm(value.radiusKm);
+        if (isLiteVersion && value.radiusKm > maxRadius) {
+            setRadiusKm(maxRadius);
+            setValue('radiusKm', maxRadius);
+        } else {
+            setRadiusKm(value.radiusKm);
+        }
       }
-      // Overlays are handled by onCheckedChange now
     });
     return () => subscription.unsubscribe();
-  }, [watch, setRadiusKm, setOverlays]);
+  }, [watch, setRadiusKm, setOverlays, isLiteVersion, maxRadius, setValue]);
+
+  const handleOverlayChange = (overlayName: keyof typeof overlays, checked: boolean) => {
+    if (isLiteVersion && checked) {
+        const newOverlays = {
+            biomassPlants: false,
+            agriculturalData: false,
+            forestData: false,
+        };
+        newOverlays[overlayName] = true;
+        setOverlays(newOverlays);
+        setValue('overlays', newOverlays);
+    } else {
+        const currentOverlays = getValues().overlays;
+        const newOverlays = { ...currentOverlays, [overlayName]: checked };
+        setOverlays(newOverlays);
+        setValue('overlays', newOverlays);
+    }
+  };
 
   return (
     <>
@@ -86,7 +111,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                   <FormLabel className="text-muted-foreground font-bold text-sm whitespace-nowrap">{t('radius' as any)}</FormLabel>
                   <Slider
                     min={0.1}
-                    max={75}
+                    max={maxRadius}
                     step={0.1}
                     value={value ? [value] : [0]}
                     onValueChange={(vals) => onChange(vals[0])}
@@ -96,7 +121,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                     <Input
                       type="number"
                       min={0.1}
-                      max={75}
+                      max={maxRadius}
                       step={0.1}
                       value={value ? parseFloat(value.toFixed(1)) : 0}
                       onChange={(e) => onChange(e.target.valueAsNumber)}
@@ -105,6 +130,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                     <span className="text-sm text-muted-foreground">km</span>
                   </div>
                 </div>
+                {isLiteVersion && <p className="text-xs text-muted-foreground pt-1">{t('lite_version_radius_limit' as any, { maxRadius })}</p>}
                 <FormMessage />
               </FormItem>
             )}
@@ -123,10 +149,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                     <FormControl>
                       <Switch
                         checked={field.value}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked);
-                          setOverlays({ ...getValues().overlays, biomassPlants: checked });
-                        }}
+                        onCheckedChange={(checked) => handleOverlayChange('biomassPlants', checked)}
                       />
                     </FormControl>
                   </FormItem>
@@ -158,10 +181,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                         <FormControl>
                           <Switch
                             checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              setOverlays({ ...getValues().overlays, agriculturalData: checked });
-                            }}
+                            onCheckedChange={(checked) => handleOverlayChange('agriculturalData', checked)}
                           />
                         </FormControl>
                     </div>
@@ -194,10 +214,7 @@ export default function FilterForm({ onSearch }: FilterFormProps) {
                         <FormControl>
                         <Switch
                             checked={field.value}
-                            onCheckedChange={(checked) => {
-                            field.onChange(checked);
-                            setOverlays({ ...getValues().overlays, forestData: checked });
-                            }}
+                            onCheckedChange={(checked) => handleOverlayChange('forestData', checked)}
                         />
                         </FormControl>
                     </div>

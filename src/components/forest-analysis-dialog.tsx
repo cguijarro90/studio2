@@ -31,7 +31,7 @@ interface SpeciesAnalysis {
 
 export default function ForestAnalysisDialog() {
   const { t, locale } = useTranslation();
-  const { isForestAnalysisOpen, setIsForestAnalysisOpen, forestPlots } = useBiomassStore();
+  const { isForestAnalysisOpen, setIsForestAnalysisOpen, forestPlots, isLiteVersion } = useBiomassStore();
 
   const analysisData: SpeciesAnalysis[] = useMemo(() => {
     if (!forestPlots || forestPlots.length === 0) {
@@ -56,9 +56,11 @@ export default function ForestAnalysisDialog() {
     return sortedSpecies.slice(0, 10);
   }, [forestPlots]);
 
+  const protectedData = t('protected_data' as any);
+
   return (
     <Dialog open={isForestAnalysisOpen} onOpenChange={setIsForestAnalysisOpen}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
             <div className="flex items-center gap-2">
                 <Icons.barChart className="h-6 w-6 text-primary" />
@@ -75,14 +77,18 @@ export default function ForestAnalysisDialog() {
                         <TableHead>{t('species' as any)}</TableHead>
                         <TableHead className="text-right">{t('total_area_ha' as any)}</TableHead>
                         <TableHead className="text-right">{t('plot_count' as any)}</TableHead>
+                        <TableHead className="text-right">{t('potential_tn' as any)}</TableHead>
+                        <TableHead className="text-right">{t('calorific_value' as any)}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {analysisData.map(species => (
                             <TableRow key={species.name}>
-                                <TableCell className="font-medium capitalize">{species.name.toLowerCase()}</TableCell>
-                                <TableCell className="text-right">{species.totalArea.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                <TableCell className="text-right">{species.plotCount.toLocaleString('es-ES')}</TableCell>
+                                <TableCell className="font-medium capitalize">{isLiteVersion ? protectedData : species.name.toLowerCase()}</TableCell>
+                                <TableCell className="text-right">{isLiteVersion ? protectedData : species.totalArea.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                <TableCell className="text-right">{isLiteVersion ? protectedData : species.plotCount.toLocaleString('es-ES')}</TableCell>
+                                <TableCell className="text-right">{protectedData}</TableCell>
+                                <TableCell className="text-right">{protectedData}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

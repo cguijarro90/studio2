@@ -39,6 +39,8 @@
     "species": "Especie",
     "total_area_ha": "Superficie Total (ha)",
     "plot_count": "Nº de Parcelas",
+    "potential_tn": "Potencial (Tn)",
+    "calorific_value": "Poder Calorífico",
     "initial_dialog_title": "Configura tu Área de Búsqueda",
     "initial_dialog_desc": "Puedes ajustar los filtros para encontrar fuentes de biomasa. Haz clic en cualquier lugar del mapa para cambiar el centro de búsqueda.",
     "page": "Página {page} de {totalPages}",
@@ -60,5 +62,7 @@
     "forest_plot": "Parcela Forestal",
     "occupied_area": "Superficie Ocupada",
     "main_species": "Especie Principal",
-    "secondary_species": "Especie Secundaria"
+    "secondary_species": "Especie Secundaria",
+    "protected_data": "Dato Protegido",
+    "lite_version_radius_limit": "El radio en la versión lite está limitado a {maxRadius} km."
 }

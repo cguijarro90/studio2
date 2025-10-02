@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useCallback, useState, useRef } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useBiomassStore } from '@/store/biomass-store';
 import { useQuerySync } from '@/hooks/use-query-sync';
 import { searchBiomass, searchAgriculturalPlots, searchForestPlots } from '@/app/actions';
@@ -23,6 +23,7 @@ export default function BiomassMapperClient() {
     page,
     overlays,
     searchInitiated,
+    isLiteVersion,
     setIsLoading,
     setResults,
     setMapResults,
@@ -31,7 +32,8 @@ export default function BiomassMapperClient() {
     resetResults,
     setIsInitialDialogOpen,
     setSearchInitiated,
-    setPage
+    setPage,
+    setOverlays,
   } = useBiomassStore();
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -144,6 +146,13 @@ export default function BiomassMapperClient() {
     
     if (!searchInitiated) {
         setSearchInitiated(true);
+        if (isLiteVersion) {
+            setOverlays({
+                biomassPlants: true,
+                agriculturalData: false,
+                forestData: false,
+            });
+        }
     }
     
     const currentPage = useBiomassStore.getState().page;
@@ -154,8 +163,9 @@ export default function BiomassMapperClient() {
     setIsLoading(true);
 
     const searchPromises: Promise<any>[] = [];
+    const currentOverlays = useBiomassStore.getState().overlays;
 
-    if (overlays.biomassPlants) {
+    if (currentOverlays.biomassPlants) {
         searchPromises.push(performListSearch(1));
         searchPromises.push(performMapSearch());
     } else {
@@ -163,13 +173,13 @@ export default function BiomassMapperClient() {
         setMapResults([]);
     }
 
-     if (overlays.agriculturalData) {
+     if (currentOverlays.agriculturalData) {
         searchPromises.push(performPlotSearch());
     } else {
         setAgriculturalPlots([]);
     }
 
-    if (overlays.forestData) {
+    if (currentOverlays.forestData) {
         searchPromises.push(performForestSearch());
     } else {
         setForestPlots([]);

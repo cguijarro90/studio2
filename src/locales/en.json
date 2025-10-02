@@ -39,6 +39,8 @@
     "species": "Species",
     "total_area_ha": "Total Area (ha)",
     "plot_count": "Plot Count",
+    "potential_tn": "Potential (Tn)",
+    "calorific_value": "Calorific Value",
     "initial_dialog_title": "Set Your Search Area",
     "initial_dialog_desc": "You can adjust the filters to find biomass sources. Click anywhere on the map to change your search center.",
     "page": "Page {page} of {totalPages}",
@@ -60,5 +62,7 @@
     "forest_plot": "Forest Plot",
     "occupied_area": "Occupied Area",
     "main_species": "Main Species",
-    "secondary_species": "Secondary Species"
+    "secondary_species": "Secondary Species",
+    "protected_data": "Protected Data",
+    "lite_version_radius_limit": "Lite version radius is limited to {maxRadius} km."
 }

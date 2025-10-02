@@ -5,3 +5,17 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+
+environment:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: 'AIzaSyBa1TX26RhCbIyBlHqktwHGjB69PCBPfwI'
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: 'ky-dev-mockups-product-08.firebaseapp.com'
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: 'ky-dev-mockups-product-08'
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: 'ky-dev-mockups-product-08.firebasestorage.app'
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: '840740650293'
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: '1:840740650293:web:74a36374c8323da3e7607c'

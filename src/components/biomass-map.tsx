@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Map, useMap, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import { useBiomassStore } from '@/store/biomass-store';
 import { Icons, getBiomassIcon, getColoredBiomassIcon } from './icons';
@@ -167,7 +167,7 @@ const getPolygonCenter = (geometry: google.maps.Data.Polygon | google.maps.Data.
 
 const AgriculturalPolygons = () => {
   const map = useMap();
-  const { agriculturalPlots, overlays, setCropTypeColors, cropTypeColors } = useBiomassStore();
+  const { agriculturalPlots, overlays, setCropTypeColors, cropTypeColors, isLiteVersion } = useBiomassStore();
   const [selectedPlot, setSelectedPlot] = useState<{[key: string]: any} | null>(null);
   const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLng | null>(null);
   const dataLayerRef = useRef<google.maps.Data | null>(null);
@@ -259,6 +259,7 @@ const AgriculturalPolygons = () => {
 
 
   if (selectedPlot && infoWindowPos) {
+    const protectedData = t('protected_data' as any);
     return (
          <InfoWindow
           position={infoWindowPos}
@@ -269,7 +270,7 @@ const AgriculturalPolygons = () => {
              <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2 font-bold text-base text-foreground mb-2 pr-4">
                     <Icons.wheat className="w-5 h-5 text-muted-foreground" />
-                    <h3 className="capitalize">{selectedPlot.cropType}</h3>
+                    <h3 className="capitalize">{isLiteVersion ? protectedData : selectedPlot.cropType}</h3>
                 </div>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
             </div>
@@ -277,12 +278,12 @@ const AgriculturalPolygons = () => {
                 <div className="flex items-center">
                     <Icons.pin className="w-4 h-4 text-muted-foreground" />
                     <span className="ml-2 font-semibold">{t('province' as any)}:</span>
-                    <span className="ml-1">{selectedPlot.province}</span>
+                    <span className="ml-1">{isLiteVersion ? protectedData : selectedPlot.province}</span>
                 </div>
                 <div className="flex items-center">
                     <Icons.layers className="w-4 h-4 text-muted-foreground" />
                     <span className="ml-2 font-semibold">{t('area' as any)}:</span>
-                    <span className="ml-1">{selectedPlot.area_ha.toFixed(2)} ha</span>
+                    <span className="ml-1">{isLiteVersion ? protectedData : `${selectedPlot.area_ha.toFixed(2)} ha`}</span>
                 </div>
             </div>
         </div>
@@ -295,7 +296,7 @@ const AgriculturalPolygons = () => {
 
 const ForestPolygons = () => {
     const map = useMap();
-    const { forestPlots, overlays, setForestSpeciesColors, forestSpeciesColors } = useBiomassStore();
+    const { forestPlots, overlays, setForestSpeciesColors, forestSpeciesColors, isLiteVersion } = useBiomassStore();
     const [selectedPlot, setSelectedPlot] = useState<Partial<ForestPlot> | null>(null);
     const [infoWindowPos, setInfoWindowPos] = useState<google.maps.LatLng | null>(null);
     const dataLayerRef = useRef<google.maps.Data | null>(null);
@@ -385,6 +386,7 @@ const ForestPolygons = () => {
     if (selectedPlot && infoWindowPos) {
       const areaHaValue = selectedPlot.area_ha ? Number(selectedPlot.area_ha) : null;
       const occupiedAreaValue = selectedPlot.occupiedArea ? Number(selectedPlot.occupiedArea) : null;
+      const protectedData = t('protected_data' as any);
 
       return (
            <InfoWindow
@@ -396,7 +398,7 @@ const ForestPolygons = () => {
                 <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2 font-bold text-base text-foreground mb-2 pr-4">
                         <Icons.trees className="w-5 h-5 text-muted-foreground" />
-                        <h3 className="capitalize">{selectedPlot.title || t('forest_plot' as any)}</h3>
+                        <h3 className="capitalize">{isLiteVersion ? protectedData : (selectedPlot.title || t('forest_plot' as any))}</h3>
                     </div>
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedPlot(null)}><Icons.close className="w-4 h-4" /></Button>
                 </div>
@@ -404,23 +406,23 @@ const ForestPolygons = () => {
                     { areaHaValue !== null && !isNaN(areaHaValue) && (
                         <div className="flex">
                            <span className="font-semibold w-32 shrink-0">{t('area' as any)}:</span>
-                           <span className="ml-1">{areaHaValue.toFixed(2)} ha</span>
+                           <span className="ml-1">{isLiteVersion ? protectedData : `${areaHaValue.toFixed(2)} ha`}</span>
                        </div>
                     )}
                      { occupiedAreaValue !== null && !isNaN(occupiedAreaValue) && (
                      <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('occupied_area' as any)}:</span>
-                        <span className="ml-1">{Math.round(occupiedAreaValue)} %</span>
+                        <span className="ml-1">{isLiteVersion ? protectedData : `${Math.round(occupiedAreaValue)} %`}</span>
                     </div>
                     )}
                     <div className="flex">
                         <span className="font-semibold w-32 shrink-0">{t('main_species' as any)}:</span>
-                        <span className="ml-1 capitalize">{selectedPlot.mainSpecies?.toLowerCase()}</span>
+                        <span className="ml-1 capitalize">{isLiteVersion ? protectedData : selectedPlot.mainSpecies?.toLowerCase()}</span>
                     </div>
                     {selectedPlot.secondarySpecies && (
                         <div className="flex">
                             <span className="font-semibold w-32 shrink-0">{t('secondary_species' as any)}:</span>
-                            <span className="ml-1 capitalize">{selectedPlot.secondarySpecies?.toLowerCase()}</span>
+                            <span className="ml-1 capitalize">{isLiteVersion ? protectedData : selectedPlot.secondarySpecies?.toLowerCase()}</span>
                         </div>
                     )}
                 </div>

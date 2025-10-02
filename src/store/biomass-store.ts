@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { AppState, AppActions, Locale, Point, BiomassSource, AgriculturalPlot, ForestPlot } from '@/lib/types';
 
 const initialState: AppState = {
+  isLiteVersion: true, // Lite version is active by default
   center: null,
   radiusKm: 50,
   overlays: {
@@ -31,7 +32,12 @@ const initialState: AppState = {
 export const useBiomassStore = create<AppState & AppActions>((set, get) => ({
   ...initialState,
   setCenter: (center) => set({ center, page: 1 }),
-  setRadiusKm: (radiusKm) => set({ radiusKm, page: 1 }),
+  setRadiusKm: (radiusKm) => set((state) => {
+    if (state.isLiteVersion && radiusKm > 5) {
+      return { radiusKm: 5, page: 1 };
+    }
+    return { radiusKm, page: 1 };
+  }),
   setOverlays: (overlays) => set({ overlays }),
   setPage: (page) => set({ page }),
   setResults: (data) => set({ results: data.items, totalResults: data.total }),

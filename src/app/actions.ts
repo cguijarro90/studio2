@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -154,6 +155,8 @@ export async function searchAgriculturalPlots(
       cropType: row.descripcion,
       province: row.provincia,
       area_ha: row.area_ha,
+      potentialTn: Math.random() * 1000, // Placeholder
+      calorificValue: Math.random() * 500, // Placeholder
       geometry: row.geometry, // This is already a GeoJSON string
     }));
 
@@ -186,11 +189,11 @@ export async function searchForestPlots(
       SELECT
         FID as id,
         FORARB,
-        FCCTOT,
+        FCCTOT as occupiedArea,
         area_ha,
-        SP1,
-        SP2,
-        SP3,
+        SP1 as mainSpecies,
+        SP2 as secondarySpecies,
+        SP3 as tertiarySpecies,
         ST_ASGEOJSON(geometry) as geometry
       FROM ${table}
       WHERE ST_DWITHIN(geometry, ST_GEOGPOINT(@lng, @lat), @radius_m) AND FORARB IS NOT NULL
@@ -212,11 +215,13 @@ export async function searchForestPlots(
       const items: ForestPlot[] = rows.map((row: any) => ({
         id: row.id.toString(),
         title: row.FORARB,
-        occupiedArea: row.FCCTOT,
+        occupiedArea: row.occupiedArea,
         area_ha: row.area_ha,
-        mainSpecies: row.SP1,
-        secondarySpecies: row.SP2,
-        tertiarySpecies: row.SP3,
+        mainSpecies: row.mainSpecies,
+        secondarySpecies: row.secondarySpecies,
+        tertiarySpecies: row.tertiarySpecies,
+        potentialTn: Math.random() * 1000, // Placeholder
+        calorificValue: Math.random() * 500, // Placeholder
         geometry: row.geometry,
       }));
   
