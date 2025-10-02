@@ -64,7 +64,10 @@ export default function SalesContactDialog() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('form_name' as any)}</FormLabel>
+                  <FormLabel>
+                    {t('form_name' as any)}
+                    <span className="text-destructive"> *</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -77,7 +80,10 @@ export default function SalesContactDialog() {
               name="surname"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('form_surname' as any)}</FormLabel>
+                  <FormLabel>
+                    {t('form_surname' as any)}
+                    <span className="text-destructive"> *</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -90,7 +96,10 @@ export default function SalesContactDialog() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('form_email' as any)}</FormLabel>
+                  <FormLabel>
+                    {t('form_email' as any)}
+                    <span className="text-destructive"> *</span>
+                  </FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
