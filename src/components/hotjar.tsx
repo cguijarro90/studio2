@@ -27,7 +27,7 @@ const Hotjar = () => {
   }, []);
 
   useEffect(() => {
-    const relativePath = pathname + searchParams.toString();
+    const relativePath = pathname + '?' + searchParams.toString();
     if (typeof window !== 'undefined' && (window as any).hj) {
       (window as any).hj('path', relativePath);
     }
