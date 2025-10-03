@@ -19,3 +19,5 @@ environment:
     value: '840740650293'
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: '1:840740650293:web:74a36374c8323da3e7607c'
+  - variable: NEXT_PUBLIC_HOTJAR_ID
+    value: '6537120'
